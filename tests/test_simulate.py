@@ -21,7 +21,7 @@ class test_simulate(unittest.TestCase):
         #limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 0.75, 0.25)
         # limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 0.5, 0)
 
-        for i in range(4):
+        for i in range(5):
             configs_path = tracksim.make_project_path(
                     'tests', 'resources', 'test_trial_{}.json'.format(i + 1))
             simulate.run(configs_path)

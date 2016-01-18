@@ -1,0 +1,9 @@
+{
+  "name": "Data File Walk Test",
+  "duty_cycle": 0.5,
+  "limb_phases":[1.0, 1.5, 0.75, 0.25],
+  "steps_per_cycle": 20,
+  "summary": "A test run to verify that the simulation system works with data loaded from file",
+
+  "data": "test_data.csv"
+}

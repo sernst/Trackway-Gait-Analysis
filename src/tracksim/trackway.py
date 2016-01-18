@@ -4,6 +4,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import pandas as pd
+import numpy as np
 import math
 
 import tracksim
@@ -49,18 +51,18 @@ class TrackPosition(object):
         if origin is None:
             origin = TrackPosition(0, 0)
 
-        x = self.x - origin.x
-        y = self.y - origin.y
+        x = (self.x - origin.x).raw
+        y = (self.y - origin.y).raw
 
-        self.x.raw = x*math.cos(angle) - y*math.sin(angle) + origin.x
-        self.y.raw = y*math.cos(angle) + x*math.sin(angle) + origin.y
+        self.x.raw = x*math.cos(angle) - y*math.sin(angle) + origin.x.raw
+        self.y.raw = y*math.cos(angle) + x*math.sin(angle) + origin.y.raw
 
         self.x.raw_uncertainty = math.sqrt(
-                self.x.uncertainty * self.x.uncertainty +
-                origin.x.uncertainty * origin.x.uncertainty)
+                self.x.raw_uncertainty * self.x.raw_uncertainty +
+                origin.x.raw_uncertainty * origin.x.raw_uncertainty)
         self.y.raw_uncertainty = math.sqrt(
-                self.y.uncertainty * self.y.uncertainty +
-                origin.y.uncertainty * origin.y.uncertainty)
+                self.y.raw_uncertainty * self.y.raw_uncertainty +
+                origin.y.raw_uncertainty * origin.y.raw_uncertainty)
 
     def clone(self):
         return TrackPosition(
@@ -117,14 +119,18 @@ class TrackwayDefinition(object):
             x = positions[-1].x - positions[0].x
             y = positions[-1].y - positions[0].y
 
-            angle = math.atan2(y, x)
+            angle = math.atan2(y.value, x.value)
 
             orientation_angle = angle if \
                 abs(angle) > abs(orientation_angle) else \
                 orientation_angle
 
-        offset = TrackPosition(min_x, min_y)
-        origin = TrackPosition(0, 0)
+        offset = TrackPosition(
+                x=number.ValueUncertainty(min_x, 0.001),
+                y=number.ValueUncertainty(min_y, 0.001) )
+        origin = TrackPosition(
+                x=number.ValueUncertainty(0, 0.0001),
+                y=number.ValueUncertainty(0, 0.0001) )
 
         for key in tracksim.LimbProperty.LIMB_KEYS:
             positions = self.limb_positions.get(key)
@@ -135,3 +141,47 @@ class TrackwayDefinition(object):
 
 
 
+def load_positions_file(path):
+    """
+
+    :param path:
+    :return:
+    """
+    df = pd.read_csv(path)
+
+    trackway_positions = tracksim.LimbProperty().assign([], [], [], [])
+
+    for index, series in df.iterrows():
+        if series.lpxunc and not np.isnan(series.lpxunc):
+            trackway_positions.left_pes.append(
+                TrackPosition.from_raw_values(
+                    x=series.lpx, x_uncertainty=series.lpxunc,
+                    y=series.lpy, y_uncertainty=series.lpyunc ))
+
+        if series.rpxunc and not np.isnan(series.rpxunc):
+            trackway_positions.right_pes.append(
+                TrackPosition.from_raw_values(
+                    x=series.rpx, x_uncertainty=series.rpxunc,
+                    y=series.rpy, y_uncertainty=series.rpyunc ))
+
+        if series.lmxunc and not np.isnan(series.lmxunc):
+            trackway_positions.left_manus.append(
+                TrackPosition.from_raw_values(
+                    x=series.lmx, x_uncertainty=series.lmxunc,
+                    y=series.lmy, y_uncertainty=series.lmyunc ))
+
+        if series.rmxunc and not np.isnan(series.rmxunc):
+            trackway_positions.right_manus.append(
+                TrackPosition.from_raw_values(
+                    x=series.rmx, x_uncertainty=series.rmxunc,
+                    y=series.rmy, y_uncertainty=series.rmyunc ))
+
+    if not trackway_positions.left_manus:
+        for pos in trackway_positions.left_pes:
+            trackway_positions.left_manus.append(pos.clone())
+
+    if not trackway_positions.right_manus:
+        for pos in trackway_positions.right_pes:
+            trackway_positions.right_manus.append(pos.clone())
+
+    return trackway_positions

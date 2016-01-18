@@ -42,9 +42,7 @@ def run(trial_configs, trackway_positions = None):
         if isinstance(data, six.string_types):
             if not data.startswith('/'):
                 data = os.path.join(trial_configs['path'], data)
-                print('LOADING DATA FILE:', data)
-                # TODO: LOAD DATA FILE
-                return
+                trackway_positions = trackway.load_positions_file(data)
         else:
             track_offsets = tracksim.LimbProperty().assign(*data['offsets'])
             trackway_positions = generate.trackway_positions(
@@ -56,6 +54,7 @@ def run(trial_configs, trackway_positions = None):
     trackway_definition = trackway.TrackwayDefinition(
         limb_positions=trackway_positions,
         limb_phases=limb_phases)
+    trackway_definition.reorient_positions()
 
     foot_positions = tracksim.LimbProperty()
 
@@ -110,4 +109,5 @@ def prune_invalid_positions(time_steps, results):
     # error present at the final time because there is no forward data for
     # the tracks to interpolate to.
     for v in values:
-        v.pop()
+        if v:
+            v.pop()
