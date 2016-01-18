@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>###TITLE###</title>
+
+  <link rel="stylesheet" href="trial.css" />
+
+  <script>
+    window.ANIM_DATA = '###DATA###';
+  </script>
+
+  <script src="jquery.js" type="application/javascript"></script>
+  <script src="plotly.js" type="application/javascript"></script>
+  <script src="trial.js" type="application/javascript"></script>
+
+</head>
+
+<body>
+  <div class="top-container no-select">
+    <div style="display:flex;padding:0 1.0em;align-items: flex-end;">
+      <div class="header-box">
+        <div class="header-title">###TITLE###</div>
+        <div class="header-summary">###SUMMARY###</div>
+        <div class="header-entry">
+          <span class="name">Date:</span>
+          <span class="value">###DATE###</span>
+        </div>
+        <div class="header-entry">
+          <span class="name">Duty Cycle:</span>
+          <span class="value">###DUTY_CYCLE###</span>
+        </div>
+        <div class="header-entry">
+          <span class="name">Limb Phases:</span>
+          <span class="value">###PHASES###</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+
+      <div class="playback-controls">
+        <div class="spacer"></div>
+
+        <div class="control" data-role="jump-back">
+          <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+        </div>
+
+        <div class="control" data-role="frame-back">
+          <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+        </div>
+        <div class="control" data-role="toggle-play">
+          <svg class="play-icon" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 5v14l11-7z"/>
+              <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+          <svg class="pause-icon" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+        </div>
+
+        <div class="control" data-role="frame-forward">
+          <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+
+        </div>
+
+        <div class="control" data-role="jump-forward">
+          <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+            <path d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+        <div class="header">
+          <div class="value-box">
+            <div class="header">Left Pes</div>
+            <div class="swatch left_pes_color"></div>
+          </div>
+
+          <div class="value-box">
+            <div class="header">Right Pes</div>
+            <div class="swatch right_pes_color"></div>
+          </div>
+
+          <div class="value-box">
+            <div class="header">Left Manus</div>
+            <div class="swatch left_manus_color"></div>
+          </div>
+
+          <div class="value-box">
+            <div class="header">Right Manus</div>
+            <div class="swatch right_manus_color"></div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <div class="value-box">
+            <div class="header">Cycle</div>
+            <div class="value cycle-value"></div>
+          </div>
+
+          <div class="value-box">
+            <div class="header">Phase</div>
+            <div class="value phase-value"></div>
+          </div>
+
+          <div class="value-box">
+            <div class="header">Progress</div>
+            <div class="value progress-value"></div>
+          </div>
+        </div>
+
+        <div class="outer">
+          <div class="inner"></div>
+          <div class="cycles left_pes left_pes_color"></div>
+          <div class="cycles left_manus left_manus_color"></div>
+          <div class="cycles right_manus right_manus_color"></div>
+          <div class="cycles right_pes right_pes_color"></div>
+        </div>
+    </div>
+  </div>
+
+  <div class="svg-box">
+    ###SVG###
+  </div>
+
+  <div class="line-break"></div>
+
+  <div class="results-container">
+    <div class="settings-box info-display-box">
+      <div class="info-header">Trial Results</div>
+
+      <div class="info-row">
+        <div class="entry">
+          <div class="title title-box">Average Calculated Lengths (m)</div>
+          <div>
+            <span class="label">Glenoacetabular:</span>
+            <span class="value gal-value"></span>
+          </div>
+          <div>
+            <span class="label">Left Extension:</span>
+            <span class="value left-extension-value"></span>
+          </div>
+          <div>
+            <span class="label">Right Extension:</span>
+            <span class="value right-extension-value"></span>
+          </div>
+          <div>
+            <span class="label">Front Extension:</span>
+            <span class="value front-extension-value"></span>
+          </div>
+          <div>
+            <span class="label">Back Extension:</span>
+            <span class="value back-extension-value"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-box info-display-box">
+      <div class="info-header">Display Status</div>
+
+      <div class="info-row">
+        <div class="entry left_pes">
+          <div class="title left_pes_color">Left Pes</div>
+          <div>
+            <span class="label">X:&nbsp;</span>
+            <span class="value position x"></span>
+          </div>
+          <div>
+            <span class="label">Y:&nbsp;</span>
+            <span class="value position y"></span>
+          </div>
+          <div>
+            <span class="label">Status: </span>
+            <span class="value mode"></span>
+          </div>
+        </div>
+
+        <div class="entry left_manus">
+          <div class="title left_manus_color">Left Manus</div>
+          <div>
+            <span class="label">X:&nbsp;</span>
+            <span class="value position x"></span>
+          </div>
+          <div>
+            <span class="label">Y:&nbsp;</span>
+            <span class="value position y"></span>
+          </div>
+          <div>
+            <span class="label">Status: </span>
+            <span class="value mode"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="entry right_pes">
+          <div class="title right_pes_color">Right Pes</div>
+          <div>
+            <span class="label">X:&nbsp;</span>
+            <span class="value position x"></span>
+          </div>
+          <div>
+            <span class="label">Y:&nbsp;</span>
+            <span class="value position y"></span>
+          </div>
+          <div>
+            <span class="label">Status: </span>
+            <span class="value mode"></span>
+          </div>
+        </div>
+
+        <div class="entry right_manus">
+          <div class="title right_manus_color">Right Manus</div>
+          <div>
+            <span class="label">X:&nbsp;</span>
+            <span class="value position x"></span>
+          </div>
+          <div>
+            <span class="label">Y:&nbsp;</span>
+            <span class="value position y"></span>
+          </div>
+          <div>
+            <span class="label">Status: </span>
+            <span class="value mode"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot-container">
+    <div id="gal-plot" class="plot"></div>
+    <div id="left-extension-plot" class="plot"></div>
+    <div id="right-extension-plot" class="plot"></div>
+    <div id="front-extension-plot" class="plot"></div>
+    <div id="back-extension-plot" class="plot"></div>
+  </div>
+
+</body>
+</html>
