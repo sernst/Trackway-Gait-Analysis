@@ -31,10 +31,8 @@ class SvgWriter(object):
         left_manus='DarkOliveGreen',
         right_manus='DarkOrchid' )
 
-    def __init__(self):
-        self.padding = 20
-        self.scale = 1.0
-        self.offset = (0, 0)
+    def __init__(self, **kwargs):
+        self.padding = kwargs.get('padding', 0)
         self.elements = []
         self.styles = []
         self.name = 'svg-{}'.format(random.randint(0, 1e12))
@@ -69,35 +67,25 @@ class SvgWriter(object):
             attrs=dict(r=radius),
             classes=classes)
 
-    def set_offset(self, x = None, y = None):
-        """
-
-        :param x:
-        :param y:
-        :return:
-        """
-
-        self.offset = (
-            self.offset[0] + (0 if x is None else x),
-            self.offset[1] + (0 if y is None else y) )
-
-        for element in self.elements:
-            bounds = element.get('bounds')
-            if x is not None:
-                if bounds:
-                    bounds[0] += x
-                    bounds[2] += x
-                for key, value in element['x_attrs'].items():
-                    element['x_attrs'][key] += x
-
-            if y is not None:
-                bounds[1] += y
-                bounds[3] += y
-                for key, value in element['y_attrs'].items():
-                    element['y_attrs'][key] += x
-
     def add_element(self, **kwargs):
         self.elements.append(kwargs)
+
+    def calculate_global_bounds(self):
+        b = [1e12, 1e12, -1e12, -1e12]
+        for element in self.elements:
+            element_bounds = element.get('bounds')
+            if element_bounds:
+                b[0] = math.floor(min(element_bounds[0], b[0]))
+                b[1] = math.floor(min(element_bounds[1], b[1]))
+                b[2] = math.ceil(max(element_bounds[2], b[2]))
+                b[3] = math.ceil(max(element_bounds[3], b[3]))
+
+        b[0] -= self.padding
+        b[1] -= self.padding
+        b[2] += self.padding - b[0]
+        b[3] += self.padding - b[1]
+
+        return b
 
     def dumps(self):
         """
@@ -105,25 +93,13 @@ class SvgWriter(object):
         :return:
         """
 
-        bounds = [0, 0, 0, 0]
-        for element in self.elements:
-            element_bounds = element.get('bounds')
-            if element_bounds:
-                bounds[0] = math.floor(min(element_bounds[0], bounds[0]))
-                bounds[1] = math.floor(min(element_bounds[1], bounds[1]))
-                bounds[2] = math.ceil(max(element_bounds[2], bounds[2]))
-                bounds[3] = math.ceil(max(element_bounds[3], bounds[3]))
-
-        bounds[0] -= self.padding
-        bounds[1] -= self.padding
-        bounds[2] += self.padding - bounds[0]
-        bounds[3] += self.padding - bounds[1]
-        bounds = [str(b) for b in bounds]
+        bounds = self.calculate_global_bounds()
+        view_box = ['{}'.format(b) for b in bounds]
 
         out = list()
         out.append(
             dedent(self.PREFIX)
-                .replace('###VIEW_BOX###', ' '.join(bounds))
+                .replace('###VIEW_BOX###', ' '.join(view_box))
                 .replace('###NAME###', self.name) )
 
         styles = []
@@ -148,10 +124,13 @@ class SvgWriter(object):
             attrs = []
             for key, value in element['attrs'].items():
                 attrs.append('{}="{}"'.format(key, value))
+
             for key, value in element['x_attrs'].items():
                 attrs.append('{}="{}"'.format(key, value))
+
             for key, value in element['y_attrs'].items():
                 attrs.append('{}="{}"'.format(key, value))
+
             if attrs:
                 attrs = ' '.join(attrs) + ' '
 

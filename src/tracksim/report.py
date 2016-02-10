@@ -19,57 +19,36 @@ def create(trial_configs, track_definition, results):
     """
 
     sim_id = trial_configs['name'].replace(' ', '-')
-    output_directory = tracksim.make_results_path('report', sim_id)
+    output_directory = tracksim.make_results_path('report', 'trials')
 
-    if os.path.exists(output_directory):
-        try:
-            shutil.rmtree(output_directory)
-            os.rmdir(output_directory)
-        except Exception:
-            pass
-    os.makedirs(output_directory)
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-    drawer = svg.SvgWriter()
-    draw.trackway_positions(track_definition.limb_positions, drawer)
+    drawer = svg.SvgWriter(padding=5)
+    svg_settings = draw.trackway_positions(
+        limb_positions=track_definition.limb_positions,
+        drawer=drawer
+    )
 
     cycles = make_cycle_data(drawer, results)
 
+    limb_phase_label = 'Pes: ({}, {}) Manus: ({}, {})'.format(
+        *track_definition.limb_phases.values() )
+
     data = {
-        'scale': drawer.scale,
-        'offset': drawer.offset,
+        'scale': svg_settings['scale'],
+        'offset': svg_settings['offset'],
         'markerIds': tracksim.LimbProperty.LIMB_KEYS + [],
         'cycles': cycles.toDict(),
         'gals': make_formatted_gal_data(results),
         'extensions': make_formatted_extension_data(results),
         'frames': make_animation_frame_data(drawer, results),
-        'time': make_time_data(results) }
+        'time': make_time_data(results)
+    }
 
     create_file_from_template(
-        src_path=tracksim.make_resource_path('report', 'trial.js'),
-        dest_path=os.path.join(output_directory, 'trial.js'),
-        replacements={})
-
-    create_file_from_template(
-        src_path=tracksim.make_resource_path('report', 'plotly.js'),
-        dest_path=os.path.join(output_directory, 'plotly.js'),
-        replacements={})
-
-    create_file_from_template(
-        src_path=tracksim.make_resource_path('report', 'jquery.js'),
-        dest_path=os.path.join(output_directory, 'jquery.js'),
-        replacements={})
-
-    create_file_from_template(
-        src_path=tracksim.make_resource_path('report', 'trial.css'),
-        dest_path=os.path.join(output_directory, 'trial.css'),
-        replacements={})
-
-    limb_phase_label = 'Pes: ({}, {}) Manus: ({}, {})'.format(
-        *track_definition.limb_phases.values() )
-
-    create_file_from_template(
-        src_path=tracksim.make_resource_path('report', 'trial.html'),
-        dest_path=os.path.join(output_directory, 'trial.html'),
+        src_path=tracksim.make_results_path('report', 'template.html'),
+        dest_path=os.path.join(output_directory, '{}.html'.format(sim_id)),
         replacements={
             '###TITLE###': trial_configs['name'],
             '###SUMMARY###': trial_configs.get('summary', ''),
@@ -107,18 +86,6 @@ def make_animation_frame_data(drawer, results):
     :param results:
     :return:
     """
-
-    for key in tracksim.LimbProperty.LIMB_KEYS:
-        style_name = '{}-marker'.format(key)
-        style = {
-            'fill': 'transparent',
-            'stroke-width': '4px',
-            'stroke': svg.SvgWriter.LIMB_COLORS.get(key) }
-        if key.find('manus') != -1:
-            style['stroke-dasharray'] = '4,4'
-
-        drawer.add_style_definition('.{}'.format(style_name), style)
-        drawer.draw_circle(0, 0, 12, style_name, name=key)
 
     positions = results['positions']
     steps = len(results['times'])

@@ -108,10 +108,11 @@ class TrackwayDefinition(object):
 
         min_x = 1e12
         min_y = 1e12
+        angles = []
 
-        orientation_angle = 0
         for key in tracksim.LimbProperty.LIMB_KEYS:
             positions = self.limb_positions.get(key)
+
             for pos in positions:
                 min_x = min(pos.x.value, min_x)
                 min_y = min(pos.y.value, min_y)
@@ -119,11 +120,7 @@ class TrackwayDefinition(object):
             x = positions[-1].x - positions[0].x
             y = positions[-1].y - positions[0].y
 
-            angle = math.atan2(y.value, x.value)
-
-            orientation_angle = angle if \
-                abs(angle) > abs(orientation_angle) else \
-                orientation_angle
+            angles.append(math.atan2(y.value, x.value))
 
         offset = TrackPosition(
                 x=number.ValueUncertainty(min_x, 0.001),
@@ -132,14 +129,14 @@ class TrackwayDefinition(object):
                 x=number.ValueUncertainty(0, 0.0001),
                 y=number.ValueUncertainty(0, 0.0001) )
 
+        orientation_angle = sum(angles)/len(angles)
+
         for key in tracksim.LimbProperty.LIMB_KEYS:
             positions = self.limb_positions.get(key)
             for pos in positions:
                 pos.x -= offset.x
                 pos.y -= offset.y
-                pos.rotate(angle=orientation_angle, origin=origin)
-
-
+                pos.rotate(angle=-orientation_angle, origin=origin)
 
 def load_positions_file(path):
     """
@@ -151,30 +148,26 @@ def load_positions_file(path):
 
     trackway_positions = tracksim.LimbProperty().assign([], [], [], [])
 
+    def add_track(limb_data, x, dx, y, dy):
+        if not dx or np.isnan(dx) or not dy or np.isnan(dy):
+            # Don't add track if the uncertainty values are invalid, which is
+            # an indicator that the row is not a valid position
+            return
+
+        limb_data.append(TrackPosition.from_raw_values(
+            x=x, x_uncertainty=dx, y=y, y_uncertainty=dy
+        ))
+
     for index, series in df.iterrows():
-        if series.lpxunc and not np.isnan(series.lpxunc):
-            trackway_positions.left_pes.append(
-                TrackPosition.from_raw_values(
-                    x=series.lpx, x_uncertainty=series.lpxunc,
-                    y=series.lpy, y_uncertainty=series.lpyunc ))
 
-        if series.rpxunc and not np.isnan(series.rpxunc):
-            trackway_positions.right_pes.append(
-                TrackPosition.from_raw_values(
-                    x=series.rpx, x_uncertainty=series.rpxunc,
-                    y=series.rpy, y_uncertainty=series.rpyunc ))
-
-        if series.lmxunc and not np.isnan(series.lmxunc):
-            trackway_positions.left_manus.append(
-                TrackPosition.from_raw_values(
-                    x=series.lmx, x_uncertainty=series.lmxunc,
-                    y=series.lmy, y_uncertainty=series.lmyunc ))
-
-        if series.rmxunc and not np.isnan(series.rmxunc):
-            trackway_positions.right_manus.append(
-                TrackPosition.from_raw_values(
-                    x=series.rmx, x_uncertainty=series.rmxunc,
-                    y=series.rmy, y_uncertainty=series.rmyunc ))
+        for prefix, limb_key in tracksim.LimbProperty.LIMB_KEY_LOOKUP.items():
+            add_track(
+                limb_data=trackway_positions.get(limb_key),
+                x=series['{}_x'.format(prefix)],
+                dx=series['{}_dx'.format(prefix)],
+                y=series['{}_y'.format(prefix)],
+                dy=series['{}_dy'.format(prefix)]
+            )
 
     if not trackway_positions.left_manus:
         for pos in trackway_positions.left_pes:

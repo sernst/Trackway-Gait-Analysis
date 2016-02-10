@@ -52,8 +52,6 @@ class test_svg(unittest.TestCase):
             limb_positions=trackway.limb_positions,
             drawer=drawer)
 
-        drawer.set_offset(x=20, y=20)
-
         result = drawer.dumps()
         print(result)
 

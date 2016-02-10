@@ -15,7 +15,7 @@ from tracksim import generate
 from tracksim import report
 from tracksim import trackway
 
-def run(trial_configs, trackway_positions = None):
+def run(trial_configs, trackway_positions = None, **kwargs):
     """
         Runs and analyzes a simulation of the trackway under the conditions
         specified by the arguments
@@ -29,27 +29,14 @@ def run(trial_configs, trackway_positions = None):
     :return:
     """
 
-    if isinstance(trial_configs, str):
-        path = trial_configs
-        with open(path, 'r+') as f:
-            trial_configs = json.load(f)
-        trial_configs['path'] = os.path.dirname(path)
+    trial_configs = load_trial_configs(trial_configs, **kwargs)
 
     limb_phases = tracksim.LimbProperty().assign(*trial_configs['limb_phases'])
 
-    if not trackway_positions:
-        data = trial_configs.get('data')
-        if isinstance(data, six.string_types):
-            if not data.startswith('/'):
-                data = os.path.join(trial_configs['path'], data)
-                trackway_positions = trackway.load_positions_file(data)
-        else:
-            track_offsets = tracksim.LimbProperty().assign(*data['offsets'])
-            trackway_positions = generate.trackway_positions(
-                    count=data['count'],
-                    step_size=data['step_size'],
-                    track_offsets=track_offsets,
-                    lateral_displacement=data['lateral_displacement'] )
+    trackway_positions = load_trackway_positions(
+        trackway_positions,
+        trial_configs
+    )
 
     trackway_definition = trackway.TrackwayDefinition(
         limb_positions=trackway_positions,
@@ -63,12 +50,12 @@ def run(trial_configs, trackway_positions = None):
         trackway_definition=trackway_definition)
 
     for key in tracksim.LimbProperty.LIMB_KEYS:
-
         foot_positions.set(key, compute.positions_over_time(
             time_steps=time_steps,
             limb_positions=trackway_definition.limb_positions.get(key),
             limb_phase=trackway_definition.limb_phases.get(key),
-            trial_configs=trial_configs))
+            trial_configs=trial_configs
+        ))
 
     time_steps = list(time_steps)
     prune_invalid_positions(time_steps, foot_positions)
@@ -77,10 +64,61 @@ def run(trial_configs, trackway_positions = None):
         'times': time_steps,
         'positions': foot_positions,
         'gals': analysis.calculate_gal(foot_positions),
-        'extensions': analysis.calculate_extensions(foot_positions) }
+        'extensions': analysis.calculate_extensions(foot_positions)
+    }
 
-    report.create(trial_configs, trackway_definition, results)
+    if trial_configs.get('report', True):
+        report.create(trial_configs, trackway_definition, results)
+
     return results
+
+def load_trial_configs(source, **kwargs):
+    """
+
+    :param source:
+    :return:
+    """
+
+    if isinstance(source, str):
+        path = source
+        with open(path, 'r+') as f:
+            source = json.load(f)
+        source['path'] = os.path.dirname(path)
+
+    for k, v in kwargs.items():
+        source[k] = v
+
+    return source
+
+def load_trackway_positions(source, trial_configs, **kwargs):
+    """
+
+    :param source:
+    :param trial_configs:
+    :param kwargs:
+    :return:
+    """
+
+    if source:
+        # Ignore if already specified
+        return source
+
+    data = trial_configs.get('data')
+
+    if isinstance(data, six.string_types):
+        # Load from a specified file
+        if not data.startswith('/'):
+            data = os.path.join(trial_configs['path'], data)
+        return trackway.load_positions_file(data)
+
+    # Generate from configuration settings
+    track_offsets = tracksim.LimbProperty().assign(*data['offsets'])
+    return generate.trackway_positions(
+        count=data['count'],
+        step_size=data['step_size'],
+        track_offsets=track_offsets,
+        lateral_displacement=data['lateral_displacement']
+    )
 
 def prune_invalid_positions(time_steps, results):
     """
@@ -99,15 +137,8 @@ def prune_invalid_positions(time_steps, results):
         for v in values:
             entries.append(v[index])
 
-        if None in entries:
+        if None in entries or entries[-1] < 0:
             for v in values:
                 v[index:index+1] = []
         else:
             index += 1
-
-    # Remove the final entry because it can be invalid because of a rounding
-    # error present at the final time because there is no forward data for
-    # the tracks to interpolate to.
-    for v in values:
-        if v:
-            v.pop()

@@ -10,16 +10,21 @@ from tracksim import simulate
 
 class test_simulate(unittest.TestCase):
 
+    def test_validation(self):
+        """
+
+        :return:
+        """
+
+        configs_path = tracksim.make_project_path(
+                'tests', 'resources', 'phase_validation.json')
+        simulate.run(configs_path)
+
     def test_run(self):
         """
             Carries out a test run of a complete simulation trial using
             generated data
         """
-
-        #limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 1.0, 0.5)
-        #limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 1.25, 0.75)
-        #limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 0.75, 0.25)
-        # limb_phases = tracksim.LimbProperty().assign(1.0, 1.5, 0.5, 0)
 
         for i in range(5):
             configs_path = tracksim.make_project_path(

@@ -13,8 +13,8 @@
     function setLocatorValues(name, values) {
         var loc = getLocator(name);
         loc.attr({
-            cx: DATA.scale * (values.x + DATA.offset[0]),
-            cy: DATA.scale * (values.y + DATA.offset[1])
+            cx: DATA.scale * values.x,
+            cy: -DATA.scale * values.y
         });
 
         if (!loc.hasClass(values.annotation)) {
@@ -256,6 +256,9 @@
         };
     }
 
+    /**
+     *
+     */
     function initialize_results_display() {
         var box = $('.settings-box');
 
@@ -270,6 +273,9 @@
         setValue('back-extension-value', DATA.extensions.back.result);
     }
 
+    /**
+     * RUN APPLICATION
+     */
     $(function () {
         var controlBar = $('.playback-controls');
 

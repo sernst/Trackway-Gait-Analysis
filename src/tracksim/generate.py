@@ -13,15 +13,12 @@ def time_steps_from_data(steps_per_cycle, trackway_definition):
     :return:
     """
 
-    min_phase = min(*trackway_definition.limb_phases.values())
-
-    max_phase = 0
+    max_time = 0
     for key in tracksim.LimbProperty.LIMB_KEYS:
-        phase = trackway_definition.limb_phases.get(key)
-        positions = trackway_definition.limb_positions.get(key)
-        max_phase = max(max_phase, phase + len(positions))
+        track_count = trackway_definition.limb_positions.get(key)
+        max_time = max(max_time, len(track_count))
 
-    return time_steps(steps_per_cycle, min_phase, max_phase)
+    return time_steps(steps_per_cycle, -1.0, max_time)
 
 def time_steps(steps_per_cycle, min_time, max_time):
     """
@@ -70,27 +67,34 @@ def trackway_positions(count, step_size, track_offsets, lateral_displacement):
     assert isinstance(track_offsets, tracksim.LimbProperty), \
         'Phases must be a limb property'
 
+    if isinstance(lateral_displacement, (list, tuple)):
+        pes_lateral_displacement = lateral_displacement[0]
+        manus_lateral_displacement = lateral_displacement[1]
+    else:
+        pes_lateral_displacement = lateral_displacement
+        manus_lateral_displacement = lateral_displacement
+
     return tracksim.LimbProperty(
         left_pes=track_positions(
             count=count,
             step_size=step_size,
             limb_offset=track_offsets.left_pes,
-            lateral_displacement=-lateral_displacement),
+            lateral_displacement=pes_lateral_displacement),
         right_pes=track_positions(
             count=count,
             step_size=step_size,
             limb_offset=track_offsets.right_pes,
-            lateral_displacement=lateral_displacement),
+            lateral_displacement=-pes_lateral_displacement),
         left_manus=track_positions(
             count=count,
             step_size=step_size,
             limb_offset=track_offsets.left_manus,
-            lateral_displacement=-lateral_displacement),
+            lateral_displacement=manus_lateral_displacement),
         right_manus=track_positions(
             count=count,
             step_size=step_size,
             limb_offset=track_offsets.right_manus,
-            lateral_displacement=lateral_displacement) )
+            lateral_displacement=-manus_lateral_displacement) )
 
 def track_positions(count, step_size, limb_offset, lateral_displacement):
     """

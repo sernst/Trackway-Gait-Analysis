@@ -1,23 +1,22 @@
-
 from tracksim import svg
-from tracksim import trackway
 
 def trackway_positions(limb_positions, drawer):
 
-    max_x = -1e12
-    max_y = -1e12
-
+    bounds = [1e12, 1e12, -1e12, -1e12]
     for positions in limb_positions.values():
         for pos in positions:
-            max_x = max(max_x, pos.x.value)
-            max_y = max(max_y, pos.y.value)
+            bounds[0] = min(bounds[0], pos.x.value)
+            bounds[1] = min(bounds[1], pos.y.value)
+            bounds[2] = max(bounds[2], pos.x.value)
+            bounds[3] = max(bounds[3], pos.y.value)
 
-    drawer.scale = 1280.0 / max_x
-    origin = trackway.TrackPosition.from_raw_values(
-        x=0, x_uncertainty=0,
-        y=max_y, y_uncertainty=0)
+    scale = 2048.0 / max(
+        abs(bounds[2] - bounds[0]),
+        abs(bounds[3] - bounds[1])
+    )
 
-    drawer.set_offset(y=max_y)
+    RADIUS = 12
+    STROKE = 4
 
     drawer.add_style_definition('.left_pes', {
         'fill': svg.SvgWriter.LIMB_COLORS.left_pes,
@@ -28,23 +27,42 @@ def trackway_positions(limb_positions, drawer):
     drawer.add_style_definition('.left_manus', {
         'fill': svg.SvgWriter.LIMB_COLORS.left_manus,
         'opacity': '0.5'})
-    drawer.add_style_definition('.right_manus', {
-        'fill': svg.SvgWriter.LIMB_COLORS.right_manus,
-        'opacity': '0.5'})
 
     for key, positions in limb_positions.items():
-        track_positions(
-            positions=positions,
-            drawer=drawer,
-            classes=key,
-            origin=origin,
-            scale=drawer.scale)
+        for pos in positions:
+            drawer.draw_circle(
+                x=scale*pos.x.value,
+                y=-scale*pos.y.value,
+                radius=RADIUS,
+                classes=key)
 
-def track_positions(positions, drawer, classes, origin, scale = 1.0):
+        drawer.add_style_definition('.{}'.format(key), {
+            'fill': svg.SvgWriter.LIMB_COLORS.get(key),
+            'opacity': '0.5'
+        })
 
-    for pos in positions:
+        style_name = '{}-marker'.format(key)
+        style = {
+            'fill': 'transparent',
+            'stroke-width': '{}px'.format(STROKE),
+            'stroke': svg.SvgWriter.LIMB_COLORS.get(key)
+        }
+
+        if key.find('manus') != -1:
+            style['stroke-dasharray'] = '{},{}'.format(STROKE, STROKE)
+
+        drawer.add_style_definition('.{}'.format(style_name), style)
+
+        p0 = positions[0]
         drawer.draw_circle(
-            x=scale*(pos.x + origin.x).value,
-            y=scale*(pos.y + origin.y).value,
-            radius=10,
-            classes=classes)
+            x=scale*p0.x.value,
+            y=-scale*p0.y.value,
+            radius=RADIUS,
+            classes=style_name,
+            name=key
+        )
+
+    return {
+        'scale': scale,
+        'offset': (0, 0)
+    }
