@@ -57,6 +57,11 @@ class LimbProperty(object):
     limb within the quadrupedal system.
     """
 
+    LEFT_PES = 'left_pes'
+    RIGHT_PES = 'right_pes'
+    LEFT_MANUS = 'left_manus'
+    RIGHT_MANUS = 'right_manus'
+
     # The keys for each of the limbs
     LIMB_KEYS = [
         'left_pes',
@@ -95,8 +100,7 @@ class LimbProperty(object):
         """
 
         out = getattr(self, key)
-        if out is None:
-            return default
+        return default if out is None else out
 
     def set(self, key, value):
         """

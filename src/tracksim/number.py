@@ -308,6 +308,29 @@ def linear_space(min_value = 0, max_value = 1.0, length = 10, round_op = None):
     out.append(round_op(max_value) if round_op else max_value)
     return out
 
+def deviations(expected, values):
+    """
+
+    :param expected:
+    :param values:
+    :return:
+    """
+
+    out = []
+
+    if hasattr(expected, 'raw_uncertainty'):
+        for v in values:
+            err = math.sqrt(
+                v.raw_uncertainty ** 2 +
+                expected.raw_uncertainty ** 2
+            )
+            out.append(abs(v.raw - expected.raw) / err)
+    else:
+        for v in values:
+            out.append(abs(v.value - expected) / v.uncertainty)
+
+    return out
+
 class ValueUncertainty(object):
     """
 
@@ -329,15 +352,17 @@ class ValueUncertainty(object):
 
     @property
     def html_label(self):
-        return '%s &#177; %s' % (self.value, self.uncertainty)
+        return '%.15g &#177; %s' % (self.value, self.uncertainty)
 
     @property
     def label(self):
-        return '%s +/- %s' % (self.value, self.uncertainty)
+        return '%.15g +/- %s' % (self.value, self.uncertainty)
 
     @property
     def raw_label(self):
-        return '%s +/- %s' % (round_significant(self.raw, 6), self.uncertainty)
+        return '%.15g +/- %.15g' % (
+            round_significant(self.raw, 6),
+            self.uncertainty)
 
     def from_dict(self, source):
         self.raw = source['raw']
@@ -383,7 +408,7 @@ class ValueUncertainty(object):
             uncertainty=random.uniform(min_uncertainty, max_uncertainty) )
 
     def __pow__(self, power, modulo=None):
-        if self.raw == 0:
+        if equivalent(self.raw, 0.0):
             return ValueUncertainty(self.raw, self.raw_uncertainty)
 
         val = self.raw ** power

@@ -2,6 +2,7 @@
 import os
 import shutil
 import json
+from json import encoder
 from datetime import datetime
 
 import tracksim
@@ -19,7 +20,7 @@ def create(trial_configs, track_definition, results):
     """
 
     sim_id = trial_configs['name'].replace(' ', '-')
-    output_directory = tracksim.make_results_path('report', 'trials')
+    output_directory = tracksim.make_results_path('report', 'trials', sim_id)
 
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
@@ -32,32 +33,34 @@ def create(trial_configs, track_definition, results):
 
     cycles = make_cycle_data(drawer, results)
 
-    limb_phase_label = 'Pes: ({}, {}) Manus: ({}, {})'.format(
-        *track_definition.limb_phases.values() )
-
     data = {
+        'configs': trial_configs,
+        'date': datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
         'scale': svg_settings['scale'],
         'offset': svg_settings['offset'],
         'markerIds': tracksim.LimbProperty.LIMB_KEYS + [],
         'cycles': cycles.toDict(),
         'gals': make_formatted_gal_data(results),
+        'separations': make_formatted_separation_data(results),
         'extensions': make_formatted_extension_data(results),
         'frames': make_animation_frame_data(drawer, results),
-        'time': make_time_data(results)
+        'time': make_time_data(results),
+        'limb_phases': track_definition.limb_phases.toDict(),
     }
 
-    create_file_from_template(
-        src_path=tracksim.make_results_path('report', 'template.html'),
-        dest_path=os.path.join(output_directory, '{}.html'.format(sim_id)),
-        replacements={
-            '###TITLE###': trial_configs['name'],
-            '###SUMMARY###': trial_configs.get('summary', ''),
-            '###DATE###': datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
-            '###DUTY_CYCLE###': str(round(100.0*trial_configs['duty_cycle'])),
-            '###PHASES###': limb_phase_label,
-            '###SVG###': drawer.dumps(),
-            '\'###DATA###\'': json.dumps(data)
-        })
+    # Forces float rounding to behave so we don't end up with 1.20000000001
+    # instead of 1.2
+    storage = encoder.FLOAT_REPR
+    encoder.FLOAT_REPR = lambda o: format(o, '%.12g')
+    data = json.dumps(data)
+
+    path = os.path.join(output_directory, '{}.json'.format(sim_id))
+    with open(path, 'w+') as f:
+        f.write(data)
+
+    encoder.FLOAT_REPR = storage
+
+    drawer.write(os.path.join(output_directory, '{}.svg'.format(sim_id)))
 
 def create_file_from_template(src_path, dest_path, replacements):
     """
@@ -96,11 +99,9 @@ def make_animation_frame_data(drawer, results):
         for key in tracksim.LimbProperty.LIMB_KEYS:
             pos = positions.get(key)[i]
             frames[-1]['positions'].append({
-                'x':pos.x.value,
-                'y':pos.y.value,
-                'xunc': pos.x.uncertainty,
-                'yunc': pos.y.uncertainty,
-                'annotation': pos.annotation
+                'x':[pos.x.value, pos.x.uncertainty],
+                'y':[pos.y.value, pos.y.uncertainty],
+                'f': pos.annotation
             })
 
     return frames
@@ -121,13 +122,10 @@ def make_cycle_data(drawer, results):
         for key in tracksim.LimbProperty.LIMB_KEYS:
             cycles = gait_cycles.get(key)
             pos = positions.get(key)[i]
-            if not cycles or cycles[-1]['key'] != pos.annotation:
-                cycles.append({
-                    'key': pos.annotation,
-                    'steps': 1
-                })
+            if not cycles or cycles[-1][1] != pos.annotation:
+                cycles.append([1, pos.annotation])
             else:
-                cycles[-1]['steps'] += 1
+                cycles[-1][0] += 1
 
     return gait_cycles
 
@@ -140,17 +138,49 @@ def make_formatted_gal_data(results):
 
     values = []
     uncertainties = []
+    data = results['gals']
 
-    for v in results['gals']:
+    for v in data:
         values.append(v.value)
         uncertainties.append(v.uncertainty)
 
+    mean = number.weighted_mean_and_deviation(*data)
+    deviations = number.deviations(mean.value, data)
+
     return {
         'values':values,
+        'deviation_max': number.round_to_order(max(deviations), -2),
         'uncertainties': uncertainties,
-        'result': number.weighted_mean_and_deviation(
-                *results['gals']).html_label
+        'result': mean.html_label
     }
+
+def make_formatted_separation_data(results):
+    """
+
+    :param results:
+    :return:
+    """
+
+    out = {}
+    for key in ['left', 'right', 'front', 'back']:
+        data = results['separations'][key]
+        values = []
+        uncertainties = []
+
+        for v in data:
+            values.append(v.value)
+            uncertainties.append(v.uncertainty)
+
+        mean = number.weighted_mean_and_deviation(*data)
+        deviations = number.deviations(mean.value, data)
+
+        out[key] = dict(
+            values=values,
+            deviation_max=number.round_to_order(max(deviations), -2),
+            uncertainties=uncertainties,
+            result=mean.html_label )
+
+    return out
 
 def make_formatted_extension_data(results):
     """
@@ -160,8 +190,8 @@ def make_formatted_extension_data(results):
     """
 
     out = {}
-    for key in ['left', 'right', 'front', 'back']:
-        data = results['extensions'][key]
+    for key in tracksim.LimbProperty.LIMB_KEYS:
+        data = results['extensions'].get(key)
         values = []
         uncertainties = []
 
@@ -169,10 +199,14 @@ def make_formatted_extension_data(results):
             values.append(v.value)
             uncertainties.append(v.uncertainty)
 
+        mean = number.weighted_mean_and_deviation(*data)
+        deviations = number.deviations(mean.value, data)
+
         out[key] = dict(
             values=values,
+            deviation_max=number.round_to_order(max(deviations), -2),
             uncertainties=uncertainties,
-            result=number.weighted_mean_and_deviation(*data).html_label )
+            result=mean.html_label )
 
     return out
 
@@ -190,5 +224,6 @@ def make_time_data(results):
     return {
         'count': count,
         'cycles': times,
-        'progress': progress }
+        'progress': progress
+    }
 

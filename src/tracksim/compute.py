@@ -1,6 +1,9 @@
 
 from tracksim import trackway
 
+MOVING_ANNOTATION = 'M'
+FIXED_ANNOTATION = 'F'
+
 def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
     """
         Creates a list containing the positions for the limb based on the
@@ -51,7 +54,7 @@ def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
             # While time is valid but the limb hasn't started its first valid
             # cycle, we can just use the first track position
             pos = limb_positions[0].clone()
-            pos.annotation = 'FIXED'
+            pos.annotation = FIXED_ANNOTATION
             out.append(pos)
             continue
 
@@ -59,7 +62,7 @@ def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
             # While time is still valid but the limb has finished all of its
             # active cycles, we just use the last track position
             pos = limb_positions[-1].clone()
-            pos.annotation = 'FIXED'
+            pos.annotation = FIXED_ANNOTATION
             out.append(pos)
             continue
 
@@ -107,7 +110,7 @@ def position_at_cycle_time(
 
     if cycle_time >= move_time:
         pos = after_position.clone()
-        pos.annotation = 'FIXED'
+        pos.annotation = FIXED_ANNOTATION
         return pos
 
     bp = before_position
@@ -123,4 +126,4 @@ def position_at_cycle_time(
         y_uncertainty=max(
                 ap.y.raw_uncertainty,
                 abs(0.25*(ap.y.raw - bp.y.raw)) ),
-        annotation='MOVING')
+        annotation=MOVING_ANNOTATION)

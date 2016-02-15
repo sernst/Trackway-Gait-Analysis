@@ -231,6 +231,24 @@ html, body {
 
 .info-display-box .entry .value {
     color: #444;
+    line-height: 1.7;
+}
+
+.info-display-box .entry .deviation-value {
+    font-weight: bold;
+    margin-left: 0.25em;
+    padding: 0.1em 0.25em;
+    border-radius: 0.2em;
+}
+
+.info-display-box .entry .deviation-value.low {
+    color: #686868;
+    background-color: #bcbcbc;
+}
+
+.info-display-box .entry .deviation-value.high {
+    color: #FFF;
+    background-color: #d2293c;
 }
 
 .plot-container {

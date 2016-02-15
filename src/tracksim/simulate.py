@@ -64,7 +64,8 @@ def run(trial_configs, trackway_positions = None, **kwargs):
         'times': time_steps,
         'positions': foot_positions,
         'gals': analysis.calculate_gal(foot_positions),
-        'extensions': analysis.calculate_extensions(foot_positions)
+        'separations': analysis.calculate_separations(foot_positions),
+        'extensions': analysis.calculate_plane_limb_extensions(foot_positions)
     }
 
     if trial_configs.get('report', True):
