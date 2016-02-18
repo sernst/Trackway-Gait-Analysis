@@ -66,7 +66,9 @@ html, body {
 .header-summary {
     font-size: 0.8em;
     opacity: 0.75;
-    max-width: 500px;
+    max-width: 720px;
+    line-height: 1.0;
+    padding-bottom: 0.5em;
 }
 
 .progress-bar .header {

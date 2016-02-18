@@ -20,38 +20,38 @@ s3 = boto3.client('s3')
 bucket_name = configs['results']['bucket_name']
 key_prefix = configs['results']['key_prefix']
 
-directory = tracksim.make_results_path('report')
-for item in os.listdir(directory):
-    path = os.path.join(directory, item)
-    if os.path.isdir(path) or item.startswith('.'):
-        continue
+def upload_in_folder(root_path, *parts):
+    """
 
-    print('[UPLOADING]:', path)
-    s3.upload_file(
-        Filename=path,
-        Bucket=bucket_name,
-        Key='{}/{}'.format(key_prefix, item),
-        ExtraArgs={
-            'ACL': 'public-read',
-            'ContentType': mimetypes.guess_type(item)[0]
-        }
-    )
+    :param root_path:
+    :param parts:
+    :return:
+    """
 
-directory = tracksim.make_results_path('report', 'trials')
-for item in os.listdir(directory):
-    path = os.path.join(directory, item)
-    if os.path.isdir(path):
-        continue
+    folder_path = os.path.join(root_path, *parts)
 
-    print('[UPLOADING]:', path)
-    s3.upload_file(
-        Filename=path,
-        Bucket=bucket_name,
-        Key='{}/trials/{}'.format(key_prefix, item),
-        ExtraArgs={
-            'ACL': 'public-read',
-            'ContentType': mimetypes.guess_type(item)[0]
-        }
-    )
+    for item in os.listdir(folder_path):
+        path = os.path.join(folder_path, item)
+        my_parts = list(parts) + [item]
 
+        if item.startswith('.'):
+            continue
+
+        if os.path.isdir(path):
+            upload_in_folder(root_path, *my_parts)
+            continue
+
+        print('[UPLOADING]:', '/'.join(my_parts))
+
+        s3.upload_file(
+            Filename=path,
+            Bucket=bucket_name,
+            Key='{}/{}'.format(key_prefix, '/'.join(parts)),
+            ExtraArgs={
+                'ACL': 'public-read',
+                'ContentType': mimetypes.guess_type(item)[0]
+            }
+        )
+
+upload_in_folder(tracksim.make_results_path('report'))
 print('[COMPLETE]: Trials have been deployed')

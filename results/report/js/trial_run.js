@@ -16,12 +16,13 @@
         $('.header-entry.duty-cycle .value').html(
             Math.round(100.0*data.configs.duty_cycle)
         );
-        $('.header-entry.limb-phases .value').html(
-          'Pes: (' + data.limb_phases.left_pes + ', ' +
-              data.limb_phases.right_pes + ') Manus: (' +
-              data.limb_phases.left_manus + ', ' +
-              data.limb_phases.right_manus + ')'
-        );
+
+        var box = $('.header-entry.limb-phases .value');
+        Object.keys(data.limb_phases).forEach(function (limbId) {
+            box.find('.' + limbId + '-value').html(
+                Math.round(100.0*data.limb_phases[limbId]) + '%'
+            );
+        });
 
         exports.initializeResultsDisplay();
         exports.createPlots();
