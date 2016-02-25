@@ -68,11 +68,15 @@ def make_coupling_data(source, trials):
     """
 
     dists = []
+    bounds = []
 
     min_value = 1e6
     max_value = -1e6
     for t in trials:
         couplings = t['results']['couplings']
+
+        bounds.append(couplings['bounds'])
+
         dist = mstats.density.create_distribution(couplings['data'])
         min_value = min(min_value, dist.minimum_boundary(3))
         max_value = max(max_value, dist.maximum_boundary(3))
@@ -92,6 +96,7 @@ def make_coupling_data(source, trials):
         values=vals,
         uncertainties=uncs,
         populations=populations,
+        bounds=bounds,
         densities={
             'x':x_values,
             'series':densities

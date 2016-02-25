@@ -58,6 +58,27 @@
                 'Expectation (AU)'
             )
         );
+
+        dataSeries = couplings.bounds.map(function (item, index) {
+            return {
+                inner: item.one_sigma,
+                outer: item.two_sigma,
+                index: index + 1,
+                name: index + 1
+            };
+        });
+        plot = exports.plot.makeRangeData(dataSeries);
+
+        Plotly.newPlot(
+            exports.plot.createElement('#plotBox'),
+            plot.data,
+            exports.plot.makeLayout(
+                plot.layout,
+                'Coupling Length Valid Ranges',
+                'Length (m)',
+                'Trial (#)'
+            )
+        );
     }
     exports.makeCouplingPlot = makeCouplingPlot;
 

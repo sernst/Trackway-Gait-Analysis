@@ -48,6 +48,9 @@ def coupling_distance(foot_positions):
 
     data = []
 
+    two_sigma_bounds = [-1e6, 1e6]
+    one_sigma_bounds = [-1e6, 1e6]
+
     for i in range(len(foot_positions.values()[0])):
 
         pes_pos = get_midpoint(
@@ -58,7 +61,16 @@ def coupling_distance(foot_positions):
             foot_positions.left_manus[i],
             foot_positions.right_manus[i])
 
-        data.append(group.distance_between(pes_pos, manus_pos))
+        length = group.distance_between(pes_pos, manus_pos)
+        one_sigma_bounds = [
+            max(one_sigma_bounds[0], length.value - length.uncertainty),
+            min(one_sigma_bounds[1], length.value + length.uncertainty)
+        ]
+        two_sigma_bounds = [
+            max(two_sigma_bounds[0], length.value - 2 * length.uncertainty),
+            min(two_sigma_bounds[1], length.value + 2 * length.uncertainty)
+        ]
+        data.append(length)
 
     mean = mstats.mean.weighted_mean_and_deviation(*data)
     deviations = mstats.values.deviations(mean.value, data)
@@ -66,7 +78,11 @@ def coupling_distance(foot_positions):
     return dict(
         data=data,
         value=mean,
-        deviation_max=mstats.value.round_to_order(max(deviations), -2)
+        deviation_max=mstats.value.round_to_order(max(deviations), -2),
+        bounds=dict(
+            one_sigma=one_sigma_bounds,
+            two_sigma=two_sigma_bounds
+        )
     )
 
 def get_midpoint(position_a, position_b):

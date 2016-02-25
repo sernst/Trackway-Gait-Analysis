@@ -149,7 +149,8 @@ def make_formatted_coupling_data(results):
         values=vals,
         uncertainties=uncs,
         deviation_max=data['deviation_max'],
-        result=data['value'].html_label
+        result=data['value'].html_label,
+        bounds=data['bounds']
     )
 
 def make_formatted_separation_data(results):

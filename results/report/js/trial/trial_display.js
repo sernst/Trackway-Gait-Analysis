@@ -83,16 +83,26 @@
                 .html(entry.result)
                 .appendTo(e);
 
-            $('<span></span>')
-                .addClass('deviation-value')
-                .addClass(entry.deviation_max <= 2.0 ? 'low' : 'high')
-                .html(entry.deviation_max + '&sigma;')
-                .appendTo(e);
-
+            if (entry.deviation_max) {
+                $('<span></span>')
+                    .addClass('deviation-value')
+                    .addClass(entry.deviation_max <= 2.0 ? 'low' : 'high')
+                    .html(entry.deviation_max + '&sigma;')
+                    .appendTo(e);
+            }
             box.append(e);
         }
 
         setValue('Coupling Length', exports.DATA.couplings);
+        setValue('Coupling Range 1&sigma;', {
+            result: '[' + exports.DATA.couplings.bounds.one_sigma[0] + ', ' +
+                    exports.DATA.couplings.bounds.one_sigma[1] + ']'
+        });
+        setValue('Coupling Range 2&sigma;', {
+            result: '[' + exports.DATA.couplings.bounds.two_sigma[0] + ', ' +
+                    exports.DATA.couplings.bounds.two_sigma[1] + ']'
+        });
+
         setValue('LP-LM Separation', exports.DATA.separations.left);
         setValue('RP-RM Separation', exports.DATA.separations.right);
         setValue('LP-RP Separation', exports.DATA.separations.back);
