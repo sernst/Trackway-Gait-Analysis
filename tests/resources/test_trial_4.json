@@ -1,5 +1,5 @@
 {
-  "name": "Simulated Walk Test",
+  "name": "Walk",
   "duty_cycle": 0.6,
   "limb_phases":[0, 0.5, -0.25, -0.75],
   "steps_per_cycle": 20,

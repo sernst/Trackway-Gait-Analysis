@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-import tracksim
+from tracksim import limb
 from tracksim import svg
 from tracksim.svg import draw
 from tracksim import generate
@@ -39,7 +39,7 @@ class test_svg(unittest.TestCase):
 
         drawer = svg.SvgWriter()
 
-        phases = tracksim.LimbProperty().assign(0.0, 0.5, 0.6, 0.1)
+        phases = limb.Property().assign(0.0, 0.5, 0.6, 0.1)
 
         trackway = generate.trackway_data(
             count=12,

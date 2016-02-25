@@ -9,6 +9,7 @@ import random
 
 import tracksim
 from tracksim import generate
+from tracksim import limb
 
 class test_generate(unittest.TestCase):
 
@@ -41,19 +42,21 @@ class test_generate(unittest.TestCase):
         step_size = 3.7
         lateral_displacement = 0.2
 
-        phases = tracksim.LimbProperty(
+        phases = limb.Property(
             left_pes=0.0,
             right_pes=0.5,
             left_manus=0.25,
-            right_manus=0.75)
+            right_manus=0.75
+        )
 
         positions = generate.trackway_positions(
             count=count,
             step_size=step_size,
             track_offsets=phases,
-            lateral_displacement=lateral_displacement)
+            lateral_displacement=lateral_displacement
+        )
 
-        self.assertIsInstance(positions, tracksim.LimbProperty)
+        self.assertIsInstance(positions, limb.Property)
 
         for key, series in positions.items():
             self.assertEqual(len(series), count)

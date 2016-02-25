@@ -1,15 +1,16 @@
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import pandas as pd
-import numpy as np
 import math
 
-import tracksim
-from tracksim import number
+import numpy as np
+import pandas as pd
+
+import measurement_stats as mstats
+from tracksim import limb
+
 
 class TrackPosition(object):
     """
@@ -23,10 +24,10 @@ class TrackPosition(object):
     _instance_index = 0
 
     def __init__(self, x, y, **kwargs):
-        assert isinstance(x, number.ValueUncertainty), \
+        assert isinstance(x, mstats.value.ValueUncertainty), \
             'x must be a ValueUncertainty instance'
 
-        assert isinstance(y, number.ValueUncertainty), \
+        assert isinstance(y, mstats.value.ValueUncertainty), \
             'y must be a ValueUncertainty instance'
 
         self._instance_index += 1
@@ -85,8 +86,8 @@ class TrackPosition(object):
     @classmethod
     def from_raw_values(cls, x, y, x_uncertainty, y_uncertainty, **kwargs):
         return TrackPosition(
-            x=number.ValueUncertainty(x, x_uncertainty),
-            y=number.ValueUncertainty(y, y_uncertainty),
+            x=mstats.value.ValueUncertainty(x, x_uncertainty),
+            y=mstats.value.ValueUncertainty(y, y_uncertainty),
             **kwargs)
 
 class TrackwayDefinition(object):
@@ -110,7 +111,7 @@ class TrackwayDefinition(object):
         min_y = 1e12
         angles = []
 
-        for key in tracksim.LimbProperty.LIMB_KEYS:
+        for key in limb.KEYS:
             positions = self.limb_positions.get(key)
 
             for pos in positions:
@@ -123,15 +124,15 @@ class TrackwayDefinition(object):
             angles.append(math.atan2(y.value, x.value))
 
         offset = TrackPosition(
-                x=number.ValueUncertainty(min_x, 0.001),
-                y=number.ValueUncertainty(min_y, 0.001) )
+                x=mstats.value.ValueUncertainty(min_x, 0.001),
+                y=mstats.value.ValueUncertainty(min_y, 0.001) )
         origin = TrackPosition(
-                x=number.ValueUncertainty(0, 0.0001),
-                y=number.ValueUncertainty(0, 0.0001) )
+                x=mstats.value.ValueUncertainty(0, 0.0001),
+                y=mstats.value.ValueUncertainty(0, 0.0001) )
 
         orientation_angle = sum(angles)/len(angles)
 
-        for key in tracksim.LimbProperty.LIMB_KEYS:
+        for key in limb.KEYS:
             positions = self.limb_positions.get(key)
             for pos in positions:
                 pos.x -= offset.x
@@ -146,7 +147,7 @@ def load_positions_file(path):
     """
     df = pd.read_csv(path)
 
-    trackway_positions = tracksim.LimbProperty().assign([], [], [], [])
+    trackway_positions = limb.Property().assign([], [], [], [])
 
     def add_track(limb_data, x, dx, y, dy):
         if not dx or np.isnan(dx) or not dy or np.isnan(dy):
@@ -160,7 +161,7 @@ def load_positions_file(path):
 
     for index, series in df.iterrows():
 
-        for prefix, limb_key in tracksim.LimbProperty.LIMB_KEY_LOOKUP.items():
+        for prefix, limb_key in limb.LIMB_KEY_LOOKUP.items():
             add_track(
                 limb_data=trackway_positions.get(limb_key),
                 x=series['{}_x'.format(prefix)],

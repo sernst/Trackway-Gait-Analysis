@@ -41,12 +41,16 @@ def upload_in_folder(root_path, *parts):
             upload_in_folder(root_path, *my_parts)
             continue
 
-        print('[UPLOADING]:', '/'.join(my_parts))
+        key_name = '{}/{}'.format(key_prefix, '/'.join(my_parts))
+        print('[{}]: {}'.format(
+            '/'.join(my_parts),
+            key_name
+        ))
 
         s3.upload_file(
             Filename=path,
             Bucket=bucket_name,
-            Key='{}/{}'.format(key_prefix, '/'.join(parts)),
+            Key=key_name,
             ExtraArgs={
                 'ACL': 'public-read',
                 'ContentType': mimetypes.guess_type(item)[0]

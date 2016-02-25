@@ -1,14 +1,15 @@
-
-import os
-import shutil
 import json
-from json import encoder
+import os
 from datetime import datetime
+from json import encoder
+
+import measurement_stats as mstats
 
 import tracksim
-from tracksim import number
+from tracksim import limb
 from tracksim import svg
 from tracksim.svg import draw
+
 
 def create(trial_configs, track_definition, results):
     """
@@ -38,9 +39,9 @@ def create(trial_configs, track_definition, results):
         'date': datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
         'scale': svg_settings['scale'],
         'offset': svg_settings['offset'],
-        'markerIds': tracksim.LimbProperty.LIMB_KEYS + [],
+        'markerIds': limb.KEYS + [],
         'cycles': cycles.toDict(),
-        'gals': make_formatted_gal_data(results),
+        'couplings': make_formatted_coupling_data(results),
         'separations': make_formatted_separation_data(results),
         'extensions': make_formatted_extension_data(results),
         'frames': make_animation_frame_data(drawer, results),
@@ -60,7 +61,12 @@ def create(trial_configs, track_definition, results):
 
     encoder.FLOAT_REPR = storage
 
-    drawer.write(os.path.join(output_directory, '{}.svg'.format(sim_id)))
+    svg_path = os.path.join(output_directory, '{}.svg'.format(sim_id))
+    drawer.write(svg_path)
+
+    return {
+        'filename': '{}.json'.format(sim_id)
+    }
 
 def create_file_from_template(src_path, dest_path, replacements):
     """
@@ -96,7 +102,7 @@ def make_animation_frame_data(drawer, results):
 
     for i in range(steps):
         frames.append({'time':results['times'][i], 'positions':[]})
-        for key in tracksim.LimbProperty.LIMB_KEYS:
+        for key in limb.KEYS:
             pos = positions.get(key)[i]
             frames[-1]['positions'].append({
                 'x':[pos.x.value, pos.x.uncertainty],
@@ -114,12 +120,12 @@ def make_cycle_data(drawer, results):
     :return:
     """
 
-    gait_cycles = tracksim.LimbProperty().assign([], [], [], [])
+    gait_cycles = limb.Property().assign([], [], [], [])
     positions = results['positions']
     steps = len(results['times'])
 
     for i in range(steps):
-        for key in tracksim.LimbProperty.LIMB_KEYS:
+        for key in limb.KEYS:
             cycles = gait_cycles.get(key)
             pos = positions.get(key)[i]
             if not cycles or cycles[-1][1] != pos.annotation:
@@ -129,30 +135,22 @@ def make_cycle_data(drawer, results):
 
     return gait_cycles
 
-def make_formatted_gal_data(results):
+def make_formatted_coupling_data(results):
     """
 
     :param results:
     :return:
     """
 
-    values = []
-    uncertainties = []
-    data = results['gals']
+    data = results['couplings']
+    vals, uncs = mstats.values.unzip(data['data'])
 
-    for v in data:
-        values.append(v.value)
-        uncertainties.append(v.uncertainty)
-
-    mean = number.weighted_mean_and_deviation(*data)
-    deviations = number.deviations(mean.value, data)
-
-    return {
-        'values':values,
-        'deviation_max': number.round_to_order(max(deviations), -2),
-        'uncertainties': uncertainties,
-        'result': mean.html_label
-    }
+    return dict(
+        values=vals,
+        uncertainties=uncs,
+        deviation_max=data['deviation_max'],
+        result=data['value'].html_label
+    )
 
 def make_formatted_separation_data(results):
     """
@@ -171,14 +169,16 @@ def make_formatted_separation_data(results):
             values.append(v.value)
             uncertainties.append(v.uncertainty)
 
-        mean = number.weighted_mean_and_deviation(*data)
-        deviations = number.deviations(mean.value, data)
+        mean = mstats.mean.weighted_mean_and_deviation(*data)
+        deviations = mstats.values.deviations(mean.value, data)
 
         out[key] = dict(
             values=values,
-            deviation_max=number.round_to_order(max(deviations), -2),
+            deviation_max=mstats.value.round_to_order(max(deviations), -2),
             uncertainties=uncertainties,
-            result=mean.html_label )
+            result=mean.html_label,
+            value=[mean.value, mean.uncertainty]
+        )
 
     return out
 
@@ -190,7 +190,7 @@ def make_formatted_extension_data(results):
     """
 
     out = {}
-    for key in tracksim.LimbProperty.LIMB_KEYS:
+    for key in limb.KEYS:
         data = results['extensions'].get(key)
         values = []
         uncertainties = []
@@ -199,14 +199,16 @@ def make_formatted_extension_data(results):
             values.append(v.value)
             uncertainties.append(v.uncertainty)
 
-        mean = number.weighted_mean_and_deviation(*data)
-        deviations = number.deviations(mean.value, data)
+        mean = mstats.mean.weighted_mean_and_deviation(*data)
+        deviations = mstats.values.deviations(mean.value, data)
 
         out[key] = dict(
             values=values,
-            deviation_max=number.round_to_order(max(deviations), -2),
+            deviation_max=mstats.value.round_to_order(max(deviations), -2),
             uncertainties=uncertainties,
-            result=mean.html_label )
+            result=mean.html_label,
+            value=[mean.value, mean.uncertainty]
+        )
 
     return out
 
@@ -219,7 +221,7 @@ def make_time_data(results):
 
     count = len(results['times'])
     times = list(results['times'])
-    progress = list(number.linear_space(0, 100.0, count))
+    progress = list(mstats.ops.linear_space(0, 100.0, count))
 
     return {
         'count': count,

@@ -1,7 +1,7 @@
 {
-  "name": "Longer Amble",
+  "name": "Shorter Amble",
   "duty_cycle": 0.5,
-  "limb_phases":[0, 0.5, -0.75, -1.25],
+  "limb_phases":[0, 0.5, -0.25, -0.75],
   "steps_per_cycle": 20,
 
   "summary": "A test run to verify that the simulation system works.",

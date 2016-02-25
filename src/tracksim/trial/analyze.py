@@ -1,39 +1,14 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from tracksim import LimbProperty
-from tracksim import number
+import measurement_stats as mstats
 
-def distance_between(p1, p2):
-    """
+from tracksim import group
+from tracksim import limb
 
-    :param p1:
-    :param p2:
-    :return:
-    """
-
-    dx = p2.x - p1.x
-    dy = p2.y - p1.y
-
-    if number.equivalent(dx.value, 0.0):
-        sum_for_error = dx + dy
-        return number.ValueUncertainty(
-            abs(dy.raw),
-            sum_for_error.raw_uncertainty)
-
-    if number.equivalent(dy.value, 0.0):
-        sum_for_error = dx + dy
-        return number.ValueUncertainty(
-            abs(dx.raw),
-            sum_for_error.raw_uncertainty)
-
-    try:
-        return (
-            dx ** 2 +
-            dy ** 2) ** 0.5
-    except Exception as err:
-        print('Positions:', p1, p2, err)
-        raise
-
-def calculate_separations(foot_positions):
+def separations(foot_positions):
     """
 
     :param foot_positions:
@@ -52,10 +27,10 @@ def calculate_separations(foot_positions):
         lm = foot_positions.left_manus[i]
         rm = foot_positions.right_manus[i]
 
-        left.append(distance_between(lp, lm))
-        right.append(distance_between(rp, rm))
-        front.append(distance_between(lm, rm))
-        back.append(distance_between(lp, rp))
+        left.append(group.distance_between(lp, lm))
+        right.append(group.distance_between(rp, rm))
+        front.append(group.distance_between(lm, rm))
+        back.append(group.distance_between(lp, rp))
 
     return dict(
         left=left,
@@ -64,14 +39,14 @@ def calculate_separations(foot_positions):
         back=back
     )
 
-def calculate_gal(foot_positions):
+def coupling_distance(foot_positions):
     """
 
     :param foot_positions:
     :return:
     """
 
-    out = []
+    data = []
 
     for i in range(len(foot_positions.values()[0])):
 
@@ -83,9 +58,16 @@ def calculate_gal(foot_positions):
             foot_positions.left_manus[i],
             foot_positions.right_manus[i])
 
-        out.append(distance_between(pes_pos, manus_pos))
+        data.append(group.distance_between(pes_pos, manus_pos))
 
-    return out
+    mean = mstats.mean.weighted_mean_and_deviation(*data)
+    deviations = mstats.values.deviations(mean.value, data)
+
+    return dict(
+        data=data,
+        value=mean,
+        deviation_max=mstats.value.round_to_order(max(deviations), -2)
+    )
 
 def get_midpoint(position_a, position_b):
     """
@@ -100,14 +82,14 @@ def get_midpoint(position_a, position_b):
     out.y += 0.5*(position_b.y - position_a.y)
     return out
 
-def calculate_plane_limb_extensions(foot_positions):
+def plane_limb_extensions(foot_positions):
     """
 
     :param foot_positions:
     :return:
     """
 
-    out = LimbProperty().assign([], [], [], [])
+    out = limb.Property().assign([], [], [], [])
 
     for i in range(len(foot_positions.values()[0])):
 
@@ -115,8 +97,8 @@ def calculate_plane_limb_extensions(foot_positions):
             foot_positions.left_pes[i],
             foot_positions.right_pes[i])
 
-        for key in [LimbProperty.LEFT_PES, LimbProperty.RIGHT_PES]:
-            out.get(key).append(distance_between(
+        for key in [limb.LEFT_PES, limb.RIGHT_PES]:
+            out.get(key).append(group.distance_between(
                 pes_pos,
                 foot_positions.get(key)[i]
             ))
@@ -125,10 +107,11 @@ def calculate_plane_limb_extensions(foot_positions):
             foot_positions.left_manus[i],
             foot_positions.right_manus[i])
 
-        for key in [LimbProperty.LEFT_MANUS, LimbProperty.RIGHT_MANUS]:
-            out.get(key).append(distance_between(
+        for key in [limb.LEFT_MANUS, limb.RIGHT_MANUS]:
+            out.get(key).append(group.distance_between(
                 manus_pos,
                 foot_positions.get(key)[i]
             ))
 
     return out
+

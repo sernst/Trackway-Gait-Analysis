@@ -1,19 +1,18 @@
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-import json
+
 import six
 
-import tracksim
-from tracksim import analysis
-from tracksim import compute
+from tracksim import configs
 from tracksim import generate
-from tracksim import report
+from tracksim import limb
 from tracksim import trackway
+from tracksim.trial import analyze, report, compute
+
 
 def run(trial_configs, trackway_positions = None, **kwargs):
     """
@@ -29,9 +28,9 @@ def run(trial_configs, trackway_positions = None, **kwargs):
     :return:
     """
 
-    trial_configs = load_trial_configs(trial_configs, **kwargs)
+    trial_configs = configs.load(trial_configs, **kwargs)
 
-    limb_phases = tracksim.LimbProperty().assign(*trial_configs['limb_phases'])
+    limb_phases = limb.Property().assign(*trial_configs['limb_phases'])
 
     trackway_positions = load_trackway_positions(
         trackway_positions,
@@ -43,13 +42,13 @@ def run(trial_configs, trackway_positions = None, **kwargs):
         limb_phases=limb_phases)
     trackway_definition.reorient_positions()
 
-    foot_positions = tracksim.LimbProperty()
+    foot_positions = limb.Property()
 
     time_steps = generate.time_steps_from_data(
         steps_per_cycle=trial_configs['steps_per_cycle'],
         trackway_definition=trackway_definition)
 
-    for key in tracksim.LimbProperty.LIMB_KEYS:
+    for key in limb.KEYS:
         foot_positions.set(key, compute.positions_over_time(
             time_steps=time_steps,
             limb_positions=trackway_definition.limb_positions.get(key),
@@ -63,33 +62,19 @@ def run(trial_configs, trackway_positions = None, **kwargs):
     results = {
         'times': time_steps,
         'positions': foot_positions,
-        'gals': analysis.calculate_gal(foot_positions),
-        'separations': analysis.calculate_separations(foot_positions),
-        'extensions': analysis.calculate_plane_limb_extensions(foot_positions)
+        'couplings': analyze.coupling_distance(foot_positions),
+        'separations': analyze.separations(foot_positions),
+        'extensions': analyze.plane_limb_extensions(
+            foot_positions
+        )
     }
 
     if trial_configs.get('report', True):
-        report.create(trial_configs, trackway_definition, results)
+        results['report'] = report.create(
+            trial_configs, trackway_definition, results
+        )
 
     return results
-
-def load_trial_configs(source, **kwargs):
-    """
-
-    :param source:
-    :return:
-    """
-
-    if isinstance(source, str):
-        path = source
-        with open(path, 'r+') as f:
-            source = json.load(f)
-        source['path'] = os.path.dirname(path)
-
-    for k, v in kwargs.items():
-        source[k] = v
-
-    return source
 
 def load_trackway_positions(source, trial_configs, **kwargs):
     """
@@ -113,7 +98,7 @@ def load_trackway_positions(source, trial_configs, **kwargs):
         return trackway.load_positions_file(data)
 
     # Generate from configuration settings
-    track_offsets = tracksim.LimbProperty().assign(*data['offsets'])
+    track_offsets = limb.Property().assign(*data['offsets'])
     return generate.trackway_positions(
         count=data['count'],
         step_size=data['step_size'],
@@ -129,7 +114,7 @@ def prune_invalid_positions(time_steps, results):
     :return:
     """
 
-    values = results.values()
+    values = list(results.values())
     values.append(time_steps)
     index = 0
 

@@ -1,0 +1,63 @@
+
+.content-wrapper {
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow: auto;
+    display:flex;
+    flex-direction: column;
+}
+
+.top-box {
+    background-color: #666;
+    color:#FFF;
+    padding: 0.5em;
+    line-height: 1.5;
+    font-family: "courier new", monospace;
+}
+
+.group-info {
+    display:flex;
+    flex-direction: column;
+}
+
+.group-info .title {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.group-info .date {
+    font-size:0.8em;
+    opacity: 0.5;
+}
+
+.group-info .summary {
+    font-size:0.9em;
+    opacity: 0.7;
+}
+
+.trial-listings {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.trial-listings .entry {
+    min-width:240px;
+    max-width: 360px;
+    width:30%;
+    padding: 0.5em;
+    cursor: pointer;
+    font-size:0.8em;
+    line-height: 1.1;
+}
+
+.trial-listings .entry:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.trial-listings .summary {
+    padding-left: 1.0em;
+    font-size: 0.8em;
+    opacity: 0.6;
+}

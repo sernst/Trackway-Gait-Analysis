@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import numpy as np
 
-import tracksim
-from tracksim import number
+import measurement_stats as mstats
+from tracksim import limb
 from tracksim import trackway
 
 def time_steps_from_data(steps_per_cycle, trackway_definition):
@@ -14,7 +18,7 @@ def time_steps_from_data(steps_per_cycle, trackway_definition):
     """
 
     max_time = 0
-    for key in tracksim.LimbProperty.LIMB_KEYS:
+    for key in limb.KEYS:
         track_count = trackway_definition.limb_positions.get(key)
         max_time = max(max_time, len(track_count))
 
@@ -64,7 +68,7 @@ def trackway_positions(count, step_size, track_offsets, lateral_displacement):
     :return:
     """
 
-    assert isinstance(track_offsets, tracksim.LimbProperty), \
+    assert isinstance(track_offsets, limb.Property), \
         'Phases must be a limb property'
 
     if isinstance(lateral_displacement, (list, tuple)):
@@ -74,7 +78,7 @@ def trackway_positions(count, step_size, track_offsets, lateral_displacement):
         pes_lateral_displacement = lateral_displacement
         manus_lateral_displacement = lateral_displacement
 
-    return tracksim.LimbProperty(
+    return limb.Property(
         left_pes=track_positions(
             count=count,
             step_size=step_size,
@@ -110,10 +114,10 @@ def track_positions(count, step_size, limb_offset, lateral_displacement):
 
     for i in range(count):
         out.append(trackway.TrackPosition(
-            x=number.ValueUncertainty(
+            x=mstats.value.ValueUncertainty(
                 value=(limb_offset + i) * step_size,
                 uncertainty=0.01),
-            y=number.ValueUncertainty(
+            y=mstats.value.ValueUncertainty(
                 value=lateral_displacement,
                 uncertainty=0.01) ))
 

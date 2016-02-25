@@ -8,7 +8,9 @@ import random
 from textwrap import dedent
 
 import six
-import tracksim
+
+from tracksim import limb
+
 
 class SvgWriter(object):
 
@@ -25,7 +27,7 @@ class SvgWriter(object):
     STYLE_PREFIX = '<style>\n/* <![CDATA[ */'
     STYLE_SUFFIX = '/* ]]> */\n</style>'
 
-    LIMB_COLORS = tracksim.LimbProperty(
+    LIMB_COLORS = limb.Property(
         left_pes='DodgerBlue',
         right_pes='DarkOrange',
         left_manus='DarkOliveGreen',

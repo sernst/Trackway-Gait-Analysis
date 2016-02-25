@@ -4,6 +4,20 @@
     var exports = window.SIM || {};
     window.SIM = exports;
 
+    /**
+     * Function called when
+     */
+    function onWindowResize() {
+        exports.resizeCallbacks.forEach(function (func) {
+            func();
+        });
+    }
+    window.onresize = onWindowResize;
+
+    /**
+     *
+     * @param data
+     */
     function onData(data) {
         exports.DATA = data;
 
@@ -69,12 +83,8 @@
                 exports.PARAMS[item[0]] = v;
             });
 
-        var urlRoot = 'trials/' + exports.PARAMS['trial'] + '/' +
-                exports.PARAMS['trial'];
-
-        $('.svg-box').load(urlRoot + '.svg', function () {
-            $.getJSON(urlRoot + '.json', onData);
-        });
+        exports.run();
     });
 
 }());
+

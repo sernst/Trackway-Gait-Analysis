@@ -17,31 +17,6 @@
 
     /**
      *
-     * @param lower
-     * @returns {*|string|XML|void}
-     */
-    function capitalize(lower) {
-        return (lower ? this.toLowerCase() : this)
-            .replace(/(?:^|\s)\S/g, function(a) {
-                return a.toUpperCase();
-            });
-    }
-    exports.capitalize = capitalize;
-
-    /**
-     *
-     * @param value
-     * @param unc
-     * @returns {string}
-     */
-    function toDisplayNumber(value, unc) {
-        return (0.01*Math.round(100.0*value)).toFixed(2) +
-            ' &#177; ' +
-            (0.01*Math.round(100.0*unc)).toFixed(2);
-    }
-
-    /**
-     *
      */
     function updateStatusDisplay() {
         var frame = exports.DATA.frames[exports.animation.frameIndex];
@@ -52,7 +27,7 @@
 
             function formatter(value, unc) {
                 return exports.animation.paused ?
-                    toDisplayNumber(value, unc) :
+                    exports.toDisplayNumber(value, unc) :
                     '--';
             }
 
@@ -117,7 +92,7 @@
             box.append(e);
         }
 
-        setValue('Coupling Distance', exports.DATA.gals);
+        setValue('Coupling Length', exports.DATA.couplings);
         setValue('LP-LM Separation', exports.DATA.separations.left);
         setValue('RP-RM Separation', exports.DATA.separations.right);
         setValue('LP-RP Separation', exports.DATA.separations.back);
