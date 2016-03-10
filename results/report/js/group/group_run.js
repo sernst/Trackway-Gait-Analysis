@@ -24,7 +24,7 @@
             .then(function (data) {
                 onData(data);
                 $(window).trigger('resize');
-            })
+            });
     }
     exports.run = run;
 
