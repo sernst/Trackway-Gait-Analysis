@@ -1,11 +1,17 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import json
 import os
 from datetime import datetime
-from json import encoder
+
 
 import measurement_stats as mstats
 
 import tracksim
+from tracksim import reporting
 from tracksim import limb
 from tracksim import svg
 from tracksim.svg import draw
@@ -23,9 +29,6 @@ def create(trial_configs, track_definition, results):
     sim_id = trial_configs['name'].replace(' ', '-')
     output_directory = tracksim.make_results_path('report', 'trials', sim_id)
 
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
     drawer = svg.SvgWriter(padding=5)
     svg_settings = draw.trackway_positions(
         limb_positions=track_definition.limb_positions,
@@ -35,6 +38,7 @@ def create(trial_configs, track_definition, results):
     cycles = make_cycle_data(drawer, results)
 
     data = {
+        'id': sim_id,
         'configs': trial_configs,
         'date': datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
         'scale': svg_settings['scale'],
@@ -47,26 +51,20 @@ def create(trial_configs, track_definition, results):
         'frames': make_animation_frame_data(drawer, results),
         'time': make_time_data(results),
         'limb_phases': track_definition.limb_phases.toDict(),
+        'svg': drawer.dumps()
     }
-
-    # Forces float rounding to behave so we don't end up with 1.20000000001
-    # instead of 1.2
-    storage = encoder.FLOAT_REPR
-    encoder.FLOAT_REPR = lambda o: format(o, '%.12g')
-    data = json.dumps(data)
-
-    path = os.path.join(output_directory, '{}.json'.format(sim_id))
-    with open(path, 'w+') as f:
-        f.write(data)
-
-    encoder.FLOAT_REPR = storage
 
     svg_path = os.path.join(output_directory, '{}.svg'.format(sim_id))
     drawer.write(svg_path)
 
-    return {
-        'filename': '{}.json'.format(sim_id)
-    }
+    reporting.write_javascript_files(
+        directory=output_directory,
+        sim_id=sim_id,
+        key='SIM_DATA',
+        data=data
+    )
+
+    return data
 
 def create_file_from_template(src_path, dest_path, replacements):
     """

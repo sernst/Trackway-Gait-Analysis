@@ -32,4 +32,16 @@
     }
     exports.toDisplayNumber = toDisplayNumber;
 
+    /**
+     * @param key
+     * @param filename
+     */
+    function loadDataFile(key, filename) {
+        var script = document.createElement('script');
+        script.setAttribute('onload', 'window.SIM.onData(window.' + key + ')');
+        script.setAttribute('src', filename);
+        document.head.appendChild(script);
+    }
+    exports.loadDataFile = loadDataFile;
+
 }());

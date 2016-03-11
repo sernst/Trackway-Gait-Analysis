@@ -36,8 +36,10 @@ def run(group_configs, **kwargs):
             id=trials_configs['name'].replace(' ', '-'),
         ))
 
-    analysis = dict(
+    results = dict(
         couplings=analyze.coupling_distribution_data(trials)
     )
 
-    report.write(start_time, group_configs, analysis, trials)
+    results['report'] = report.write(start_time, group_configs, results, trials)
+
+    return results

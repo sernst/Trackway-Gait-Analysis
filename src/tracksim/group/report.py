@@ -3,25 +3,23 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import json
-
 import measurement_stats as mstats
 
 import tracksim
+from tracksim import reporting
+
 
 def write(start_time, group_configs, analysis, trials):
     """
 
     :param start_time:
-    :param configs:
+    :param group_configs:
     :param analysis:
     :param trials:
     :return:
     """
 
     group_id = group_configs['name'].replace(' ', '-')
-    filename = '{}.json'.format(group_id)
 
     out = dict(
         id=group_id,
@@ -31,12 +29,12 @@ def write(start_time, group_configs, analysis, trials):
     )
 
     output_directory = tracksim.make_results_path('report', 'groups', group_id)
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
-    path = os.path.join(output_directory, filename)
-    with open(path, 'w+') as f:
-        json.dump(out, f)
+    reporting.write_javascript_files(
+        directory=output_directory,
+        sim_id=group_id,
+        key='SIM_DATA',
+        data=out
+    )
 
     return out
 

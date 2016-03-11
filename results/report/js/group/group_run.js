@@ -4,6 +4,9 @@
     var exports = window.SIM || {};
     window.SIM = exports;
 
+    /**
+     *
+     */
     function onData(data) {
         exports.DATA = data;
 
@@ -15,16 +18,15 @@
 
         exports.makeCouplingPlot();
     }
+    exports.onData = onData;
 
+    /**
+     *
+     */
     function run() {
-        var urlRoot = 'groups/' + exports.PARAMS['id'] + '/' +
-                exports.PARAMS['id'];
-
-        $.getJSON(urlRoot + '.json')
-            .then(function (data) {
-                onData(data);
-                $(window).trigger('resize');
-            });
+        var dataFilename = 'groups/' + exports.PARAMS['id'] + '/' +
+                exports.PARAMS['id'] + '.js';
+        exports.loadDataFile('SIM_DATA', dataFilename);
     }
     exports.run = run;
 

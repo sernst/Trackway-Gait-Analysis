@@ -60,6 +60,7 @@ def run(trial_configs, trackway_positions = None, **kwargs):
     prune_invalid_positions(time_steps, foot_positions)
 
     results = {
+        'configs': trial_configs,
         'times': time_steps,
         'positions': foot_positions,
         'couplings': analyze.coupling_distance(foot_positions),

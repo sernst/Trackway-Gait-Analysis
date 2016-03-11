@@ -11,6 +11,8 @@
     function onData(data) {
         exports.DATA = data;
 
+        $('.svg-box').html(data.svg);
+
         var controlBar = $('.playback-controls');
 
         $('.header-title').html(data.configs.name);
@@ -38,24 +40,19 @@
 
         exports.populateCycleDisplay();
         exports.onPlaybackControl('toggle-play');
+
+        $('#displayWrapper').show();
+        $(window).trigger('resize');
     }
+    exports.onData = onData;
 
     /**
      * RUN APPLICATION
      */
     function run() {
-        var urlRoot = 'trials/' + exports.PARAMS['id'] + '/' +
-                exports.PARAMS['id'];
-
-        $('.svg-box').load(urlRoot + '.svg', function () {
-            return $.getJSON(urlRoot + '.json')
-                .then(function (data) {
-                    onData(data);
-                    $('#displayWrapper').show();
-                    $(window).trigger('resize');
-                });
-        });
-
+        var filename = 'trials/' + exports.PARAMS['id'] + '/' +
+                exports.PARAMS['id'] + '.js';
+        exports.loadDataFile('SIM_DATA', filename);
     }
     exports.run = run;
 

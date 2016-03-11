@@ -9,6 +9,7 @@ import json
 from argparse import ArgumentParser
 from textwrap import dedent
 
+import tracksim
 from tracksim.group import simulate as simulate_group
 from tracksim.trial import simulate as simulate_trial
 
@@ -65,7 +66,13 @@ def run(**kwargs):
 
     simulate = simulate_trial if is_trial else simulate_group
     results = simulate.run(path)
-    print(results)
+
+    url = 'file://{}/{}.html?id={}'.format(
+        tracksim.make_results_path('report'),
+        'trial' if is_trial else 'group',
+        results['report']['id']
+    )
+    log('[COMPLETE]: Simulation Done', URL=url)
 
 def run_interactive():
     """
@@ -93,12 +100,9 @@ def from_command_line():
         arguments.
         """)
 
-    #---------------------------------------------------------------------------
-    # Positional Arguments
     parser.add_argument(
         'path',
         type=str,
-        default=None,
         help=_clean("""
             The absolute path to either a group or trial simulation
             configuration file, or a directory path in which a group trial
