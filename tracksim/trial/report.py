@@ -3,16 +3,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
 import os
 from datetime import datetime
-
 
 import measurement_stats as mstats
 
 import tracksim
-from tracksim import reporting
 from tracksim import limb
+from tracksim import reporting
 from tracksim import svg
 from tracksim.svg import draw
 
@@ -54,15 +52,15 @@ def create(trial_configs, track_definition, results):
         'svg': drawer.dumps()
     }
 
-    svg_path = os.path.join(output_directory, '{}.svg'.format(sim_id))
-    drawer.write(svg_path)
-
     reporting.write_javascript_files(
         directory=output_directory,
         sim_id=sim_id,
         key='SIM_DATA',
         data=data
     )
+
+    svg_path = os.path.join(output_directory, '{}.svg'.format(sim_id))
+    drawer.write(svg_path)
 
     return data
 

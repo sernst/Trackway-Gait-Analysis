@@ -1,0 +1,8 @@
+{
+  "aws": {
+    "profile": null,
+    "bucket": "paleo.scott-ernst.com",
+    "key_prefix": "gait-analysis"
+  },
+  "paths":[]
+}

@@ -19,7 +19,7 @@ def make_project_path(*args):
     :rtype: basestring
     """
 
-    return os.path.abspath(os.path.join(MY_PATH, '..', '..', *args))
+    return os.path.abspath(os.path.join(MY_PATH, '..', *args))
 
 def make_resource_path(*args):
     """ Creates an absolute path to a file or folder within the resources
