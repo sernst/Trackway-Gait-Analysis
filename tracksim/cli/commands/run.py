@@ -34,7 +34,10 @@ def get_path(path, run_configs):
     if os.path.exists(path):
         return path
 
-    for directory in run_configs.get('paths', []):
+    paths = run_configs.get('paths', []) + []
+    paths.insert(0, os.getcwd())
+
+    for directory in paths:
         p = os.path.abspath(os.path.join(directory, path))
         if os.path.exists(p):
             return p
