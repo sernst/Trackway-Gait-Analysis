@@ -5,6 +5,7 @@ from tracksim.cli.commands import run
 from tracksim.cli.commands import register
 from tracksim.cli.commands import deregister
 from tracksim.cli.commands import deploy
+from tracksim.cli.commands import purge
 
 ME = sys.modules[__name__]
 

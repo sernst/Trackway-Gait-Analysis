@@ -203,23 +203,37 @@
     function makeRangeData(dataSeries) {
         var data = [];
         dataSeries.forEach(function (series, trace_index) {
-            data.push({
-                x: series.outer,
-                y: [series.index, series.index],
-                line: {width: 3, color:exports.getColor(trace_index, 0.4)},
-                marker: {width:8, color:exports.getColor(trace_index)},
-                mode: "markers+lines",
-                name: series.name + ' Outer',
-                type: "scatter"
-            });
-            data.push({
-                x: series.inner,
-                y: [series.index, series.index],
-                line: {width: 10, color:exports.getColor(trace_index)},
-                mode: "lines",
-                name: series.name + ' Inner',
-                type: "scatter"
-            });
+            if (series.outer && series.outer[0] < series.outer[1]) {
+                data.push({
+                  x: series.outer,
+                  y: [series.index, series.index],
+                  line: {
+                      width: 3,
+                      color: exports.getColor(trace_index, 0.4)
+                  },
+                  marker: {
+                      width: 8,
+                      color: exports.getColor(trace_index)
+                  },
+                  mode: "markers+lines",
+                  name: series.name + ' Outer',
+                  type: "scatter"
+                });
+            }
+
+            if (series.inner && series.inner[0] < series.inner[1]) {
+                data.push({
+                  x: series.inner,
+                  y: [series.index, series.index],
+                  line: {
+                      width: 10,
+                      color: exports.getColor(trace_index)
+                  },
+                  mode: "lines",
+                  name: series.name + ' Inner',
+                  type: "scatter"
+                });
+            }
 
         });
 

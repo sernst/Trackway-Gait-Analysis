@@ -1,5 +1,7 @@
+import sys
 import os
 import json
+from json import decoder as json_decoder
 import mimetypes
 
 import boto3
@@ -10,8 +12,16 @@ CONFIGS_PATH = tracksim.make_project_path('ops', 'configs.json')
 if not os.path.exists(CONFIGS_PATH):
     raise FileNotFoundError('Missing configs.json file')
 
-with open(CONFIGS_PATH, 'r') as f:
-    configs = json.load(f)
+try:
+    with open(CONFIGS_PATH, 'r') as f:
+        configs = json.load(f)
+except json_decoder.JSONDecodeError as err:
+    print('[ERROR]: Failed to decode configs json file')
+    print('  PATH:', CONFIGS_PATH)
+    print('  INFO:', err.msg)
+    print('    LINE:', err.lineno)
+    print('    CHAR:', err.colno)
+    sys.exit(1)
 
 boto3.setup_default_session(profile_name=configs.get('aws_profile'))
 

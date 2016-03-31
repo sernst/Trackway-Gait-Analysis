@@ -30,6 +30,7 @@ def create(trial_configs, track_definition, results):
     drawer = svg.SvgWriter(padding=5)
     svg_settings = draw.trackway_positions(
         limb_positions=track_definition.limb_positions,
+        positions=results['positions'],
         drawer=drawer
     )
 

@@ -8,6 +8,8 @@ import json
 from json import encoder
 import textwrap
 
+import tracksim
+
 def write_javascript_files(directory, sim_id, key, data):
     """
 
@@ -52,3 +54,15 @@ def write_javascript_files(directory, sim_id, key, data):
     paths.append(path)
 
     return paths
+
+def save_temp_json_file(filename, data):
+    """
+    :param filename:
+    :param data:
+    """
+
+    temp_path = tracksim.make_results_path('temp', filename)
+    temp_folder = os.path.dirname(temp_path)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+

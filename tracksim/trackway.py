@@ -30,8 +30,8 @@ class TrackPosition(object):
         assert isinstance(y, mstats.value.ValueUncertainty), \
             'y must be a ValueUncertainty instance'
 
-        self._instance_index += 1
-        self.uid = self._instance_index
+        self.__class__._instance_index += 1
+        self.uid = self.__class__._instance_index
 
         self.x = x
         self.y = y
@@ -82,6 +82,25 @@ class TrackPosition(object):
 
     def __str__(self):
         return self.echo()
+
+    def compare(self, comparison):
+        """ Compares the positions of this track position and the one specified
+            by the comparison argument and returns True if their positions and
+            uncertainties match.
+        :param comparison:
+        """
+
+        equal = mstats.value.equivalent
+        if not equal(self.x.value, comparison.x.value):
+            return False
+        elif not equal(self.y.value, comparison.y.value):
+            return False
+        elif not equal(self.x.uncertainty, comparison.x.uncertainty):
+            return False
+        elif not equal(self.y.uncertainty, comparison.y.uncertainty):
+            return False
+
+        return True
 
     @classmethod
     def from_raw_values(cls, x, y, x_uncertainty, y_uncertainty, **kwargs):

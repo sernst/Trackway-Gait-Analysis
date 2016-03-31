@@ -57,7 +57,7 @@ def run(trial_configs, trackway_positions = None, **kwargs):
         ))
 
     time_steps = list(time_steps)
-    prune_invalid_positions(time_steps, foot_positions)
+    prune_invalid_positions(trial_configs, time_steps, foot_positions)
 
     results = {
         'configs': trial_configs,
@@ -107,13 +107,17 @@ def load_trackway_positions(source, trial_configs, **kwargs):
         lateral_displacement=data['lateral_displacement']
     )
 
-def prune_invalid_positions(time_steps, results):
+def prune_invalid_positions(trial_configs, time_steps, results):
     """
 
+    :param configs:
     :param time_steps:
     :param results:
     :return:
     """
+
+    start_time = trial_configs.get('start_time', 0)
+    stop_time = trial_configs.get('stop_time', 1e8)
 
     values = list(results.values())
     values.append(time_steps)
@@ -124,7 +128,13 @@ def prune_invalid_positions(time_steps, results):
         for v in values:
             entries.append(v[index])
 
-        if None in entries or entries[-1] < 0:
+        cull = (
+            None in entries or
+            entries[-1] < start_time or
+            entries[-1] > stop_time
+        )
+
+        if cull:
             for v in values:
                 v[index:index+1] = []
         else:

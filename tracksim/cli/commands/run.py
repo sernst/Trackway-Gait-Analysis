@@ -3,7 +3,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import functools
 import json
+from json import decoder as json_decoder
 import os
 import re
 import sys
@@ -56,8 +58,16 @@ def find_group_file(path):
         if not os.path.isfile(item_path) or not item.endswith('.json'):
             continue
 
-        with open(item_path, 'r+') as f:
-            data = json.load(f)
+        try:
+            with open(item_path, 'r+') as f:
+                data = json.load(f)
+        except json_decoder.JSONDecodeError as err:
+            print('[ERROR]: Failed to decode json file')
+            print('  PATH:', path)
+            print('  INFO:', err.msg)
+            print('    LINE:', err.lineno)
+            print('    CHAR:', err.colno)
+            return cli.end(1)
 
         if 'trials' in data:
             return item_path
@@ -90,8 +100,23 @@ def run(**kwargs):
 
         is_trial = bool('trials' in data)
 
-    simulate = simulate_trial if is_trial else simulate_group
-    results = simulate.run(path)
+    def print_status(state, trial_configs, *args, **kwargs):
+        message = 'Trial "{}"'.format(trial_configs['name'])
+        cli.log('[{state}]: {message}'.format(
+            state=state,
+            message=message
+        ))
+
+    if simulate_group:
+        cli.log('[START]: Group Simulation')
+        results = simulate_group.run(
+            path,
+            on_trial_start=functools.partial(print_status, 'START'),
+            on_trial_complete=functools.partial(print_status, 'COMPLETE')
+        )
+    else:
+        cli.log('[START]: Trial Simulation')
+        results = simulate_trial.run(path)
 
     p = kwargs.get('path')
     if p:

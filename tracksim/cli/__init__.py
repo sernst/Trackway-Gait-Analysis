@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from json import decoder as json_decoder
 from textwrap import dedent
 
 def reformat(argument_description):
@@ -33,8 +34,16 @@ def load_configs():
     if not os.path.exists(path):
         return {}
 
-    with open(path, 'r+') as f:
-        return json.load(f)
+    try:
+        with open(path, 'r+') as f:
+            return json.load(f)
+    except json_decoder.JSONDecodeError as err:
+        print('[ERROR]: Failed to decode json file')
+        print('  PATH:', path)
+        print('  INFO:', err.msg)
+        print('    LINE:', err.lineno)
+        print('    CHAR:', err.colno)
+        return end(1)
 
 def save_configs(data):
     """
@@ -47,12 +56,14 @@ def save_configs(data):
     with open(path, 'w+') as f:
         json.dump(data, f)
 
-def exit(code):
+def end(code):
     """
 
     :param code:
     :return:
     """
 
-    print('\n\n')
+    print('\n')
+    if code != 0:
+        print('Execution failed with status code: {}\n'.format(code))
     sys.exit(code)

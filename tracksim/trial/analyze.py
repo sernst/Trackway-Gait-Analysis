@@ -50,6 +50,7 @@ def coupling_distance(foot_positions):
 
     two_sigma_bounds = [-1e6, 1e6]
     one_sigma_bounds = [-1e6, 1e6]
+    bounds_list = []
 
     for i in range(len(foot_positions.values()[0])):
 
@@ -62,13 +63,24 @@ def coupling_distance(foot_positions):
             foot_positions.right_manus[i])
 
         length = group.distance_between(pes_pos, manus_pos)
+
+        bounds = (
+            length.value - 2.0 * length.uncertainty,
+            length.value - length.uncertainty,
+            length.value,
+            length.value + length.uncertainty,
+            length.value + 2.0 * length.uncertainty
+        )
+        bounds_list.append(bounds)
+
         one_sigma_bounds = [
-            max(one_sigma_bounds[0], length.value - length.uncertainty),
-            min(one_sigma_bounds[1], length.value + length.uncertainty)
+            max(one_sigma_bounds[0], bounds[1]),
+            min(one_sigma_bounds[1], bounds[3])
         ]
+
         two_sigma_bounds = [
-            max(two_sigma_bounds[0], length.value - 2 * length.uncertainty),
-            min(two_sigma_bounds[1], length.value + 2 * length.uncertainty)
+            max(two_sigma_bounds[0], bounds[0]),
+            min(two_sigma_bounds[1], bounds[4])
         ]
         data.append(length)
 
@@ -82,7 +94,8 @@ def coupling_distance(foot_positions):
         bounds=dict(
             one_sigma=one_sigma_bounds,
             two_sigma=two_sigma_bounds
-        )
+        ),
+        bounds_list=bounds_list
     )
 
 def get_midpoint(position_a, position_b):
