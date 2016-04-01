@@ -1,8 +1,9 @@
-import os
-import sys
 import json
+import os
 from json import decoder as json_decoder
 from textwrap import dedent
+
+import tracksim
 
 def reformat(argument_description):
     """
@@ -26,14 +27,14 @@ def load_configs():
         with open(path, 'r+') as f:
             return json.load(f)
     except json_decoder.JSONDecodeError as err:
-        log([
+        tracksim.log([
             '[ERROR]: Failed to decode json file',
             [   'PATH: {}'.format(path),
                 'INFO: {}'.format(err.msg),
                 [   'LINE: {}'.format(err.lineno),
                     'CHAR: {}'.format(err.colno) ]]
         ])
-        return end(1)
+        return tracksim.end(1)
 
 def save_configs(data):
     """
