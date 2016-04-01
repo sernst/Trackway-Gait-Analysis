@@ -17,8 +17,8 @@ def execute_command():
     )
 
     if not do_it:
-        cli.log('[ABORTED]: No files were deleted')
-        return cli.end(0)
+        tracksim.log('[ABORTED]: No files were deleted')
+        return tracksim.end(0)
 
     path = tracksim.make_results_path('report', 'groups')
     if os.path.exists(path):
@@ -29,7 +29,7 @@ def execute_command():
         shutil.rmtree(path)
 
 
-    cli.log("""
+    tracksim.log("""
         [SUCCESS]: All group and trial results files have been removed
         """)
 

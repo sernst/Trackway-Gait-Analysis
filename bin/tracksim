@@ -12,13 +12,15 @@ import os
 PROJECT_BIN_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.abspath(os.path.join(PROJECT_BIN_PATH, '..')))
 
+import tracksim
 from tracksim import cli
 from tracksim.cli import commands
 
+# Add whitespace when the command is executed
 print('\n')
 
 if len(sys.argv) < 2:
-    cli.log("""
+    tracksim.log("""
     [ERROR]: tracksim requires a command argument that defines the operation
     to be carried out. Valid commands include:
 
@@ -29,26 +31,26 @@ if len(sys.argv) < 2:
         $ tracksim [COMMAND] [ARGUMENTS] [--OPTIONS]
     """)
 
-    cli.end(1)
+    tracksim.end(1)
 
 cmd = sys.argv[1].lower()
 
 if cmd == 'help':
-    cli.log('The following CLI commands are available:')
+    tracksim.log('The following CLI commands are available:')
     commands.list_modules()
-    print('')
-    cli.log("""
+
+    tracksim.log("""
         For more information on the various commands, use the help flag on the
         specific command:
 
             tracksim [COMMAND] --help
-        """)
-    cli.end(0)
+        """, whitespace_top=1)
+    tracksim.end(0)
 
 command_module = commands.get_module(cmd)
 if not command_module:
-    cli.log("""[ERROR]: Unrecognized command "{}".""".format(cmd))
-    cli.end(1)
+    tracksim.log("""[ERROR]: Unrecognized command "{}".""".format(cmd))
+    tracksim.end(1)
 
 command_module.execute_command()
-cli.end(0)
+tracksim.end(0)

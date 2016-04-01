@@ -22,16 +22,6 @@ class test_simulate(unittest.TestCase):
                 'tests', 'resources', 'phase_validation.json')
         simulate_trial.run(configs_path)
 
-    def test_data_file_trial(self):
-        """
-
-        :return:
-        """
-
-        configs_path = tracksim.make_project_path(
-                'tests', 'resources', 'test_trial_5.json')
-        simulate_trial.run(configs_path)
-
     def test_run_group(self):
         """
             Carries out a test run of a complete simulation trial using

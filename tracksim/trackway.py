@@ -181,13 +181,17 @@ def load_positions_file(path):
     for index, series in df.iterrows():
 
         for prefix, limb_key in limb.LIMB_KEY_LOOKUP.items():
-            add_track(
-                limb_data=trackway_positions.get(limb_key),
-                x=series['{}_x'.format(prefix)],
-                dx=series['{}_dx'.format(prefix)],
-                y=series['{}_y'.format(prefix)],
-                dy=series['{}_dy'.format(prefix)]
-            )
+            try:
+                add_track(
+                    limb_data=trackway_positions.get(limb_key),
+                    x=series['{}_x'.format(prefix)],
+                    dx=series['{}_dx'.format(prefix)],
+                    y=series['{}_y'.format(prefix)],
+                    dy=series['{}_dy'.format(prefix)]
+                )
+            except KeyError:
+                # If the key is missing in the csv file, move one
+                continue
 
     if not trackway_positions.left_manus:
         for pos in trackway_positions.left_pes:

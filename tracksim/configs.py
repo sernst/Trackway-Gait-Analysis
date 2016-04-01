@@ -1,15 +1,8 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 import os
 from json import decoder as json_decoder
 
-import six
-
-from tracksim import cli
+import tracksim
 
 
 def load(source, inherits = None, **kwargs):
@@ -30,23 +23,27 @@ def load(source, inherits = None, **kwargs):
     :rtype: dict
     """
 
-    if isinstance(source, (six.string_types, six.binary_type)):
+    if isinstance(source, str):
         path = source
 
         try:
             with open(path, 'r+') as f:
                 source = json.load(f)
-        except FileNotFoundError as err:
-            print('[ERROR]: No such configuration file')
-            print('  PATH:', path)
-            return cli.end(1)
+        except FileNotFoundError:
+            tracksim.log([
+                '[ERROR]: No such configuration file',
+                ['PATH: {}'.format(path)]
+            ])
+            return tracksim.end(1)
         except json_decoder.JSONDecodeError as err:
-            print('[ERROR]: Failed to decode configs json file')
-            print('  PATH:', path)
-            print('  INFO:', err.msg)
-            print('    LINE:', err.lineno)
-            print('    CHAR:', err.colno)
-            return cli.end(1)
+            tracksim.log([
+                '[ERROR]: Failed to decode configs json file',
+                [   'PATH: {}'.format(path),
+                    'INFO: {}'.format(err.msg),
+                    [   'LINE: {}'.format(err.lineno),
+                        'CHAR: {}'.format(err.colno) ]]
+            ])
+            return tracksim.end(1)
 
         source['path'] = os.path.dirname(path)
         source['filename'] = os.path.abspath(path)

@@ -40,6 +40,19 @@ class test_tracksim(unittest.TestCase):
                 MY_DIRECTORY, '..', 'resources' ))
         self.assertEqual(resources_root_path, tracksim.make_resource_path())
 
+    def test_logging(self):
+        """
+        """
+
+        tracksim.log('This is a test')
+
+        tracksim.log([
+            '1',
+            ['2', '3',
+             ['4', '5', '6']
+             ]
+        ])
+
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(test_tracksim)
     unittest.TextTestRunner(verbosity=2).run(suite)

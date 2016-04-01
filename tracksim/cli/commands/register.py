@@ -31,7 +31,7 @@ def execute_command():
         stat.S_IROTH | stat.S_IXOTH
     )
 
-    cli.log("""
+    tracksim.log("""
         [SUCCESS]: The tracksim command has been registered for global use. You
         can now call tracksim globally from a terminal.
 

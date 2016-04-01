@@ -6,22 +6,27 @@ import mimetypes
 
 import boto3
 import tracksim
+from tracksim import cli
 
 CONFIGS_PATH = tracksim.make_project_path('ops', 'configs.json')
 
 if not os.path.exists(CONFIGS_PATH):
     raise FileNotFoundError('Missing configs.json file')
 
+configs = None
 try:
     with open(CONFIGS_PATH, 'r') as f:
         configs = json.load(f)
 except json_decoder.JSONDecodeError as err:
-    print('[ERROR]: Failed to decode configs json file')
-    print('  PATH:', CONFIGS_PATH)
-    print('  INFO:', err.msg)
-    print('    LINE:', err.lineno)
-    print('    CHAR:', err.colno)
-    sys.exit(1)
+    tracksim.log([
+        '[ERROR]: Failed to decode configs json file',
+        [   'PATH: {}'.format(CONFIGS_PATH),
+            'INFO: {}'.format(err.msg),
+            [   'LINE: {}'.format(err.lineno),
+                'CHAR: {}'.format(err.colno)
+            ]]
+    ])
+    tracksim.end(1)
 
 boto3.setup_default_session(profile_name=configs.get('aws_profile'))
 
@@ -52,7 +57,7 @@ def upload_in_folder(root_path, *parts):
             continue
 
         key_name = '{}/{}'.format(key_prefix, '/'.join(my_parts))
-        print('[{}]: {}'.format(
+        tracksim.log('[{}]: {}'.format(
             '/'.join(my_parts),
             key_name
         ))
@@ -68,4 +73,4 @@ def upload_in_folder(root_path, *parts):
         )
 
 upload_in_folder(tracksim.make_results_path('report'))
-print('[COMPLETE]: Trials have been deployed')
+tracksim.log('[COMPLETE]: Trials have been deployed')

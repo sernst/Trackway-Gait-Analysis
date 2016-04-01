@@ -3,10 +3,6 @@
   "summary": "A run of unit tests within a group to compare",
   "trials":[
     "test_trial_1.json",
-    "test_trial_2.json",
-    "test_trial_2b.json",
-    "test_trial_3.json",
-    "test_trial_3b.json",
-    "test_trial_4.json"
+    "test_trial_5.json"
   ]
 }

@@ -12,18 +12,6 @@ def reformat(argument_description):
     """
     return dedent(argument_description.strip('\n')).strip()
 
-def log(message, **kwargs):
-    """
-
-    :param message:
-    :param kwargs:
-    :return:
-    """
-
-    print(reformat(message))
-    for key, value in kwargs.items():
-        print('{}:'.format(key), value)
-
 def load_configs():
     """
 
@@ -38,11 +26,13 @@ def load_configs():
         with open(path, 'r+') as f:
             return json.load(f)
     except json_decoder.JSONDecodeError as err:
-        print('[ERROR]: Failed to decode json file')
-        print('  PATH:', path)
-        print('  INFO:', err.msg)
-        print('    LINE:', err.lineno)
-        print('    CHAR:', err.colno)
+        log([
+            '[ERROR]: Failed to decode json file',
+            [   'PATH: {}'.format(path),
+                'INFO: {}'.format(err.msg),
+                [   'LINE: {}'.format(err.lineno),
+                    'CHAR: {}'.format(err.colno) ]]
+        ])
         return end(1)
 
 def save_configs(data):
@@ -56,14 +46,4 @@ def save_configs(data):
     with open(path, 'w+') as f:
         json.dump(data, f)
 
-def end(code):
-    """
 
-    :param code:
-    :return:
-    """
-
-    print('\n')
-    if code != 0:
-        print('Execution failed with status code: {}\n'.format(code))
-    sys.exit(code)

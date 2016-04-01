@@ -17,7 +17,7 @@ def execute_command():
     aws = configs.get('aws')
 
     if not aws:
-        cli.log('[ERROR]: No AWS configurations found in .tracksim.configs')
+        tracksim.log('[ERROR]: No AWS configurations found in .tracksim.configs')
         sys.exit(1)
 
     profile = aws.get('profile')
@@ -26,7 +26,7 @@ def execute_command():
 
     bucket = aws.get('bucket')
     if not bucket:
-        cli.log("""
+        tracksim.log("""
             [ERROR]: No "bucket" specified in aws .tracksim.configs aws
             configuration
             """)
@@ -34,14 +34,14 @@ def execute_command():
 
     key_prefix = aws.get('key_prefix')
     if not bucket:
-        cli.log("""
+        tracksim.log("""
             [ERROR]: No "key_prefix" specified in aws .tracksim.configs aws
             configuration
             """)
         sys.exit(1)
 
     upload_in_folder(aws, tracksim.make_results_path('report'))
-    cli.log('[COMPLETE]: Trials have been deployed')
+    tracksim.log('[COMPLETE]: Trials have been deployed')
 
 def upload_in_folder(aws_configs, root_path, *parts):
     """

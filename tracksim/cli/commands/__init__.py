@@ -1,5 +1,6 @@
 import sys
 
+import tracksim
 from tracksim import cli
 from tracksim.cli.commands import run
 from tracksim.cli.commands import register
@@ -15,7 +16,7 @@ def list_modules():
         item = getattr(ME, key)
         if hasattr(item, 'DESCRIPTION'):
             print('')
-            cli.log('[{}]:\n   {}'.format(
+            tracksim.log('[{}]:\n   {}'.format(
                 key,
                 cli.reformat(getattr(item, 'DESCRIPTION'))
                     .replace('\n', '\n   ')

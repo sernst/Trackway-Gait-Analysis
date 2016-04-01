@@ -1,15 +1,10 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import functools
 import json
-from json import decoder as json_decoder
 import os
 import re
 import sys
 from argparse import ArgumentParser
+from json import decoder as json_decoder
 
 import tracksim
 from tracksim import cli
@@ -53,8 +48,14 @@ def find_group_file(path):
     :return:
     """
 
-    for item in os.listdir(path):
+    # Prioritize group files named "group.json" over other files in the path
+    items = ['group.json'] + os.listdir(path)
+
+    for item in items:
         item_path = os.path.join(path, item)
+        if not os.path.exists(item_path):
+            continue
+
         if not os.path.isfile(item_path) or not item.endswith('.json'):
             continue
 
@@ -62,18 +63,20 @@ def find_group_file(path):
             with open(item_path, 'r+') as f:
                 data = json.load(f)
         except json_decoder.JSONDecodeError as err:
-            print('[ERROR]: Failed to decode json file')
-            print('  PATH:', path)
-            print('  INFO:', err.msg)
-            print('    LINE:', err.lineno)
-            print('    CHAR:', err.colno)
-            return cli.end(1)
+            tracksim.log([
+                '[ERROR]: Failed to decode json file',
+                [   'PATH: {}'.format(path),
+                    'INFO: {}'.format(err.msg),
+                    [   'LINE: {}'.format(err.lineno),
+                        'CHAR: {}'.format(err.colno) ]]
+            ])
+            return tracksim.end(1)
 
         if 'trials' in data:
             return item_path
 
-    cli.log('ERROR: No group trial found in path: "{}"'.format(path))
-    sys.exit(2)
+    tracksim.log('ERROR: No group trial found in path: "{}"'.format(path))
+    tracksim.end(2)
 
 def run(**kwargs):
     """
@@ -88,7 +91,7 @@ def run(**kwargs):
 
     path = get_path(kwargs.get('path'), run_configs)
     if path is None:
-        cli.log('ERROR: Invalid or missing path argument. Unable to simulate')
+        tracksim.log('ERROR: Invalid or missing path argument. Unable to simulate')
         sys.exit(1)
 
     if os.path.isdir(path):
@@ -102,20 +105,22 @@ def run(**kwargs):
 
     def print_status(state, trial_configs, *args, **kwargs):
         message = 'Trial "{}"'.format(trial_configs['name'])
-        cli.log('[{state}]: {message}'.format(
+        tracksim.log('[{state}]: {message}'.format(
             state=state,
             message=message
         ))
 
     if simulate_group:
-        cli.log('[START]: Group Simulation')
+        tracksim.log('[START]: Group Simulation')
         results = simulate_group.run(
             path,
+            start_time=kwargs.get('start_time', 0),
+            stop_time=kwargs.get('stop_time', 1.0e8),
             on_trial_start=functools.partial(print_status, 'START'),
             on_trial_complete=functools.partial(print_status, 'COMPLETE')
         )
     else:
-        cli.log('[START]: Trial Simulation')
+        tracksim.log('[START]: Trial Simulation')
         results = simulate_trial.run(path)
 
     p = kwargs.get('path')
@@ -131,7 +136,7 @@ def run(**kwargs):
         'trial' if is_trial else 'group',
         results['report']['id']
     )
-    cli.log('[COMPLETE]: Simulation Done', URL=url)
+    tracksim.log('[COMPLETE]: Simulation Done', URL=url)
 
 def run_interactive():
     """
@@ -157,42 +162,55 @@ def run_interactive():
 
     return run(path=path, configs=configs)
 
-def from_command_line():
-    """
-
-    :return:
-    """
-    parser = ArgumentParser()
-
-    parser.description = cli.reformat(DESCRIPTION)
-
-    parser.add_argument(
-        'command',
-        type=str,
-        help='The cli command to execute')
-
-    parser.add_argument(
-        'path',
-        type=str,
-        help=cli.reformat("""
-            The absolute path to either a group or trial simulation
-            configuration file, or a directory path in which a group trial
-            configuration file resides.
-            """))
-
-    run(**vars(parser.parse_args()))
-
 def execute_command():
     """
 
     :return:
     """
     if len(sys.argv) < 3:
-        run_interactive()
-    else:
-        from_command_line()
+        return run_interactive()
 
+    parser = ArgumentParser()
 
+    parser.description = cli.reformat(DESCRIPTION)
+
+    parser.add_argument(
+        'run',
+        type=str,
+        help='The run command to execute'
+    )
+
+    parser.add_argument(
+        'path',
+        type=str,
+        help=cli.reformat("""
+            The relative or absolute path to either a group or trial simulation
+            configuration file, or a directory path in which a group trial
+            configuration file resides.
+            """)
+    )
+
+    parser.add_argument(
+        '-st', '--startTime',
+        dest='start_time',
+        type=float,
+        help=cli.reformat("""
+            The time at which the simulation should start. The default value
+            is 0.
+            """)
+    )
+
+    parser.add_argument(
+        '-et', '--endTime',
+        dest='stop_time',
+        type=float,
+        help=cli.reformat("""
+            The time at which the simulation should stop. The default value is
+            to run until the end of the simulation.
+            """)
+    )
+
+    run(**vars(parser.parse_args()))
 
 
 

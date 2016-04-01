@@ -1,6 +1,7 @@
 
 import os
 
+import tracksim
 from tracksim import cli
 
 DESCRIPTION = """
@@ -11,13 +12,13 @@ def execute_command():
 
     path = '/usr/local/bin/tracksim'
     if not os.path.exists(path):
-        cli.log(cli.reformat("""
+        tracksim.log(cli.reformat("""
             [INFO]: The tracksim command was not registered. Operation aborted.
             """))
         return
 
     os.remove(path)
 
-    cli.log("""
+    tracksim.log("""
         [SUCCESS]: The tracksim command is no longer registered for global use.
         """)
