@@ -107,6 +107,7 @@ def load_trackway_positions(source, trial_configs, **kwargs):
         lateral_displacement=data['lateral_displacement']
     )
 
+
 def prune_invalid_positions(trial_configs, time_steps, results):
     """
 

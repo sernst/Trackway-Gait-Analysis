@@ -194,6 +194,7 @@ def execute_command():
         '-st', '--startTime',
         dest='start_time',
         type=float,
+        default=0.0,
         help=cli.reformat("""
             The time at which the simulation should start. The default value
             is 0.
@@ -204,6 +205,7 @@ def execute_command():
         '-et', '--endTime',
         dest='stop_time',
         type=float,
+        default=1.0e8,
         help=cli.reformat("""
             The time at which the simulation should stop. The default value is
             to run until the end of the simulation.
