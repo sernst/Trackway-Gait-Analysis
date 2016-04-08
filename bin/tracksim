@@ -28,7 +28,7 @@ if len(sys.argv) < 2:
 
 cmd = sys.argv[1].lower()
 
-if cmd == 'help':
+if cmd in ['help', '-h', '-help', '--help', '--h']:
     tracksim.log('The following CLI commands are available:')
     commands.list_modules()
 
@@ -37,7 +37,9 @@ if cmd == 'help':
         specific command:
 
             tracksim [COMMAND] --help
-        """, whitespace_top=1)
+        """,
+        whitespace_top=1
+    )
     tracksim.end(0)
 
 command_module = commands.get_module(cmd)

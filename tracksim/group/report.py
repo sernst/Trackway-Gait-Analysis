@@ -1,9 +1,9 @@
+import os
 import typing
 from datetime import datetime
 
 import measurement_stats as mstats
 
-import tracksim
 from tracksim import reporting
 
 
@@ -29,15 +29,20 @@ def create(
 
     group_id = group_configs['name'].replace(' ', '-')
 
+    root_report_path = reporting.initialize_output_directory(
+        group_configs.get('report_path')
+    )
+
     out = dict(
-        run_time=start_time,
+        root_path=root_report_path,
+        run_time=start_time.isoformat(),
         id=group_id,
         configs=group_configs,
         trials=make_trial_data(trials),
         couplings=make_coupling_data(analysis['couplings'], trials)
     )
 
-    output_directory = tracksim.make_results_path('report', 'groups', group_id)
+    output_directory = os.path.join(root_report_path, 'groups', group_id)
     reporting.write_javascript_files(
         directory=output_directory,
         sim_id=group_id,
@@ -70,12 +75,12 @@ def make_trial_data(trial_results: typing.List[dict]) -> list:
     return out
 
 
-def make_coupling_data(couplings, trial_results):
+def make_coupling_data(coupling_data, trial_results):
     """
     Generates coupling report data from the analyzed coupling data and the
     individual simulation trial results
 
-    :param couplings:
+    :param coupling_data:
         Grouped coupling data from the grouped simulation results
     :param trial_results:
         Simulation results for each trial run by the group
@@ -104,7 +109,7 @@ def make_coupling_data(couplings, trial_results):
         populations.append(mstats.density.ops.population(dist, 256))
         densities.append(dist.probabilities_at(x_values))
 
-    values, uncertainties = mstats.values.unzip(couplings['values'])
+    values, uncertainties = mstats.values.unzip(coupling_data['values'])
 
     return dict(
         values=values,

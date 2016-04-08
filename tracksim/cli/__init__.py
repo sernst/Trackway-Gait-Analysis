@@ -5,15 +5,18 @@ from textwrap import dedent
 
 import tracksim
 
-def reformat(argument_description):
+def reformat(source: str) -> str:
+    """
+    Formats the source string to strip newlines on both ends and dedents the
+    the entire string
+
+    :param source:
+        The string to reformat
     """
 
-    :param argument_description:
-    :return:
-    """
-    return dedent(argument_description.strip('\n')).strip()
+    return dedent(source.strip('\n')).strip()
 
-def load_configs():
+def load_configs() -> dict:
     """
 
     :return:
@@ -36,7 +39,7 @@ def load_configs():
         ])
         return tracksim.end(1)
 
-def save_configs(data):
+def save_configs(data: dict):
     """
 
     :param data:

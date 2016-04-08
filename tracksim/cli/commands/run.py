@@ -124,11 +124,15 @@ def run(**kwargs):
             start_time=kwargs.get('start_time', 0),
             stop_time=kwargs.get('stop_time', 1.0e8),
             on_trial_start=functools.partial(print_status, 'START'),
-            on_trial_complete=functools.partial(print_status, 'COMPLETE')
+            on_trial_complete=functools.partial(print_status, 'COMPLETE'),
+            report_path=kwargs.get('report_path')
         )
     else:
         tracksim.log('[START]: Trial Simulation')
-        results = simulate_trial.run(path)
+        results = simulate_trial.run(
+            path,
+            report_path=kwargs.get('report_path')
+        )
 
     p = kwargs.get('path')
     if p:
@@ -139,7 +143,7 @@ def run(**kwargs):
         cli.save_configs(run_configs)
 
     url = 'file://{}/{}.html?id={}'.format(
-        tracksim.make_results_path('report'),
+        results['report']['root_path'],
         'trial' if is_trial else 'group',
         results['report']['id']
     )
@@ -218,6 +222,19 @@ def execute_command():
         help=cli.reformat("""
             The time at which the simulation should stop. The default value is
             to run until the end of the simulation.
+            """)
+    )
+
+    parser.add_argument(
+        '-d', '--directory',
+        dest='report_path',
+        type=str,
+        default=None,
+        help=cli.reformat("""
+            An absolute path to the output directory where you would like the
+            trial results stored. This overrides the output directory specified
+            by the configure command or from within the trial or group
+            configuration file.
             """)
     )
 
