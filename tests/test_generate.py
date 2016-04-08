@@ -23,9 +23,9 @@ class test_generate(unittest.TestCase):
         lateral_displacement = 0.4
 
         positions = generate.track_positions(
-                count=count,
+                cycle_count=count,
                 step_size=step_size,
-                limb_offset=0,
+                track_offset=0,
                 lateral_displacement=lateral_displacement)
 
         self.assertEqual(len(positions), count)
@@ -50,7 +50,7 @@ class test_generate(unittest.TestCase):
         )
 
         positions = generate.trackway_positions(
-            count=count,
+            cycle_count=count,
             step_size=step_size,
             track_offsets=phases,
             lateral_displacement=lateral_displacement

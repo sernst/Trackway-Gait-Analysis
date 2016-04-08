@@ -1,18 +1,21 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+import typing
 
 from tracksim import trackway
 
 MOVING_ANNOTATION = 'M'
 FIXED_ANNOTATION = 'F'
 
-def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
+
+def positions_over_time(
+        time_steps: list,
+        limb_positions: list,
+        limb_phase: float,
+        settings: dict
+) -> typing.List[trackway.TrackPosition]:
     """
-        Creates a list containing the positions for the limb based on the
-        specified arguments. Values that cannot be calculated because they are
-        outside the temporal bounds given the data are set to None.
+    Creates a list containing the positions for the limb based on the specified
+    arguments. Values that cannot be calculated because they are outside the
+    temporal bounds given the data are set to None.
 
     :param time_steps:
         A iterable list of time steps over which to calculate the locations.
@@ -27,7 +30,7 @@ def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
         position to the second track position at time t = 0. A value of 0.5
         indicates that the limb starts moving from the first track position to
         the second track position at time t = 0.5.
-    :param trial_configs:
+    :param settings:
         A dictionary of configuration values for the trial being simulated
     :return:
         The list of positions for the limb at the times specified by time_steps
@@ -36,7 +39,7 @@ def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
     """
 
     out = []
-    duty_cycle = trial_configs['duty_cycle']
+    duty_cycle = settings['duty_cycle']
     track_count = len(limb_positions)
 
     first_valid_time = limb_phase - duty_cycle
@@ -76,22 +79,28 @@ def positions_over_time(time_steps, limb_positions, limb_phase, trial_configs):
                 before_position=limb_positions[limb_cycle],
                 after_position=limb_positions[limb_cycle + 1],
                 duty_cycle=duty_cycle,
-                trial_configs=trial_configs))
+                settings=settings))
         except Exception as err:
             raise
 
     return out
 
+
 def position_at_cycle_time(
-        cycle_time, before_position, after_position, duty_cycle, trial_configs):
+        cycle_time: float,
+        before_position: trackway.TrackPosition,
+        after_position: trackway.TrackPosition,
+        duty_cycle: float,
+        settings: dict
+) -> trackway.TrackPosition:
     """
-        During the duty cycle time period for the limb, the position will be
-        located at the before position. After the duty cycle, the limb position
-        is largely unknown because we have no evidence of the position, or even
-        the accelerations and velocities, during that period. Therefore, the
-        value returned if the midpoint between the before and after positions
-        with a large uncertainty value that encompasses the region between
-        the before and after positions.
+    During the duty cycle time period for the limb, the position will be
+    located at the before position. After the duty cycle, the limb position is
+    largely unknown because we have no evidence of the position, or even the
+    accelerations and velocities, during that period. Therefore, the value
+    returned if the midpoint between the before and after positions with a
+    large uncertainty value that encompasses the region between the before and
+    after positions.
 
     :param cycle_time:
         A time on the range of [0,1] specific to that limb (no limb phase)
@@ -103,7 +112,7 @@ def position_at_cycle_time(
         The position of the limb at the end of the limb time
     :param duty_cycle:
         The duty cycle for the limb
-    :param trial_configs:
+    :param settings:
         The dictionary of configuration settings for the specified trial
     :return:
         A TrackPosition instance representing the position of a track at the
@@ -125,9 +134,12 @@ def position_at_cycle_time(
         x=bp.x.raw + progress*(ap.x.raw - bp.x.raw),
         x_uncertainty=max(
                 ap.x.raw_uncertainty,
-                abs(0.25*(ap.x.raw - bp.x.raw)) ),
+                abs(0.25*(ap.x.raw - bp.x.raw))
+        ),
         y=bp.y.raw + progress*(ap.y.raw - bp.y.raw),
         y_uncertainty=max(
                 ap.y.raw_uncertainty,
-                abs(0.25*(ap.y.raw - bp.y.raw)) ),
-        annotation=MOVING_ANNOTATION)
+                abs(0.25*(ap.y.raw - bp.y.raw))
+        ),
+        annotation=MOVING_ANNOTATION
+    )

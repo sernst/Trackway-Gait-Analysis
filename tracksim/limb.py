@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+import json
+import typing
 
 LEFT_PES = 'left_pes'
 RIGHT_PES = 'right_pes'
@@ -20,9 +18,11 @@ LIMB_KEY_LOOKUP = {
     SHORT_KEYS[3]: KEYS[3]
 }
 
+
 class Property(object):
-    """ A class that describes an attribute with potentially unique values for
-        each limb within the quadrupedal system.
+    """
+    A class that describes an attribute with potentially unique values for each
+    limb within the quadrupedal system.
     """
 
     def __init__(self, **kwargs):
@@ -31,13 +31,14 @@ class Property(object):
         self.left_manus = kwargs.get(LEFT_MANUS)
         self.right_manus = kwargs.get(RIGHT_MANUS)
 
-    def get(self, key, default = None):
-        """ Retrieve the value for the limb specified by the key
+    def get(self, key: str, default=None):
+        """
+        Retrieve the value for the limb specified by the key
 
-        :param key: The limb key for which to retrieve the value.
-        :param default: The value returned if the value stored in the limb
-            property is None.
-        :return: The value, or its default, for the specified limb.
+        :param key:
+            The limb key for which to retrieve the value
+        :param default:
+            The value returned if the value stored in the limb property is None
         """
 
         if not hasattr(self, key):
@@ -49,14 +50,16 @@ class Property(object):
         out = getattr(self, key)
         return default if out is None else out
 
-    def set(self, key, value):
-        """ Sets the value for the specified key
+    def set(self, key: str, value) -> 'Property':
+        """
+        Sets the value for the specified key and returns this instance for
+        method chaining
 
-        :param key: Either a long or short key name for the limb on which to
-            set the property.
-        :param value: The value to set for the specified limb
-        :return: self
-        :rtype: Property
+        :param key:
+            Either a long or short key name for the limb on which to set the
+            property
+        :param value:
+            The value to set for the specified limb
         """
 
         if not hasattr(self, key):
@@ -68,12 +71,10 @@ class Property(object):
 
         return self
 
-    def assign(self, *args, **kwargs):
-        """ Sets the values for each of the limb properties in the arguments
-            list with a non-None value.
-
-        :return: self
-        :rtype: Property
+    def assign(self, *args, **kwargs) -> 'Property':
+        """
+        Sets the values for each of the limb properties in the arguments list
+        with a non-None value. Returns this instance for method chaining
         """
 
         for i in range(len(args)):
@@ -89,12 +90,10 @@ class Property(object):
 
         return self
 
-    def items(self):
-        """ Key-value pairs for each limb
-
-        :return: A tuple where each element is a 2-tuple containing a key
-            and value pair for each limb.
-        :rtype: tuple
+    def items(self) -> typing.Tuple[tuple]:
+        """
+        Key-value pairs for each limb as a tuple where each element is a
+        2-tuple containing a key and value pair for each limb.
         """
 
         return (
@@ -104,11 +103,10 @@ class Property(object):
             (RIGHT_MANUS, self.right_manus)
         )
 
-    def values(self):
-        """ Values for each limb
-
-        :return: A tuple containing the limb-ordered values of
-        :rtype: list
+    def values(self) -> tuple:
+        """
+        Values for each limb as a tuple containing the limb-ordered values of
+        the Property
         """
 
         return (
@@ -118,16 +116,46 @@ class Property(object):
             self.right_manus
         )
 
-    def toDict(self):
-        """ Converts the Property instance to a dictionary
-
-        :return: A dictionary with the keys and values of the Property
-        :rtype: dict
+    def to_dict(self) -> dict:
+        """
+        Converts the Property instance to a dictionary with the keys and values
+        of the Property
         """
 
         return {
-            LEFT_PES:self.left_pes,
-            RIGHT_PES:self.right_pes,
-            LEFT_MANUS:self.left_manus,
-            RIGHT_MANUS:self.right_manus
+            LEFT_PES: self.left_pes,
+            RIGHT_PES: self.right_pes,
+            LEFT_MANUS: self.left_manus,
+            RIGHT_MANUS: self.right_manus
         }
+
+    def clone(self):
+        """
+        Returns a deep copy of the Property instance. The clone attempts to
+        create a deep copy of each limb value by the following methods:
+
+        1. If the value has a clone method, attempts to call that clone method.
+        2. Serializing and then de-serializing the value if it is an
+            appropriate type for that conversion
+        3. Assume that the value is primitive and immutable and can be used
+            directly in a copy
+        """
+
+        def deep_copy(value):
+            try:
+                if hasattr(value, 'clone'):
+                    value.clone()
+            except Exception:
+                pass
+
+            try:
+                json.loads(json.dumps(value))
+            except Exception:
+                pass
+
+            return value
+
+        out = Property()
+        for k in KEYS:
+            out.set(k, deep_copy(self.get(k)))
+        return out

@@ -1,15 +1,10 @@
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import unittest
 
 from tracksim import limb
 from tracksim import svg
 from tracksim.svg import draw
 from tracksim import generate
+
 
 class test_svg(unittest.TestCase):
 
@@ -42,15 +37,17 @@ class test_svg(unittest.TestCase):
         phases = limb.Property().assign(0.0, 0.5, 0.6, 0.1)
 
         trackway = generate.trackway_data(
-            count=12,
+            cycle_count=12,
             step_size=0.75,
-            limb_offsets=phases,
+            track_offsets=phases,
             limb_phases=phases,
-            lateral_displacement=0.1)
+            lateral_displacement=0.1
+        )
 
         draw.trackway_positions(
             limb_positions=trackway.limb_positions,
-            drawer=drawer)
+            drawer=drawer
+        )
 
         result = drawer.dumps()
         print(result)

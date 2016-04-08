@@ -1,12 +1,8 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import measurement_stats as mstats
 
 from tracksim import group
 from tracksim import limb
+
 
 def separations(foot_positions):
     """
@@ -20,17 +16,16 @@ def separations(foot_positions):
     front = []
     back = []
 
-
     for i in range(len(foot_positions.values()[0])):
         lp = foot_positions.left_pes[i]
         rp = foot_positions.right_pes[i]
         lm = foot_positions.left_manus[i]
         rm = foot_positions.right_manus[i]
 
-        left.append(group.distance_between(lp, lm))
-        right.append(group.distance_between(rp, rm))
-        front.append(group.distance_between(lm, rm))
-        back.append(group.distance_between(lp, rp))
+        left.append(lp.distance_between(lm))
+        right.append(rp.distance_between(rm))
+        front.append(lm.distance_between(rm))
+        back.append(lp.distance_between(rp))
 
     return dict(
         left=left,
@@ -38,6 +33,7 @@ def separations(foot_positions):
         front=front,
         back=back
     )
+
 
 def coupling_distance(foot_positions):
     """
@@ -62,7 +58,7 @@ def coupling_distance(foot_positions):
             foot_positions.left_manus[i],
             foot_positions.right_manus[i])
 
-        length = group.distance_between(pes_pos, manus_pos)
+        length = pes_pos.distance_between(manus_pos)
 
         bounds = (
             length.value - 2.0 * length.uncertainty,
@@ -98,6 +94,7 @@ def coupling_distance(foot_positions):
         bounds_list=bounds_list
     )
 
+
 def get_midpoint(position_a, position_b):
     """
 
@@ -110,6 +107,7 @@ def get_midpoint(position_a, position_b):
     out.x += 0.5*(position_b.x - position_a.x)
     out.y += 0.5*(position_b.y - position_a.y)
     return out
+
 
 def plane_limb_extensions(foot_positions):
     """
@@ -127,8 +125,7 @@ def plane_limb_extensions(foot_positions):
             foot_positions.right_pes[i])
 
         for key in [limb.LEFT_PES, limb.RIGHT_PES]:
-            out.get(key).append(group.distance_between(
-                pes_pos,
+            out.get(key).append(pes_pos.distance_between(
                 foot_positions.get(key)[i]
             ))
 
@@ -137,8 +134,7 @@ def plane_limb_extensions(foot_positions):
             foot_positions.right_manus[i])
 
         for key in [limb.LEFT_MANUS, limb.RIGHT_MANUS]:
-            out.get(key).append(group.distance_between(
-                manus_pos,
+            out.get(key).append(manus_pos.distance_between(
                 foot_positions.get(key)[i]
             ))
 

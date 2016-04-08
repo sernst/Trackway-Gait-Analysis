@@ -7,9 +7,9 @@ MY_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def make_project_path(*args: typing.List[str]) -> str:
-    """ Creates an absolute path to a file or folder within the trackway gait
-        analysis project using the relative path elements specified by the
-        args.
+    """
+    Creates an absolute path to a file or folder within the trackway gait
+    analysis project using the relative path elements specified by the args.
 
     :param args: Zero or more relative path elements that describe a file or
         folder within the project
@@ -19,9 +19,10 @@ def make_project_path(*args: typing.List[str]) -> str:
 
 
 def make_resource_path(*args: typing.List[str]) -> str:
-    """ Creates an absolute path to a file or folder within the resources
-        folder of the trackway gait analysis project using the relative path
-        elements specified by the args.
+    """
+    Creates an absolute path to a file or folder within the resources folder of
+    the trackway gait analysis project using the relative path elements
+    specified by the args.
 
     :param args: Zero or more relative path elements that describe a file or
         folder within the resources folder
@@ -31,9 +32,10 @@ def make_resource_path(*args: typing.List[str]) -> str:
 
 
 def make_results_path(*args: typing.List[str]) -> str:
-    """ Creates an absolute path to a file or folder within the results
-        folder of the trackway gait analysis project using the relative path
-        elements specified by the args.
+    """
+    Creates an absolute path to a file or folder within the results folder of
+    the trackway gait analysis project using the relative path elements
+    specified by the args.
 
     :param args: Zero or more relative path elements that describe a file or
         folder within the results folder
@@ -43,13 +45,15 @@ def make_results_path(*args: typing.List[str]) -> str:
 
 
 def log(
-        message: str,
+        message: typing.Union[str, list],
         whitespace: int = 0,
         whitespace_top: int = 0,
         whitespace_bottom: int = 0,
-        **kwargs) -> str:
-    """ Logs a message to the console with the formatting support beyond a
-        simple print statement or logger statement.
+        **kwargs
+) -> str:
+    """
+    Logs a message to the console with the formatting support beyond a simple
+    print statement or logger statement.
 
     :param message:
         The primary log message for the entry
@@ -62,8 +66,11 @@ def log(
         whitespace are both specified, the larger of the two values will be
         used.
     :param whitespace_bottom:
+        The number of lines of whitespace to append to the end of the log
+        message when printed to the console. If whitespace_bottom and
+        whitespace are both specified, the larger of hte two values will be
+        used.
     :param kwargs:
-    :return:
     """
 
     m = []
@@ -101,8 +108,13 @@ def log(
 
 def end(code: int):
     """
+    Ends the application with the specified error code, adding whitespace to
+    the end of the console log output for clarity
 
     :param code:
+        The integer status code to apply on exit. If the value is non-zero,
+        indicating an error, a message will be printed to the console to
+        inform the user that the application exited in error
     """
 
     print('\n')

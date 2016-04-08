@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import json
 from json import encoder
@@ -10,14 +5,29 @@ import textwrap
 
 import tracksim
 
-def write_javascript_files(directory, sim_id, key, data):
+
+def write_javascript_files(
+        directory: str,
+        sim_id: str,
+        key: str,
+        data: dict
+) -> list:
     """
+    Writes javascript files, both JSON file and JS files, containing the
+    serialized data object in the specified directory
 
     :param directory:
+        The path to a folder where the javascript files will be written
     :param sim_id:
+        The file-safe simulation identifier that will be used as the file
+        names for the written javascript files
     :param key:
+        The variable name for the data object in the JavaScript (js) file,
+        such that when loaded the data will be accessible on the window object
+        with that key name. For example, if the key was 'DATA' then the
+        JavaScript file would assign the data object to window.DATA
     :param data:
-    :return:
+        The object to be serialized and written to the JSON and JS files
     """
 
     if not os.path.exists(directory):
@@ -45,7 +55,8 @@ def write_javascript_files(directory, sim_id, key, data):
         }());
     """
         .replace('###KEY###', key)
-        .replace('###DATA###', out) )
+        .replace('###DATA###', out)
+    )
 
     contents = textwrap.dedent(contents).strip()
     path = os.path.join(directory, '{}.js'.format(sim_id))
@@ -55,10 +66,18 @@ def write_javascript_files(directory, sim_id, key, data):
 
     return paths
 
-def save_temp_json_file(filename, data):
+
+def save_temp_json_file(filename: str, data: dict):
     """
+    Saves the data dictionary to a temporary JSON file with the specified
+    filename
+
     :param filename:
+        The name of the temp file to save. The filename can also contain folder
+        components, representing a path relative to the temporary root path
+        for the running tracksim application
     :param data:
+        The data to be stored in the temp file
     """
 
     temp_path = tracksim.make_results_path('temp', filename)

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+import typing
 
 import numpy as np
 
@@ -9,12 +6,22 @@ import measurement_stats as mstats
 from tracksim import limb
 from tracksim import trackway
 
-def time_steps_from_data(steps_per_cycle, trackway_definition):
+
+def time_steps_from_data(
+        steps_per_cycle: int,
+        trackway_definition: trackway.TrackwayDefinition
+) -> np.ndarray:
     """
+    Creates an array of time steps based on the number of steps per cycle and
+    the information stored in the trackway_definition. This works like the
+    time_steps method, but the minimum and maximum times are determined
+    automatically based on the trackway_definition.
 
     :param steps_per_cycle:
+        The number of time steps in each cycle, where a cycle is defined as a
+        unit amount of time (1.0, 2.0, 3.0, ...).
     :param trackway_definition:
-    :return:
+        The positional information for the trackway
     """
 
     max_time = 0
@@ -24,48 +31,87 @@ def time_steps_from_data(steps_per_cycle, trackway_definition):
 
     return time_steps(steps_per_cycle, -1.0, max_time)
 
-def time_steps(steps_per_cycle, min_time, max_time):
+
+def time_steps(
+        steps_per_cycle: int,
+        min_time: float,
+        max_time: float
+) -> np.ndarray:
     """
+    Creates an evenly spaced Numpy array of time steps between the min and max
+    times inclusively where the spacing is determined by the steps_per_cycle.
 
     :param steps_per_cycle:
+        The number of time steps in each cycle, where a cycle is defined as a
+        unit amount of time (1.0, 2.0, 3.0, ...).
     :param min_time:
+        The time at which to start the time step array
     :param max_time:
-    :return:
+        The time at which to end the time step array
     """
 
     return np.linspace(
-            start=min_time,
-            stop=max_time,
-            num=steps_per_cycle * (max_time - min_time) + 1)
+        start=min_time,
+        stop=max_time,
+        num=steps_per_cycle * (max_time - min_time) + 1
+    )
+
 
 def trackway_data(
-        count, step_size, limb_phases, limb_offsets, lateral_displacement):
+        cycle_count: int,
+        step_size: float,
+        limb_phases: limb.Property,
+        track_offsets: limb.Property,
+        lateral_displacement: typing.Union[float, list, tuple]
+) -> trackway.TrackwayDefinition:
     """
+    Creates a simulated trackway definition with trackway positions calculated
+    based on the arguments
 
-    :param count:
+    :param cycle_count:
+        The number cycles to include in the simulation data
     :param step_size:
+        The length (in meters) between successive steps for each limb in the
+        trackway
     :param limb_phases:
-    :param limb_offsets:
+        The phases for each limb, which is the standard phases object used by
+        both
+    :param track_offsets:
+        The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
+        The lateral distance from the mid-line for each limb
     :return:
     """
 
     return trackway.TrackwayDefinition(
         limb_phases=limb_phases,
         limb_positions=trackway_positions(
-            count=count,
+            cycle_count=cycle_count,
             step_size=step_size,
-            track_offsets=limb_offsets,
-            lateral_displacement=lateral_displacement ))
+            track_offsets=track_offsets,
+            lateral_displacement=lateral_displacement
+        ))
 
-def trackway_positions(count, step_size, track_offsets, lateral_displacement):
+
+def trackway_positions(
+        cycle_count: int,
+        step_size: float,
+        track_offsets: limb.Property,
+        lateral_displacement: typing.Union[float, list, tuple]
+) -> limb.Property:
     """
+    Creates a limb Property with trackway positions for each limb based on the
+    specified arguments
 
-    :param count:
+    :param cycle_count:
+        The number cycles to include in the simulation data
     :param step_size:
+        The length (in meters) between successive steps for each limb in the
+        trackway
     :param track_offsets:
+        The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
-    :return:
+        The lateral distance from the mid-line for each limb
     """
 
     assert isinstance(track_offsets, limb.Property), \
@@ -80,46 +126,66 @@ def trackway_positions(count, step_size, track_offsets, lateral_displacement):
 
     return limb.Property(
         left_pes=track_positions(
-            count=count,
+            cycle_count=cycle_count,
             step_size=step_size,
-            limb_offset=track_offsets.left_pes,
-            lateral_displacement=pes_lateral_displacement),
+            track_offset=track_offsets.left_pes,
+            lateral_displacement=pes_lateral_displacement
+        ),
         right_pes=track_positions(
-            count=count,
+            cycle_count=cycle_count,
             step_size=step_size,
-            limb_offset=track_offsets.right_pes,
-            lateral_displacement=-pes_lateral_displacement),
+            track_offset=track_offsets.right_pes,
+            lateral_displacement=-pes_lateral_displacement
+        ),
         left_manus=track_positions(
-            count=count,
+            cycle_count=cycle_count,
             step_size=step_size,
-            limb_offset=track_offsets.left_manus,
-            lateral_displacement=manus_lateral_displacement),
+            track_offset=track_offsets.left_manus,
+            lateral_displacement=manus_lateral_displacement
+        ),
         right_manus=track_positions(
-            count=count,
+            cycle_count=cycle_count,
             step_size=step_size,
-            limb_offset=track_offsets.right_manus,
-            lateral_displacement=-manus_lateral_displacement) )
+            track_offset=track_offsets.right_manus,
+            lateral_displacement=-manus_lateral_displacement
+        )
+    )
 
-def track_positions(count, step_size, limb_offset, lateral_displacement):
+
+def track_positions(
+        cycle_count: int,
+        step_size: float,
+        track_offset: float,
+        lateral_displacement: float
+) -> list:
     """
+    Creates a list of trackway positions for a limb based on the
+    specified arguments
 
-    :param count:
+    :param cycle_count:
+        The number cycles to include in the simulation data
     :param step_size:
-    :param limb_offset:
+        The length (in meters) between successive steps for each limb in the
+        trackway
+    :param track_offset:
+        The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
-    :return:
+        The lateral distance from the mid-line for each limb
     """
 
     out = []
 
-    for i in range(count):
+    for i in range(cycle_count):
         out.append(trackway.TrackPosition(
             x=mstats.value.ValueUncertainty(
-                value=(limb_offset + i) * step_size,
-                uncertainty=0.01),
+                value=(track_offset + i) * step_size,
+                uncertainty=0.01
+            ),
             y=mstats.value.ValueUncertainty(
                 value=lateral_displacement,
-                uncertainty=0.01) ))
+                uncertainty=0.01)
+            )
+        )
 
     return out
 

@@ -1,7 +1,5 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+import typing
+from datetime import datetime
 
 import measurement_stats as mstats
 
@@ -9,19 +7,30 @@ import tracksim
 from tracksim import reporting
 
 
-def write(start_time, group_configs, analysis, trials):
+def create(
+        start_time: datetime,
+        group_configs: dict,
+        analysis: dict,
+        trials: typing.List[dict]
+) -> dict:
     """
+    Creates a group report dictionary and writes it to the group report
+    directory as well as returning it
 
     :param start_time:
+        The datetime when the group of simulations started
     :param group_configs:
+        Configuration for the group
     :param analysis:
+        Group analysis dictionary
     :param trials:
-    :return:
+        List of trial simulation results
     """
 
     group_id = group_configs['name'].replace(' ', '-')
 
     out = dict(
+        run_time=start_time,
         id=group_id,
         configs=group_configs,
         trials=make_trial_data(trials),
@@ -38,16 +47,19 @@ def write(start_time, group_configs, analysis, trials):
 
     return out
 
-def make_trial_data(trials):
-    """
 
-    :param trials:
-    :return:
+def make_trial_data(trial_results: typing.List[dict]) -> list:
+    """
+    Returns a list of trial pruned data information from the trial simulation
+    results list that is relevant for group reporting
+
+    :param trial_results:
+        Simulation results for each trial run by the group
     """
 
     out = []
 
-    for t in trials:
+    for t in trial_results:
         out.append(dict(
             index=t['index'],
             id=t['id'],
@@ -57,12 +69,16 @@ def make_trial_data(trials):
 
     return out
 
-def make_coupling_data(source, trials):
-    """
 
-    :param source:
-    :param trials:
-    :return:
+def make_coupling_data(couplings, trial_results):
+    """
+    Generates coupling report data from the analyzed coupling data and the
+    individual simulation trial results
+
+    :param couplings:
+        Grouped coupling data from the grouped simulation results
+    :param trial_results:
+        Simulation results for each trial run by the group
     """
 
     dists = []
@@ -70,7 +86,7 @@ def make_coupling_data(source, trials):
 
     min_value = 1e6
     max_value = -1e6
-    for t in trials:
+    for t in trial_results:
         couplings = t['results']['couplings']
 
         bounds.append(couplings['bounds'])
@@ -88,11 +104,11 @@ def make_coupling_data(source, trials):
         populations.append(mstats.density.ops.population(dist, 256))
         densities.append(dist.probabilities_at(x_values))
 
-    vals, uncs = mstats.values.unzip(source['values'])
+    values, uncertainties = mstats.values.unzip(couplings['values'])
 
     return dict(
-        values=vals,
-        uncertainties=uncs,
+        values=values,
+        uncertainties=uncertainties,
         populations=populations,
         bounds=bounds,
         densities={

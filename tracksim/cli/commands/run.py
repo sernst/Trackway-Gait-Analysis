@@ -17,6 +17,7 @@ DESCRIPTION = """
     arguments.
     """
 
+
 def get_path(path, run_configs):
     """
 
@@ -41,7 +42,8 @@ def get_path(path, run_configs):
 
     return None
 
-def find_group_file(path):
+
+def find_group_file(path: str) -> str:
     """
 
     :param path:
@@ -65,10 +67,14 @@ def find_group_file(path):
         except json_decoder.JSONDecodeError as err:
             tracksim.log([
                 '[ERROR]: Failed to decode json file',
-                [   'PATH: {}'.format(path),
+                [
+                    'PATH: {}'.format(path),
                     'INFO: {}'.format(err.msg),
-                    [   'LINE: {}'.format(err.lineno),
-                        'CHAR: {}'.format(err.colno) ]]
+                    [
+                        'LINE: {}'.format(err.lineno),
+                        'CHAR: {}'.format(err.colno)
+                    ]
+                ]
             ])
             return tracksim.end(1)
 
@@ -77,6 +83,7 @@ def find_group_file(path):
 
     tracksim.log('ERROR: No group trial found in path: "{}"'.format(path))
     tracksim.end(2)
+
 
 def run(**kwargs):
     """
@@ -91,7 +98,7 @@ def run(**kwargs):
 
     path = get_path(kwargs.get('path'), run_configs)
     if path is None:
-        tracksim.log('ERROR: Invalid or missing path argument. Unable to simulate')
+        tracksim.log('ERROR: Invalid or missing path argument')
         sys.exit(1)
 
     if os.path.isdir(path):
@@ -138,6 +145,7 @@ def run(**kwargs):
     )
     tracksim.log('[COMPLETE]: Simulation Done', URL=url)
 
+
 def run_interactive():
     """
 
@@ -161,6 +169,7 @@ def run_interactive():
         path = input('Enter Source Path:')
 
     return run(path=path, configs=configs)
+
 
 def execute_command():
     """

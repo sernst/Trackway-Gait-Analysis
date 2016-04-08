@@ -1,9 +1,5 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
+import typing
 from datetime import datetime
 
 from tracksim import configs
@@ -12,15 +8,28 @@ from tracksim.group import report
 from tracksim.trial import simulate as simulate_trial
 
 def run(
-        group_configs, on_trial_start = None, on_trial_complete = None,
-        **kwargs):
+        group_configs: typing.Union[str, dict],
+        on_trial_start: typing.Callable[[dict], None] = None,
+        on_trial_complete: typing.Callable[[dict, dict], None] = None,
+        **kwargs
+) -> dict:
     """
+    Executes a grouped collection of simulation trials and returns the compiled
+    results for the individual trials, as well as results calculated for the
+    group of trials
 
     :param group_configs:
+        Settings for running the group of trials. Each trial configuration
+        will inherit values from these settings.
     :param on_trial_start:
+        A callback executed before each trial starts running, with the
+        loaded configuration settings object for that trial as the argument
     :param on_trial_complete:
+        A callback executed after each trial completes, with the simulation
+        results for that trial as the argument
+
     :param kwargs:
-    :return:
+        Optional setting overrides to be included in the group configuration
     """
 
     group_configs = configs.load(group_configs, **kwargs)
@@ -45,12 +54,12 @@ def run(
         ))
 
         if on_trial_complete is not None:
-            on_trial_complete(trials_configs)
+            on_trial_complete(trials_configs, trial_results)
 
     results = dict(
         couplings=analyze.coupling_distribution_data(trials)
     )
 
-    results['report'] = report.write(start_time, group_configs, results, trials)
+    results['report'] = report.create(start_time, group_configs, results, trials)
 
     return results

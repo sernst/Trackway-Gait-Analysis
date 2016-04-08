@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import sys
 import os
+import sys
 
 # Add Tracksim to python path for this session
 PROJECT_BIN_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.abspath(os.path.join(PROJECT_BIN_PATH, '..')))
 
 import tracksim
-from tracksim import cli
 from tracksim.cli import commands
 
 # Add whitespace when the command is executed
@@ -22,15 +16,14 @@ print('\n')
 if len(sys.argv) < 2:
     tracksim.log("""
     [ERROR]: tracksim requires a command argument that defines the operation
-    to be carried out. Valid commands include:
+    to be carried out. The expected structure is:
 
-        * run: Executes a simulation
-        * export: Registers the tracksim command for global use
-
-    Command Structure:
         $ tracksim [COMMAND] [ARGUMENTS] [--OPTIONS]
-    """)
 
+    For a list of available commands run:
+
+        $ tracksim help
+    """)
     tracksim.end(1)
 
 cmd = sys.argv[1].lower()

@@ -1,26 +1,32 @@
 import json
 import os
+import typing
 from json import decoder as json_decoder
 
 import tracksim
 
 
-def load(source, inherits = None, **kwargs):
-    """ Loads a JSON configuration file from the specified source path if the
-        source argument is a string. Otherwise, assumes the source is already
-        a dictionary object with the configuration information.
+def load(
+        source: typing.Union[str, dict],
+        inherits: dict = None,
+        **kwargs
+) -> dict:
+    """
+    Loads a JSON configuration file from the specified source path if the source
+    argument is a string. Otherwise, assumes the source is already a dictionary
+    object with the configuration information.
 
-        Then any specified keyword arguments are added to the configurations,
-        replacing any keys that were already defined.
+    Then any specified keyword arguments are added to the configurations,
+    replacing any keys that were already defined.
 
-    :param source: Either a string representing an absolute path to the configs
-        JSON file to be loaded, or a dictionary object of configuration values.
-
+    :param source:
+        Either a string representing an absolute path to the configs JSON file
+        to be loaded, or a dictionary object of configuration values
     :param inherits:
-
+        An optional dictionary of values that should be inherited where they
+        do not exist already in the source settings
     :return: The loaded configuration dictionary object augmented by any
-        keyword arguments.
-    :rtype: dict
+        keyword arguments
     """
 
     if isinstance(source, str):
@@ -38,10 +44,14 @@ def load(source, inherits = None, **kwargs):
         except json_decoder.JSONDecodeError as err:
             tracksim.log([
                 '[ERROR]: Failed to decode configs json file',
-                [   'PATH: {}'.format(path),
+                [
+                    'PATH: {}'.format(path),
                     'INFO: {}'.format(err.msg),
-                    [   'LINE: {}'.format(err.lineno),
-                        'CHAR: {}'.format(err.colno) ]]
+                    [
+                        'LINE: {}'.format(err.lineno),
+                        'CHAR: {}'.format(err.colno)
+                    ]
+                ]
             ])
             return tracksim.end(1)
 
