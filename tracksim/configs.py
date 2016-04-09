@@ -69,6 +69,7 @@ def load(
     for k, v in kwargs.items():
         source[k] = v
 
+    source['id'] = source['name'].replace(' ', '-')
     return source
 
 

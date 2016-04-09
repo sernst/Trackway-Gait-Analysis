@@ -3,6 +3,7 @@ import typing
 
 import six
 
+import tracksim
 from tracksim import configs
 from tracksim import generate
 from tracksim import limb
@@ -27,6 +28,9 @@ def run(
     """
 
     settings = configs.load(settings, **kwargs)
+
+    tracksim.log('[{}]: STARTING'.format(settings['id']))
+
     limb_phases = load_limb_phases(settings)
     trackway_positions = load_trackway_positions(settings, trackway_positions)
 
@@ -54,6 +58,8 @@ def run(
 
     prune_invalid_positions(settings, time_steps, foot_positions)
 
+    tracksim.log('[{}]: ANALYZING'.format(settings['id']))
+
     results = {
         'configs': settings,
         'times': time_steps,
@@ -67,6 +73,8 @@ def run(
         results['report'] = report.create(
             settings, trackway_definition, results
         )
+
+    tracksim.log('[{}]: COMPLETED'.format(settings['id']))
 
     return results
 

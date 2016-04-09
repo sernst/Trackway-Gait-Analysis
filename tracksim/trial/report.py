@@ -42,9 +42,15 @@ def create(
         drawer=drawer
     )
 
+    url = 'file://{root_path}/trial.html?id={id}'.format(
+        root_path=root_report_path,
+        id=sim_id
+    )
+
     data = {
         'root_path': root_report_path,
         'id': sim_id,
+        'url': url,
         'configs': settings,
         'date': datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
         'scale': svg_settings['scale'],

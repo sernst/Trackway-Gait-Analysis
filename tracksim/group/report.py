@@ -33,10 +33,16 @@ def create(
         group_configs.get('report_path')
     )
 
+    url = 'file://{root_path}/group.html?id={id}'.format(
+        root_path=root_report_path,
+        id=group_id
+    )
+
     out = dict(
         root_path=root_report_path,
         run_time=start_time.isoformat(),
         id=group_id,
+        url=url,
         configs=group_configs,
         trials=make_trial_data(trials),
         couplings=make_coupling_data(analysis['couplings'], trials)

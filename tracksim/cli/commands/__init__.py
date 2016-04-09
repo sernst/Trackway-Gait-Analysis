@@ -35,3 +35,16 @@ def get_module(command):
 
     return getattr(ME, command)
 
+def show_help():
+    """ Prints the basic command help to the console """
+
+    tracksim.log('The following commands are available:')
+    list_modules()
+
+    msg = """
+        For more information on the various commands, use the help flag on the
+        specific command:
+
+            tracksim [COMMAND] --help
+        """
+    tracksim.log(msg, whitespace_top=1)

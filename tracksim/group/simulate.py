@@ -2,15 +2,14 @@ import os
 import typing
 from datetime import datetime
 
+import tracksim
 from tracksim import configs
 from tracksim.group import analyze
 from tracksim.group import report
 from tracksim.trial import simulate as simulate_trial
 
 def run(
-        group_configs: typing.Union[str, dict],
-        on_trial_start: typing.Callable[[dict], None] = None,
-        on_trial_complete: typing.Callable[[dict, dict], None] = None,
+        settings: typing.Union[str, dict],
         **kwargs
 ) -> dict:
     """
@@ -18,51 +17,43 @@ def run(
     results for the individual trials, as well as results calculated for the
     group of trials
 
-    :param group_configs:
+    :param settings:
         Settings for running the group of trials. Each trial configuration
         will inherit values from these settings.
-    :param on_trial_start:
-        A callback executed before each trial starts running, with the
-        loaded configuration settings object for that trial as the argument
-    :param on_trial_complete:
-        A callback executed after each trial completes, with the simulation
-        results for that trial as the argument
-
     :param kwargs:
         Optional setting overrides to be included in the group configuration
     """
 
-    group_configs = configs.load(group_configs, **kwargs)
+    settings = configs.load(settings, **kwargs)
     start_time = datetime.utcnow()
     trials = []
 
-    for source in group_configs.get('trials', []):
+    tracksim.log('[{}]: STARTING'.format(settings['id']))
+
+    for source in settings.get('trials', []):
         if isinstance(source, str):
             source = os.path.abspath(
-                os.path.join(group_configs['path'], source)
+                os.path.join(settings['path'], source)
             )
 
-        trials_configs = configs.load(source, inherits=group_configs)
-
-        if on_trial_start is not None:
-            on_trial_start(trials_configs)
-
-        trial_results = simulate_trial.run(trials_configs)
-
+        trial_settings = configs.load(source, inherits=settings)
+        trial_results = simulate_trial.run(trial_settings)
         trials.append(dict(
-            configs=trials_configs,
+            configs=trial_settings,
             results=trial_results,
             index=len(trials) + 1,
-            id=trials_configs['name'].replace(' ', '-'),
+            id=trial_settings['id'],
         ))
 
-        if on_trial_complete is not None:
-            on_trial_complete(trials_configs, trial_results)
+    tracksim.log('[{}]: ANALYZING'.format(settings['id']))
 
     results = dict(
-        couplings=analyze.coupling_distribution_data(trials)
+        couplings=analyze.coupling_distribution_data(trials),
+        trials=trials
     )
 
-    results['report'] = report.create(start_time, group_configs, results, trials)
+    results['report'] = report.create(start_time, settings, results, trials)
+
+    tracksim.log('[{}]: COMPLETE'.format(settings['id']))
 
     return results
