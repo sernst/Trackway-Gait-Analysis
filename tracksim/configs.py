@@ -58,6 +58,9 @@ def load(
         source['path'] = os.path.dirname(path)
         source['filename'] = os.path.abspath(path)
 
+    else:
+        source = json.loads(json.dumps(source))
+
     if inherits:
         for k, v in inherits.items():
             if k not in source:

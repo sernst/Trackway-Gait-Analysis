@@ -1,7 +1,7 @@
 import measurement_stats as mstats
 
-from tracksim import group
 from tracksim import limb
+from tracksim import trackway
 
 
 def separations(foot_positions):
@@ -52,11 +52,13 @@ def coupling_distance(foot_positions):
 
         pes_pos = get_midpoint(
             foot_positions.left_pes[i],
-            foot_positions.right_pes[i])
+            foot_positions.right_pes[i]
+        )
 
         manus_pos = get_midpoint(
             foot_positions.left_manus[i],
-            foot_positions.right_manus[i])
+            foot_positions.right_manus[i]
+        )
 
         length = pes_pos.distance_between(manus_pos)
 
@@ -103,10 +105,10 @@ def get_midpoint(position_a, position_b):
     :return:
     """
 
-    out = position_a.clone()
-    out.x += 0.5*(position_b.x - position_a.x)
-    out.y += 0.5*(position_b.y - position_a.y)
-    return out
+    return trackway.TrackPosition(
+        x=0.5 * (position_a.x + position_b.x),
+        y=0.5 * (position_a.y + position_b.y)
+    )
 
 
 def plane_limb_extensions(foot_positions):

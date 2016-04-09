@@ -62,7 +62,8 @@ def trackway_data(
         step_size: float,
         limb_phases: limb.Property,
         track_offsets: limb.Property,
-        lateral_displacement: typing.Union[float, list, tuple]
+        lateral_displacement: typing.Union[float, list, tuple],
+        positional_uncertainty: float = None
 ) -> trackway.TrackwayDefinition:
     """
     Creates a simulated trackway definition with trackway positions calculated
@@ -80,7 +81,9 @@ def trackway_data(
         The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
         The lateral distance from the mid-line for each limb
-    :return:
+    :param positional_uncertainty:
+        The amount of uncertainty in the x and y positions for each track
+        in the trackway
     """
 
     return trackway.TrackwayDefinition(
@@ -89,7 +92,8 @@ def trackway_data(
             cycle_count=cycle_count,
             step_size=step_size,
             track_offsets=track_offsets,
-            lateral_displacement=lateral_displacement
+            lateral_displacement=lateral_displacement,
+            positional_uncertainty=positional_uncertainty
         ))
 
 
@@ -97,7 +101,8 @@ def trackway_positions(
         cycle_count: int,
         step_size: float,
         track_offsets: limb.Property,
-        lateral_displacement: typing.Union[float, list, tuple]
+        lateral_displacement: typing.Union[float, list, tuple],
+        positional_uncertainty: float = None,
 ) -> limb.Property:
     """
     Creates a limb Property with trackway positions for each limb based on the
@@ -112,6 +117,9 @@ def trackway_positions(
         The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
         The lateral distance from the mid-line for each limb
+    :param positional_uncertainty:
+        The amount of uncertainty in the x and y positions for each track
+        in the trackway
     """
 
     assert isinstance(track_offsets, limb.Property), \
@@ -129,25 +137,29 @@ def trackway_positions(
             cycle_count=cycle_count,
             step_size=step_size,
             track_offset=track_offsets.left_pes,
-            lateral_displacement=pes_lateral_displacement
+            lateral_displacement=pes_lateral_displacement,
+            positional_uncertainty=positional_uncertainty
         ),
         right_pes=track_positions(
             cycle_count=cycle_count,
             step_size=step_size,
             track_offset=track_offsets.right_pes,
-            lateral_displacement=-pes_lateral_displacement
+            lateral_displacement=-pes_lateral_displacement,
+            positional_uncertainty=positional_uncertainty
         ),
         left_manus=track_positions(
             cycle_count=cycle_count,
             step_size=step_size,
             track_offset=track_offsets.left_manus,
-            lateral_displacement=manus_lateral_displacement
+            lateral_displacement=manus_lateral_displacement,
+            positional_uncertainty=positional_uncertainty
         ),
         right_manus=track_positions(
             cycle_count=cycle_count,
             step_size=step_size,
             track_offset=track_offsets.right_manus,
-            lateral_displacement=-manus_lateral_displacement
+            lateral_displacement=-manus_lateral_displacement,
+            positional_uncertainty=positional_uncertainty
         )
     )
 
@@ -156,7 +168,8 @@ def track_positions(
         cycle_count: int,
         step_size: float,
         track_offset: float,
-        lateral_displacement: float
+        lateral_displacement: float,
+        positional_uncertainty: float = None
 ) -> list:
     """
     Creates a list of trackway positions for a limb based on the
@@ -171,21 +184,27 @@ def track_positions(
         The spatial offsets for each limb in the trackway.
     :param lateral_displacement:
         The lateral distance from the mid-line for each limb
+    :param positional_uncertainty:
+        The amount of uncertainty in the x and y positions for each track
+        in the trackway
     """
 
     out = []
+
+    if positional_uncertainty is None:
+        positional_uncertainty = 0.01
 
     for i in range(cycle_count):
         out.append(trackway.TrackPosition(
             x=mstats.value.ValueUncertainty(
                 value=(track_offset + i) * step_size,
-                uncertainty=0.01
+                uncertainty=positional_uncertainty
             ),
             y=mstats.value.ValueUncertainty(
                 value=lateral_displacement,
-                uncertainty=0.01)
+                uncertainty=positional_uncertainty
             )
-        )
+        ))
 
     return out
 

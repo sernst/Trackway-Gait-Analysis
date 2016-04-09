@@ -1,8 +1,8 @@
 import functools
 import json
 import os
-import re
 import sys
+import typing
 from argparse import ArgumentParser
 from json import decoder as json_decoder
 
@@ -14,15 +14,15 @@ from tracksim.trial import simulate as simulate_trial
 DESCRIPTION = """
     Runs a trackway gait analysis simulation for the given scenario group
     or trial according to the path configuration options specified by the
-    arguments.
+    arguments
     """
 
 
-def get_path(path, run_configs):
+def get_path(path: str, cli_configs: dict) -> typing.Union[str, None]:
     """
 
     :param path:
-    :param run_configs:
+    :param cli_configs:
     :return:
     """
 
@@ -32,7 +32,7 @@ def get_path(path, run_configs):
     if os.path.exists(path):
         return path
 
-    paths = run_configs.get('paths', []) + []
+    paths = cli_configs.get('paths', []) + []
     paths.insert(0, os.getcwd())
 
     for directory in paths:
@@ -43,15 +43,23 @@ def get_path(path, run_configs):
     return None
 
 
-def find_group_file(path: str) -> str:
+def find_group_files(path: str) -> typing.List[str]:
     """
+    Finds all group configuration JSON files stored in the specified path
+    directory
 
     :param path:
-    :return:
+        Path to the directory where the group files search should take place
     """
 
+    paths = []
+
     # Prioritize group files named "group.json" over other files in the path
-    items = ['group.json'] + os.listdir(path)
+    items = ['group.json']
+    for item in os.listdir(path):
+        if item == 'group.json':
+            continue
+        items.append(item)
 
     for item in items:
         item_path = os.path.join(path, item)
@@ -79,11 +87,13 @@ def find_group_file(path: str) -> str:
             return tracksim.end(1)
 
         if 'trials' in data:
-            return item_path
+            paths.append(item_path)
 
-    tracksim.log('ERROR: No group trial found in path: "{}"'.format(path))
-    tracksim.end(2)
+    if not paths:
+        tracksim.log('ERROR: No group trial found in path: "{}"'.format(path))
+        tracksim.end(2)
 
+    return paths
 
 def run(**kwargs):
     """
@@ -92,23 +102,68 @@ def run(**kwargs):
     :return:
     """
 
-    run_configs = kwargs.get('configs')
-    if run_configs is None:
-        run_configs = cli.load_configs()
+    cli_configs = kwargs.get('configs')
+    if cli_configs is None:
+        cli_configs = cli.load_configs()
 
-    path = get_path(kwargs.get('path'), run_configs)
+    path = get_path(kwargs.get('path'), cli_configs)
     if path is None:
         tracksim.log('ERROR: Invalid or missing path argument')
         sys.exit(1)
 
-    if os.path.isdir(path):
-        is_trial = False
-        path = find_group_file(path)
-    else:
+    if os.path.isfile(path):
         with open(path, 'r+') as f:
             data = json.load(f)
 
-        is_trial = bool('trials' in data)
+        if bool('trials' in data):
+            run_group(cli_configs, path, **kwargs)
+        else:
+            run_trial(cli_configs, path, **kwargs)
+    else:
+        group_paths = find_group_files(path)
+        if not kwargs.get('run_all_groups'):
+            group_paths = group_paths[0:1]
+
+        urls = []
+        for p in group_paths:
+            results, url = run_group(cli_configs, p, **kwargs)
+            urls.append(url)
+
+        if len(urls) > 1:
+            tracksim.log('Groups Run:', whitespace_top=2)
+            for url in urls:
+                tracksim.log(url)
+
+
+def run_trial(cli_configs: dict, run_path: str, **kwargs) -> dict:
+    """
+
+    :param cli_configs:
+    :param run_path:
+    :param kwargs:
+    :return:
+    """
+
+    tracksim.log('[START]: Trial Simulation')
+    results = simulate_trial.run(
+        run_path,
+        report_path=kwargs.get('report_path')
+    )
+    tracksim.log('[COMPLETE]: Trial Simulation')
+
+    url = finalize_run(cli_configs, results, is_group=False, **kwargs)
+
+    return results, url
+
+
+def run_group(cli_configs: dict, run_path: str, **kwargs) -> dict:
+    """
+
+    :param cli_configs:
+    :param run_path:
+    :param kwargs:
+    :return:
+    """
 
     def print_status(state, trial_configs, *args, **kwargs):
         message = 'Trial "{}"'.format(trial_configs['name'])
@@ -117,62 +172,56 @@ def run(**kwargs):
             message=message
         ))
 
-    if simulate_group:
-        tracksim.log('[START]: Group Simulation')
-        results = simulate_group.run(
-            path,
-            start_time=kwargs.get('start_time', 0),
-            stop_time=kwargs.get('stop_time', 1.0e8),
-            on_trial_start=functools.partial(print_status, 'START'),
-            on_trial_complete=functools.partial(print_status, 'COMPLETE'),
-            report_path=kwargs.get('report_path')
-        )
-    else:
-        tracksim.log('[START]: Trial Simulation')
-        results = simulate_trial.run(
-            path,
-            report_path=kwargs.get('report_path')
-        )
+    tracksim.log('[START]: Group Simulation')
+    results = simulate_group.run(
+        run_path,
+        start_time=kwargs.get('start_time', 0),
+        stop_time=kwargs.get('stop_time', 1.0e8),
+        on_trial_start=functools.partial(print_status, 'START'),
+        on_trial_complete=functools.partial(print_status, 'COMPLETE'),
+        report_path=kwargs.get('report_path')
+    )
+
+    tracksim.log('[COMPLETE]: Group Simulation')
+
+    url = finalize_run(cli_configs, results, is_group=True, **kwargs)
+
+    return results, url
+
+
+def finalize_run(
+        cli_configs: dict,
+        results: dict,
+        is_group: bool,
+        **kwargs
+):
+    """
+
+    :param cli_configs:
+    :param results:
+    :param is_group:
+    :param kwargs:
+    :return:
+    """
+
+    tracksim.log('[FINALIZING]: Updating configuration and history')
 
     p = kwargs.get('path')
     if p:
-        recent_paths = run_configs.get('recent', [])
+        recent_paths = cli_configs.get('recent', [])
         recent_paths = list(filter((p).__ne__, recent_paths))
         recent_paths.insert(0, p)
-        run_configs['recent'] = recent_paths[:5]
-        cli.save_configs(run_configs)
+        cli_configs['recent'] = recent_paths[:5]
+        cli.save_configs(cli_configs)
 
     url = 'file://{}/{}.html?id={}'.format(
         results['report']['root_path'],
-        'trial' if is_trial else 'group',
+        'group' if is_group else 'trial',
         results['report']['id']
     )
     tracksim.log('[COMPLETE]: Simulation Done', URL=url)
 
-
-def run_interactive():
-    """
-
-    :return:
-    """
-
-    configs = cli.load_configs()
-    recent = configs.get('recent', [])
-
-    if recent:
-        print('\n\nChoose Source Path for Simulation:')
-        for index in range(len(recent)):
-            print('{}: {}'.format(index, recent[index]))
-        print('Or enter a new path')
-        path = input('Source Path:')
-
-        pattern = re.compile('^[0-9]+&')
-        if pattern.match(path):
-            path = recent[int(path, 10)]
-    else:
-        path = input('Enter Source Path:')
-
-    return run(path=path, configs=configs)
+    return url
 
 
 def execute_command():
@@ -180,8 +229,6 @@ def execute_command():
 
     :return:
     """
-    if len(sys.argv) < 3:
-        return run_interactive()
 
     parser = ArgumentParser()
 
@@ -238,8 +285,19 @@ def execute_command():
             """)
     )
 
-    run(**vars(parser.parse_args()))
+    parser.add_argument(
+        '-a', '--all',
+        dest='run_all_groups',
+        action='store_true',
+        default=False,
+        help=cli.reformat("""
+            When included, this flag indicates that all of the group files
+            within the specified path directory should be run in order,
+            instead of just the first one found, which is the default behavior.
+            """)
+    )
 
+    run(**vars(parser.parse_args()))
 
 
 

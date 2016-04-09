@@ -4,11 +4,10 @@ from datetime import datetime
 
 import measurement_stats as mstats
 
-import tracksim
 from tracksim import limb
-from tracksim import trackway
 from tracksim import reporting
 from tracksim import svg
+from tracksim import trackway
 from tracksim.svg import draw
 
 

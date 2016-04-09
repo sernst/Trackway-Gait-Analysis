@@ -6,7 +6,7 @@ from tracksim import cli
 from tracksim.cli import query
 
 DESCRIPTION = """
-    Removes all existing group and trial results from cached results folders.
+    Removes all existing group and trial results from cached results folders
     """
 
 def execute_command():

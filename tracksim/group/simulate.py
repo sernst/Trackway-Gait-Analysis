@@ -36,10 +36,13 @@ def run(
     start_time = datetime.utcnow()
     trials = []
 
-    for filename in group_configs.get('trials', []):
-        path = os.path.abspath(os.path.join(group_configs['path'], filename))
+    for source in group_configs.get('trials', []):
+        if isinstance(source, str):
+            source = os.path.abspath(
+                os.path.join(group_configs['path'], source)
+            )
 
-        trials_configs = configs.load(path, inherits=group_configs)
+        trials_configs = configs.load(source, inherits=group_configs)
 
         if on_trial_start is not None:
             on_trial_start(trials_configs)

@@ -122,7 +122,8 @@ def load_trackway_positions(
         cycle_count=data['count'],
         step_size=data['step_size'],
         track_offsets=track_offsets,
-        lateral_displacement=data['lateral_displacement']
+        lateral_displacement=data['lateral_displacement'],
+        positional_uncertainty=data.get('uncertainty')
     )
 
 
