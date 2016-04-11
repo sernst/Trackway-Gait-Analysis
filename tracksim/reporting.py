@@ -133,9 +133,11 @@ def initialize_output_directory(path: str = None) -> str:
 
 def inspect_json_structure(path: str) -> dict:
     """
-    Inspects the JSON structure and returns a list of the keys
+    Opens the JSON file at the specified path and returns a dictionary
+    representation of its structure.
+
     :param path:
-    :return:
+        The path to the JSON file to be inspected
     """
 
     def inspect_data(source_key: str = None, source=None) -> dict:
@@ -181,11 +183,15 @@ def inspect_json_structure(path: str) -> dict:
 
     return inspect_data(source=data)
 
-def echo_json_structure(path):
+
+def echo_json_structure(path: str) -> str:
     """
+    Opens the JSON file at the specified path and returns a string
+    representation of its structure, including the data types of the constituent
+    elements
 
     :param path:
-    :return:
+        The source path to the JSON file
     """
 
     out = []
