@@ -132,7 +132,7 @@ def run(**kwargs):
             results.append(run_simulation(
                 is_group=True,
                 cli_configs=cli_configs,
-                run_path=path,
+                run_path=p,
                 **kwargs
             ))
 

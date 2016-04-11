@@ -15,7 +15,30 @@ def create(
 ) -> dict:
     """
     Creates a group report dictionary and writes it to the group report
-    directory as well as returning it
+    directory as well as returning it. The report JSON structure is:
+
+        * url: str
+        * id: str
+        * trials: list dict[N-Trials]
+          * index: number
+          * name: str
+          * id: str
+          * summary: str
+        * couplings: dict
+          * densities: dict
+            * series: list[N-Trials]
+              * list number[]
+            * x: list number[]
+          * populations: list[N-Trials]
+            * list number[]
+          * uncertainties: list number[N-Trials]
+          * bounds: list dict[N-Trials]
+            * two_sigma: list number[2]
+            * one_sigma: list number[2]
+          * values: list number[N-Trials]
+        * run_time: str
+        * configs: dict
+        * root_path: str
 
     :param start_time:
         The datetime when the group of simulations started
@@ -25,6 +48,7 @@ def create(
         Group analysis dictionary
     :param trials:
         List of trial simulation results
+
     """
 
     group_id = group_configs['name'].replace(' ', '-')
