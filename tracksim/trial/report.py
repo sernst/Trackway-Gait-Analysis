@@ -18,7 +18,91 @@ def create(
 ) -> dict:
     """
     Creates a report based on the simulated trial data and saves that data
-    to the report directory as well as returning the data
+    to the report directory as well as returning the data:
+
+        * cycles: dict
+          * right_pes: list[N-Cycles]
+            * list number[2]
+          * left_pes: list[N-Cycles]
+            * list number[2]
+          * left_manus: list[N-Cycles]
+            * list number[2]
+          * right_manus: list[N-Cycles]
+            * list number[2]
+        * scale: number
+        * separations: dict
+          * back: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * left: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * right: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * front: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+        * limb_phases: dict
+          * right_pes: number
+          * left_pes: number
+          * left_manus: number
+          * right_manus: number
+        * svg: str
+        * time: dict
+          * cycles: list number[N]
+          * count: number
+          * progress: list number[N]
+        * markerIds: list str[4]
+        * root_path: str
+        * url: str
+        * offset: list number[2]
+        * id: str
+        * date: str
+        * couplings: dict
+          * values: list number[N]
+          * result: str
+          * uncertainties: list number[N]
+          * bounds: dict
+            * two_sigma: list number[2]
+            * one_sigma: list number[2]
+          * deviation_max: number
+        * extensions: dict
+          * right_pes: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * left_pes: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * left_manus: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+          * right_manus: dict
+            * values: list number[N]
+            * result: str
+            * uncertainties: list number[N]
+            * value: list number[2]
+        * frames: list dict[N]
+          * time: number
+          * positions: list dict[4]
+            * f: str
+            * x: list number[2]
+            * y: list number[2]
+        * configs: dict
 
     :param settings:
         Configuration for the trial being reported

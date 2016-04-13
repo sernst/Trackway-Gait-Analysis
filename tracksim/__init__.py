@@ -119,5 +119,5 @@ def end(code: int):
 
     print('\n')
     if code != 0:
-        log('Failed with status code: {}\n'.format(code))
+        log('Failed with status code: {}'.format(code), whitespace=1)
     sys.exit(code)

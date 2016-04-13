@@ -2,11 +2,10 @@ import json
 import os
 import shutil
 import textwrap
-import typing
 from json import encoder
 
 import tracksim
-
+from tracksim.reporting.build import create_index_file
 
 def write_javascript_files(
         directory: str,
@@ -56,9 +55,9 @@ def write_javascript_files(
             window.###KEY### = ###DATA###;
         }());
     """
-        .replace('###KEY###', key)
-        .replace('###DATA###', out)
-    )
+                .replace('###KEY###', key)
+                .replace('###DATA###', out)
+                )
 
     contents = textwrap.dedent(contents).strip()
     path = os.path.join(directory, '{}.js'.format(sim_id))
@@ -239,3 +238,42 @@ def echo_json_structure(path: str) -> str:
 
     echo_data(inspect_json_structure(path), -1)
     return '\n'.join(out)
+
+
+def list_results(path: str = None, trials: bool = True):
+    """
+
+    :param path:
+    :param trials:
+    :return:
+    """
+
+    out = []
+
+    if not path:
+        path = tracksim.make_results_path('report')
+    path = os.path.join(path, 'trials' if trials else 'groups')
+
+    if not os.path.exists(path):
+        return []
+
+    for item in os.listdir(path):
+        item_path = os.path.join(path, item)
+        if not os.path.isdir(item_path):
+            continue
+        json_path = os.path.join(item_path, '{}.json'.format(item))
+        if not os.path.exists(json_path):
+            continue
+
+        with open(json_path, 'r+') as f:
+            url = json.load(f)['url']
+
+        out.append(dict(
+            id=item,
+            url=url,
+            directory=item_path,
+            path=json_path
+        ))
+
+    return out
+

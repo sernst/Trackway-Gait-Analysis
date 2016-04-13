@@ -1,0 +1,27 @@
+
+.container {
+    padding: 1.0em;
+}
+
+.entries {
+
+}
+
+.entry {
+    float: left;
+    width: 30%;
+    cursor: pointer;
+    padding: 0.5em;
+}
+
+.entry:hover {
+    opacity: 0.5;
+}
+
+.title {
+    font-size: 1.2em;
+}
+
+.summary {
+    font-size: 0.8em;
+}
