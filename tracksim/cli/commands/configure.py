@@ -56,6 +56,31 @@ def echo_key(configs: dict, key: str):
 
     tracksim.log('[VALUE]: "{}" = {}'.format(key, configs[key]))
 
+def echo_all_keys(configs: dict):
+    """
+
+    :param configs:
+    :return:
+    """
+
+    configs.keys()
+
+
+def echo_all(configs: dict):
+    """
+
+    :param configs:
+    :return:
+    """
+
+    keys = list(configs.keys())
+    keys.sort()
+    out = ['Current Configuration:']
+    for k in keys:
+        out.append('  * {key}: {value}'.format(key=k, value=configs[k]))
+
+    tracksim.log('\n'.join(out))
+
 
 def execute_command():
     """ Runs the configure command """
@@ -72,6 +97,8 @@ def execute_command():
     parser.add_argument(
         'key',
         type=str,
+        nargs='?',
+        default=None,
         help=cli.reformat("""
             The configuration key to be modify
             """)
@@ -83,7 +110,8 @@ def execute_command():
         nargs='?',
         default=None,
         help=cli.reformat("""
-            The value to assign to the configuration key
+            The value to assign to the configuration key. If omitted, the
+            currently stored value for this key will be displayed.
             """)
     )
 
@@ -98,13 +126,31 @@ def execute_command():
             """)
     )
 
+    parser.add_argument(
+        '-l', '--list',
+        dest='list',
+        action='store_true',
+        default=False,
+        help=cli.reformat("""
+            This flag is only useful when no key and no value have been
+            specified. In such a case, this command will list all keys and
+            values currently stored in the configuration file.
+            """)
+    )
+
     args = vars(parser.parse_args())
 
     configs = tracksim.load_configs()
-    if args['remove']:
-        remove_key(configs, args['key'])
+    if args['key'] is None:
+        if args['list']:
+            echo_all(configs)
+        else:
+            parser.print_help()
     elif args['value'] is None:
-        echo_key(configs, args['key'])
+        if args['remove']:
+            remove_key(configs, args['key'])
+        else:
+            echo_key(configs, args['key'])
     else:
         set_key(configs, args['key'], args['value'])
 
