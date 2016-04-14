@@ -37,9 +37,9 @@ def execute_command():
 
     args = vars(parser.parse_args())
 
-    configs = cli.load_configs()
+    configs = tracksim.load_configs()
     configs[args['key']] = args['value']
-    cli.save_configs(configs)
+    tracksim.save_configs(configs)
 
     tracksim.log(
         '[UPDATED]: Configuration setting "{}" updated'.format(args['key'])

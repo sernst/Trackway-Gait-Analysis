@@ -109,7 +109,7 @@ def execute_command():
     )
 
     args = vars(parser.parse_args())
-    configs = cli.load_configs()
+    configs = tracksim.load_configs()
 
     upload_in_folder(
         get_aws_settings(configs, **args),

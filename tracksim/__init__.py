@@ -2,9 +2,12 @@ import sys
 import os
 from textwrap import dedent
 import typing
+import json
+from json import decoder as json_decoder
+
 
 MY_PATH = os.path.abspath(os.path.dirname(__file__))
-
+CONFIGS = None
 
 def make_project_path(*args: typing.List[str]) -> str:
     """
@@ -121,3 +124,39 @@ def end(code: int):
     if code != 0:
         log('Failed with status code: {}'.format(code), whitespace=1)
     sys.exit(code)
+
+
+def load_configs() -> dict:
+    """
+
+    :return:
+    """
+
+    path = os.path.expanduser('~/.tracksim.configs')
+    if not os.path.exists(path):
+        return {}
+
+    try:
+        with open(path, 'r+') as f:
+            return json.load(f)
+    except json_decoder.JSONDecodeError as err:
+        log([
+            '[ERROR]: Failed to decode json file',
+            ['PATH: {}'.format(path),
+             'INFO: {}'.format(err.msg),
+             ['LINE: {}'.format(err.lineno),
+              'CHAR: {}'.format(err.colno)]]
+        ])
+        return end(1)
+
+
+def save_configs(data: dict):
+    """
+
+    :param data:
+    :return:
+    """
+
+    path = os.path.expanduser('~/.tracksim.configs')
+    with open(path, 'w+') as f:
+        json.dump(data, f)

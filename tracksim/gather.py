@@ -48,3 +48,33 @@ def results(report_type:str, path: str = None) -> typing.List[dict]:
             out.append(data)
 
     return out
+
+def group_results(path: str = None) -> dict:
+    """
+
+    :param path:
+    :return:
+    """
+
+    groups = results('group', path)
+    trials = []
+
+    group_index = 0
+    result_index = 0
+    for g in groups:
+
+        for trial_index in range(len(g['trials'])):
+            trial = g['trials'][trial_index]
+
+            trials.append({
+                'index': result_index,
+                'trial_index': trial_index,
+                'group_index': group_index,
+                'trial': trial,
+                'group': g
+            })
+
+    return {
+        'groups': groups,
+        'trials': trials
+    }

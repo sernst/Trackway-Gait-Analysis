@@ -1,15 +1,19 @@
 import tracksim
 from tracksim import reporting
 
-def initialize(report_path:str = None, echo_groups:bool = False):
 
-    try:
-        from bokeh.plotting import output_notebook
-        output_notebook()
-    except Exception:
-        print('bokeh plotting package required. Run the command:')
-        print('$ conda install bokeh')
-        raise
+def initialize(report_path:str = None, echo_groups:bool = False) -> str:
+    """
+    Runs interactive notebook initialization and returns the report path for
+    the interactive session
+
+    :param report_path:
+        The report path to use in the application. If none is specified, the
+        default value will be used
+    :param echo_groups:
+        Whether or not you want to echo the existing group reports in the
+        specified report path
+    """
 
     print('PROJECT HOME:', tracksim.make_project_path())
 

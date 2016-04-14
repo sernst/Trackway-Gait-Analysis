@@ -103,7 +103,7 @@ def run(**kwargs):
 
     cli_configs = kwargs.get('configs')
     if cli_configs is None:
-        cli_configs = cli.load_configs()
+        cli_configs = tracksim.load_configs()
 
     path = get_path(kwargs.get('path'), cli_configs)
     if path is None:
@@ -155,7 +155,7 @@ def save_recent_path(path: str, cli_configs: dict):
     recent_paths = list(filter((path).__ne__, recent_paths))
     recent_paths.insert(0, path)
     cli_configs['recent'] = recent_paths[:5]
-    cli.save_configs(cli_configs)
+    tracksim.save_configs(cli_configs)
 
 
 def print_results(results: typing.List[dict]):

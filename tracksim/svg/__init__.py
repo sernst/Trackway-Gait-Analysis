@@ -16,7 +16,7 @@ class SvgWriter(object):
 
     PREFIX = """
     <svg version="1.1"
-        id="###NAME###",
+        id="###NAME###"
         xmlns:xlink="http://www.w3.org/1999/xlink"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="###VIEW_BOX###">
