@@ -18,7 +18,11 @@ def initialize(report_path:str = None, echo_groups:bool = False) -> str:
     print('PROJECT HOME:', tracksim.make_project_path())
 
     if report_path is None:
+        report_path = tracksim.load_configs().get('path.notebook.report')
+
+    if report_path is None:
         report_path = tracksim.make_reports_path()
+
     print('REPORT PATH:', report_path)
 
     if echo_groups:

@@ -1,3 +1,4 @@
+import typing
 from argparse import ArgumentParser
 
 import tracksim
@@ -25,7 +26,7 @@ def remove_key(configs: dict, key: str):
     )
 
 
-def set_key(configs: dict, key: str, value: str):
+def set_key(configs: dict, key: str, value: typing.List[str]):
     """
     Removes the specified key from the tracksim configs if the key exists
 
@@ -36,8 +37,14 @@ def set_key(configs: dict, key: str, value: str):
     :param value:
     """
 
-    if key in configs:
-        del configs[key]
+    if key.startswith('path.'):
+        for index in range(len(value)):
+            value[index] = tracksim.clean_path(value[index])
+
+    if len(value) == 1:
+        value = value[0]
+
+    configs[key] = value
     tracksim.save_configs(configs)
     tracksim.log('[SET]: "{}" to "{}"'.format(key, value))
 
@@ -55,15 +62,6 @@ def echo_key(configs: dict, key: str):
         return
 
     tracksim.log('[VALUE]: "{}" = {}'.format(key, configs[key]))
-
-def echo_all_keys(configs: dict):
-    """
-
-    :param configs:
-    :return:
-    """
-
-    configs.keys()
 
 
 def echo_all(configs: dict):
@@ -107,7 +105,7 @@ def execute_command():
     parser.add_argument(
         'value',
         type=str,
-        nargs='?',
+        nargs='*',
         default=None,
         help=cli.reformat("""
             The value to assign to the configuration key. If omitted, the
@@ -146,7 +144,7 @@ def execute_command():
             echo_all(configs)
         else:
             parser.print_help()
-    elif args['value'] is None:
+    elif len(args['value']) < 1:
         if args['remove']:
             remove_key(configs, args['key'])
         else:
