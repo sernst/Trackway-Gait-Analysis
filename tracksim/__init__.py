@@ -7,34 +7,93 @@ from json import decoder as json_decoder
 
 
 MY_PATH = os.path.abspath(os.path.dirname(__file__))
-CONFIGS = None
+
+
+def clean_path(path: str) -> str:
+    """
+    Cleans the specified path by expanding shorthand elements, redirecting to
+    the real path for symbolic links, and removing any relative components to
+    return a complete, absolute path to the specified location.
+
+    :param path:
+        The source path to be cleaned
+    """
+
+    if not path or path == '.':
+        path = os.curdir()
+
+    if path.startswith('~'):
+        path = os.path.expanduser(path)
+
+    return os.path.realpath(os.path.abspath(path))
+
 
 def make_project_path(*args: typing.List[str]) -> str:
     """
     Creates an absolute path to a file or folder within the trackway gait
     analysis project using the relative path elements specified by the args.
 
-    :param args: Zero or more relative path elements that describe a file or
-        folder within the project
+    :param args:
+        Zero or more relative path elements that describe a file or folder
+        within the project
     """
 
     return os.path.abspath(os.path.join(MY_PATH, '..', *args))
 
 
-def make_resource_path(*args: typing.List[str]) -> str:
+def make_resource_path(
+        *args: typing.List[str],
+        use_configs: bool = True
+) -> str:
     """
     Creates an absolute path to a file or folder within the resources folder of
     the trackway gait analysis project using the relative path elements
     specified by the args.
 
-    :param args: Zero or more relative path elements that describe a file or
-        folder within the resources folder
+    :param args:
+        Zero or more relative path elements that describe a file or folder
+        within the resources folder
+    :param use_configs:
+        Specifies whether or not to use tracksim configuration settings that
+        override the default path location
     """
+
+    if use_configs:
+        resource_path = load_configs().get('path.resources')
+        if resource_path is not None:
+            return clean_path(os.path.join(resource_path, *args))
 
     return make_project_path('resources', *args)
 
 
-def make_results_path(*args: typing.List[str]) -> str:
+def make_reports_path(
+        *args: typing.List[str],
+        use_configs: bool = True
+) -> str:
+    """
+    Creates an absolute path to a file or folder within the report folder of
+    the trackway gait analysis project using the relative path elements
+    specified by the args.
+
+    :param args: Zero or more relative path elements that describe a file or
+        folder within the results folder
+    :param use_configs:
+        Specifies whether or not to use tracksim configuration settings that
+        override the default path location
+    """
+
+    if use_configs:
+        resource_path = load_configs().get('path.reports')
+        if resource_path is not None:
+            return clean_path(os.path.join(resource_path, *args))
+
+    return make_results_path('report', *args)
+
+
+def make_results_path(
+        *args: typing.List[str],
+        use_configs: bool = True
+) -> str:
     """
     Creates an absolute path to a file or folder within the results folder of
     the trackway gait analysis project using the relative path elements
@@ -42,7 +101,15 @@ def make_results_path(*args: typing.List[str]) -> str:
 
     :param args: Zero or more relative path elements that describe a file or
         folder within the results folder
+    :param use_configs:
+        Specifies whether or not to use tracksim configuration settings that
+        override the default path location
     """
+
+    if use_configs:
+        resource_path = load_configs().get('path.results')
+        if resource_path is not None:
+            return clean_path(os.path.join(resource_path, *args))
 
     return make_project_path('results', *args)
 

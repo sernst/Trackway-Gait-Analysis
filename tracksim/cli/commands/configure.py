@@ -7,6 +7,56 @@ DESCRIPTION = """
     Configures the tracksim command line settings
     """
 
+def remove_key(configs: dict, key: str):
+    """
+    Removes the specified key from the tracksim configs if the key exists
+
+    :param configs:
+        The tracksim configs object to modify
+    :param key:
+        The key in the tracksim configs object to remove
+    """
+
+    if key in configs:
+        del configs[key]
+    tracksim.save_configs(configs)
+    tracksim.log(
+        '[REMOVED]: "{}" from configuration settings'.format(key)
+    )
+
+
+def set_key(configs: dict, key: str, value: str):
+    """
+    Removes the specified key from the tracksim configs if the key exists
+
+    :param configs:
+        The tracksim configs object to modify
+    :param key:
+        The key in the tracksim configs object to remove
+    :param value:
+    """
+
+    if key in configs:
+        del configs[key]
+    tracksim.save_configs(configs)
+    tracksim.log('[SET]: "{}" to "{}"'.format(key, value))
+
+
+def echo_key(configs: dict, key: str):
+    """
+
+    :param configs:
+    :param key:
+    :return:
+    """
+
+    if key not in configs:
+        tracksim.log('[MISSING]: No "{}" key was found'.format(key))
+        return
+
+    tracksim.log('[VALUE]: "{}" = {}'.format(key, configs[key]))
+
+
 def execute_command():
     """ Runs the configure command """
 
@@ -30,18 +80,32 @@ def execute_command():
     parser.add_argument(
         'value',
         type=str,
+        nargs='?',
+        default=None,
         help=cli.reformat("""
             The value to assign to the configuration key
+            """)
+    )
+
+    parser.add_argument(
+        '-r', '--remove',
+        dest='remove',
+        action='store_true',
+        default=False,
+        help=cli.reformat("""
+            When included, this flag indicates that the specified key should
+            be removed from the tracksim configs file.
             """)
     )
 
     args = vars(parser.parse_args())
 
     configs = tracksim.load_configs()
-    configs[args['key']] = args['value']
-    tracksim.save_configs(configs)
+    if args['remove']:
+        remove_key(configs, args['key'])
+    elif args['value'] is None:
+        echo_key(configs, args['key'])
+    else:
+        set_key(configs, args['key'], args['value'])
 
-    tracksim.log(
-        '[UPDATED]: Configuration setting "{}" updated'.format(args['key'])
-    )
     tracksim.end(0)
