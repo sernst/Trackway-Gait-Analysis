@@ -2,6 +2,7 @@
   "steps":[
     "initialize.py",
     "coupling_ranges.py",
-    "coupling_distributions.py"
+    "coupling_distributions.py",
+    "coupling_vs_duty_cycle.py"
   ]
 }

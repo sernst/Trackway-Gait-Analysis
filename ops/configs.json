@@ -1,7 +1,0 @@
-{
-  "aws_profile": "Scott-Admin",
-  "results": {
-    "bucket_name": "paleo.scott-ernst.com",
-    "key_prefix": "gait-analysis"
-  }
-}
