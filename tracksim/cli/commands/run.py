@@ -94,6 +94,7 @@ def find_group_files(path: str) -> typing.List[str]:
 
     return paths
 
+
 def run(**kwargs):
     """
 
@@ -195,7 +196,7 @@ def run_simulation(
     return runner.run(
         run_path,
         start_time=kwargs.get('start_time', 0),
-        stop_time=kwargs.get('stop_time', 1.0e8),
+        end_time=kwargs.get('end_time', 1.0e8),
         results_path=kwargs.get('results_path')
     )
 
@@ -239,7 +240,7 @@ def execute_command():
 
     parser.add_argument(
         '-et', '--endTime',
-        dest='stop_time',
+        dest='end_time',
         type=float,
         default=1.0e8,
         help=cli.reformat("""
