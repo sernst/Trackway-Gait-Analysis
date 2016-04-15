@@ -156,7 +156,7 @@ def prune_invalid_positions(
     """
 
     start_time = settings.get('start_time', 0)
-    stop_time = settings.get('stop_time', 1e8)
+    end_time = settings.get('end_time', 1e8)
 
     values = list(foot_positions.values())
     values.append(time_steps)
@@ -170,7 +170,7 @@ def prune_invalid_positions(
         cull = (
             None in entries or
             entries[-1] < start_time or
-            entries[-1] > stop_time
+            entries[-1] > end_time
         )
 
         if cull:
