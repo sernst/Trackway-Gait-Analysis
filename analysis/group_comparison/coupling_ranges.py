@@ -54,9 +54,7 @@ data += add_to_plot(
     'orange'
 )
 
-path = analysis.make_results_path('Coupling-Ranges.html')
-
-plotly.offline.plot(
+analysis.report.add_html(plotly.offline.plot(
     {
         'data': data,
         "layout": go.Layout(
@@ -70,11 +68,6 @@ plotly.offline.plot(
             }
         )
     },
-    filename=path,
-    auto_open=False
-)
-
-tracksim.log("""
-Coupling Range Plot:
- * file://{}
-""".format(path))
+    output_type='div',
+    include_plotlyjs=False
+))

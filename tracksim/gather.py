@@ -27,7 +27,7 @@ def results(report_type:str, path: str = None) -> typing.List[dict]:
         report_type = 'groups'
 
     if not path:
-        path = tracksim.make_results_path('report', report_type)
+        path = tracksim.make_results_path(report_type)
     elif not path.endswith(report_type):
         path = os.path.join(path, report_type)
 

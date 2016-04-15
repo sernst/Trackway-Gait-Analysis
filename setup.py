@@ -16,6 +16,7 @@ setup(
         'pandas',
         'boto3',
         'numpy',
-        'six'
+        'six',
+        'jinja2'
     ]
 )

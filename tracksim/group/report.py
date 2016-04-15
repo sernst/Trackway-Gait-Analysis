@@ -53,17 +53,17 @@ def create(
 
     group_id = group_configs['name'].replace(' ', '-')
 
-    root_report_path = reporting.initialize_output_directory(
-        group_configs.get('report_path')
+    root_results_path = reporting.initialize_output_directory(
+        group_configs.get('results_path')
     )
 
     url = 'file://{root_path}/group.html?id={id}'.format(
-        root_path=root_report_path,
+        root_path=root_results_path,
         id=group_id
     )
 
     out = dict(
-        root_path=root_report_path,
+        root_path=root_results_path,
         run_time=start_time.isoformat(),
         id=group_id,
         url=url,
@@ -72,7 +72,7 @@ def create(
         couplings=make_coupling_data(analysis['couplings'], trials)
     )
 
-    output_directory = os.path.join(root_report_path, 'groups', group_id)
+    output_directory = os.path.join(root_results_path, 'groups', group_id)
     reporting.write_javascript_files(
         directory=output_directory,
         sim_id=group_id,

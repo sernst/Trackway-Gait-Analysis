@@ -94,4 +94,9 @@ def execute_command():
         else:
             parser.print_help()
     else:
-        execute.run(args['name'], args['analysis_path'])
+        result_file = execute.run(args['name'], args['analysis_path'])
+        if result_file:
+            tracksim.log("""
+                Analysis Complete. Report available at:
+                 * file://{}
+            """.format(result_file))

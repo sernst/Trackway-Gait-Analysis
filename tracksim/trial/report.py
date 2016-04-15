@@ -112,12 +112,12 @@ def create(
         Results dictionary created during simulation
     """
 
-    root_report_path = reporting.initialize_output_directory(
-        settings.get('report_path')
+    root_results_path = reporting.initialize_output_directory(
+        settings.get('results_path')
     )
 
     sim_id = settings['name'].replace(' ', '-')
-    output_directory = os.path.join(root_report_path, 'trials', sim_id)
+    output_directory = os.path.join(root_results_path, 'trials', sim_id)
 
     drawer = svg.SvgWriter(padding=5)
     svg_settings = draw.trackway_positions(
@@ -127,12 +127,12 @@ def create(
     )
 
     url = 'file://{root_path}/trial.html?id={id}'.format(
-        root_path=root_report_path,
+        root_path=root_results_path,
         id=sim_id
     )
 
     data = {
-        'root_path': root_report_path,
+        'root_path': root_results_path,
         'id': sim_id,
         'url': url,
         'configs': settings,

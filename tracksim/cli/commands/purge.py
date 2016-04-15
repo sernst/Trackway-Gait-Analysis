@@ -2,17 +2,32 @@ import os
 import shutil
 
 import tracksim
-from tracksim import cli
 from tracksim.cli import query
 
 DESCRIPTION = """
     Removes all existing group and trial results from cached results folders
     """
 
+
 def execute_command():
+    """
+
+    :return:
+    """
+
+    tracksim.log("""
+        ==============
+        REMOVE RESULTS
+        ==============
+
+        This command will remove all analysis, group and trial reports stored
+        located in the directory:
+
+        {}
+        """.format(tracksim.make_results_path()), whitespace_bottom=1)
 
     do_it = query.confirm(
-        'Remove all existing results files',
+        'Are you sure you want to continue',
         default=False
     )
 
@@ -20,16 +35,23 @@ def execute_command():
         tracksim.log('[ABORTED]: No files were deleted')
         return tracksim.end(0)
 
-    path = tracksim.make_results_path('report', 'groups')
-    if os.path.exists(path):
-        shutil.rmtree(path)
+    folders = ['groups', 'trials', 'analysis']
 
-    path = tracksim.make_results_path('report', 'trials')
-    if os.path.exists(path):
-        shutil.rmtree(path)
+    for folder in folders:
+        path = tracksim.make_results_path(folder)
 
+        if not os.path.exists(path):
+            continue
+
+        try:
+            shutil.rmtree(path)
+        except Exception:
+            try:
+                shutil.rmtree(path)
+            except Exception:
+                pass
 
     tracksim.log("""
-        [SUCCESS]: All group and trial results files have been removed
-        """)
+        [SUCCESS]: All group, trial and analysis results files have been removed
+        """, whitespace_top=1)
 

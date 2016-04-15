@@ -5,7 +5,7 @@ import tracksim
 from tracksim import analysis
 
 LIMB_PHASE = 90
-DUTY_CYCLE = 0.75
+DUTY_CYCLE = 0.8
 
 results = analysis.cacher.fetch('results')
 trial_info = analysis.cacher.fetch('trial_info')
@@ -29,9 +29,7 @@ for index, row in df.iterrows():
         y=distribution
     ))
 
-path = analysis.make_results_path('Coupling-Distributions.html')
-
-plotly.offline.plot({
+analysis.report.add_html(plotly.offline.plot({
         'data': traces,
         'layout': go.Layout(
             title='Coupling Density Distributions for Phase {}% and DC {}'.format(
@@ -45,11 +43,7 @@ plotly.offline.plot({
             }
         )
     },
-    filename=path,
-    auto_open=False
-)
+    output_type='div',
+    include_plotlyjs=False
+))
 
-tracksim.log("""
-Coupling Distribution Plot:
- * file://{}
-""".format(path))

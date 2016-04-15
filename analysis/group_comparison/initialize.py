@@ -1,10 +1,13 @@
 import pandas as pd
 
+import tracksim
 from tracksim import analysis
 from tracksim import gather
 
 analysis.initialize_path()
-results = gather.group_results()
+results = gather.group_results(
+    path=tracksim.load_configs().get('path.group_comparison')
+)
 
 couplings = []
 trial_info = []
@@ -45,5 +48,3 @@ analysis.cacher.put(
     trial_info=trial_info,
     couplings=couplings
 )
-
-

@@ -99,28 +99,6 @@ def make_analysis_path(
     )
 
 
-def make_reports_path(
-        *args: typing.List[str],
-        use_configs: bool = True
-) -> str:
-    """
-    Creates an absolute path to a file or folder within the report folder of
-    the trackway gait analysis project using the relative path elements
-    specified by the args.
-
-    :param args: Zero or more relative path elements that describe a file or
-        folder within the results folder
-    :param use_configs:
-        Specifies whether or not to use tracksim configuration settings that
-        override the default path location
-    """
-
-    return make_project_path(
-        'results', 'report', *args,
-        configs_override='path.reports' if use_configs else None
-    )
-
-
 def make_results_path(
         *args: typing.List[str],
         use_configs: bool = True

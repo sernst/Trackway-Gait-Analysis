@@ -3,6 +3,7 @@ import shutil
 
 import tracksim
 from tracksim.analysis import cacher
+from tracksim.analysis import report
 
 
 def initialize_path(path: str = None) -> str:

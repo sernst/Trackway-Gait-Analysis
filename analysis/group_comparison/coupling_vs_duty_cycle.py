@@ -27,9 +27,7 @@ for index, row in df.iterrows():
         y=distribution
     ))
 
-path = analysis.make_results_path('coupling_vs_duty_cycle.html')
-
-plotly.offline.plot(
+analysis.report.add_html(plotly.offline.plot(
     {
         'data': traces,
         'layout': go.Layout(
@@ -44,11 +42,6 @@ plotly.offline.plot(
             }
         )
     },
-    filename=path,
-    auto_open=False
-)
-
-tracksim.log("""
-Coupling vs Duty Cycle Plot:
- * file://{}
-""".format(path))
+    include_plotlyjs=False,
+    output_type='div'
+))

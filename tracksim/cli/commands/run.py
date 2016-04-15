@@ -196,7 +196,7 @@ def run_simulation(
         run_path,
         start_time=kwargs.get('start_time', 0),
         stop_time=kwargs.get('stop_time', 1.0e8),
-        report_path=kwargs.get('report_path')
+        results_path=kwargs.get('results_path')
     )
 
 
@@ -250,7 +250,7 @@ def execute_command():
 
     parser.add_argument(
         '-d', '--directory',
-        dest='report_path',
+        dest='results_path',
         type=str,
         default=None,
         help=cli.reformat("""

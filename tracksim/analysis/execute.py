@@ -3,7 +3,7 @@ import types
 import json
 
 import tracksim
-from tracksim.analysis import cacher
+from tracksim import analysis
 
 
 def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
@@ -19,7 +19,7 @@ def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
     module = types.ModuleType(filename.split('.')[0])
 
     # setattr(module, )
-    cacher.put(
+    analysis.cacher.put(
         __analysis_id__=analysis_id,
         __step_id__=filename.split('.')[0],
         __analysis_path__=root_path,
@@ -33,11 +33,12 @@ def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
     exec(contents, module.__dict__)
 
 
-def run(analysis_id: str, analysis_path: str = None):
+def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
     """
 
     :param analysis_id:
     :param analysis_path:
+    :param results_path:
     :return:
     """
 
@@ -56,3 +57,7 @@ def run(analysis_id: str, analysis_path: str = None):
             settings=settings
         )
 
+    if results_path is None:
+        results_path = analysis.make_results_path()
+
+    return analysis.report.write_report(path=results_path)

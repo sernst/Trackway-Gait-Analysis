@@ -99,23 +99,23 @@ def initialize_output_directory(path: str = None) -> str:
 
     if not path:
         # If the path is empty, the default internal_report_path will be used
-        return tracksim.make_results_path('report')
+        return tracksim.make_results_path()
 
-    internal_report_path = tracksim.make_results_path('report')
+    internal_results_path = tracksim.make_results_path()
 
-    if path.startswith(internal_report_path):
+    if path.startswith(internal_results_path):
         # Don't do any initialization if the path is the same as the default
-        # internal report path where the source files already reside
-        return tracksim.make_results_path('report')
+        # internal results path where the source files already reside
+        return tracksim.make_results_path()
 
     if not os.path.exists(path):
         os.makedirs(path)
 
-    for item in os.listdir(internal_report_path):
+    for item in os.listdir(internal_results_path):
         if item in ['groups', 'trials']:
             continue
 
-        source_path = os.path.join(internal_report_path, item)
+        source_path = os.path.join(internal_results_path, item)
         dest_path = os.path.join(path, item)
 
         if os.path.isfile(source_path):
