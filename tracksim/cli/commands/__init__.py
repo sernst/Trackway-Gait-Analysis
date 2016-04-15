@@ -9,8 +9,10 @@ from tracksim.cli.commands import deploy
 from tracksim.cli.commands import purge
 from tracksim.cli.commands import export
 from tracksim.cli.commands import configure
+from tracksim.cli.commands import analyze
 
 ME = sys.modules[__name__]
+
 
 def list_modules():
 
@@ -24,6 +26,7 @@ def list_modules():
                     .replace('\n', '\n   ')
             ))
 
+
 def get_module(command):
     """
 
@@ -35,6 +38,7 @@ def get_module(command):
         return None
 
     return getattr(ME, command)
+
 
 def show_help():
     """ Prints the basic command help to the console """

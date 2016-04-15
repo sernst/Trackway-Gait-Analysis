@@ -4,6 +4,7 @@ import typing
 
 import tracksim
 
+
 def results(report_type:str, path: str = None) -> typing.List[dict]:
     """
     Fetches the reported results for all simulations of the specified report
@@ -48,6 +49,7 @@ def results(report_type:str, path: str = None) -> typing.List[dict]:
             out.append(data)
 
     return out
+
 
 def group_results(path: str = None) -> dict:
     """

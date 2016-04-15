@@ -15,7 +15,7 @@ def initialize(report_path:str = None, echo_groups:bool = False) -> str:
         specified report path
     """
 
-    print('PROJECT HOME:', tracksim.make_project_path())
+    print('PROJECT ROOT:', tracksim.make_project_path())
 
     if report_path is None:
         report_path = tracksim.load_configs().get('path.notebook.report')
@@ -23,7 +23,7 @@ def initialize(report_path:str = None, echo_groups:bool = False) -> str:
     if report_path is None:
         report_path = tracksim.make_reports_path()
 
-    print('REPORT PATH:', report_path)
+    print('REPORT ROOT:', report_path)
 
     if echo_groups:
         print('\nEXISTING GROUP REPORTS:')

@@ -108,4 +108,5 @@ crashlytics-build.properties
 
 results/report/trials
 results/report/groups
+results/analysis
 sandbox

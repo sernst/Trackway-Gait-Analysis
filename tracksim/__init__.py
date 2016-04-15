@@ -28,7 +28,10 @@ def clean_path(path: str) -> str:
     return os.path.realpath(os.path.abspath(path))
 
 
-def make_project_path(*args: typing.List[str]) -> str:
+def make_project_path(
+        *args: typing.List[str],
+        configs_override:str = None
+) -> str:
     """
     Creates an absolute path to a file or folder within the trackway gait
     analysis project using the relative path elements specified by the args.
@@ -36,9 +39,19 @@ def make_project_path(*args: typing.List[str]) -> str:
     :param args:
         Zero or more relative path elements that describe a file or folder
         within the project
+
+    :param configs_override:
+        An optional key within the tracksim configuration file where an
+        override path can be supplied. If omitted, the path will default to the
+        internal location within the source project
     """
 
-    return os.path.abspath(os.path.join(MY_PATH, '..', *args))
+    if configs_override:
+        path = load_configs().get(configs_override)
+        if path is not None:
+            return clean_path(os.path.join(path, *args))
+
+    return clean_path(os.path.join(MY_PATH, '..', *args))
 
 
 def make_resource_path(
@@ -58,12 +71,32 @@ def make_resource_path(
         override the default path location
     """
 
-    if use_configs:
-        resource_path = load_configs().get('path.resources')
-        if resource_path is not None:
-            return clean_path(os.path.join(resource_path, *args))
+    return make_project_path(
+        'resources', *args,
+        configs_override='path.resources' if use_configs else None
+    )
 
-    return make_project_path('resources', *args)
+
+def make_analysis_path(
+        *args: typing.List[str],
+        use_configs: bool = True
+):
+    """
+    Creates an absolute path to a file or folder within the analysis folder of
+    the trackway gait analysis project using the relative path elements
+    specified by the args.
+
+    :param args: Zero or more relative path elements that describe a file or
+        folder within the results folder
+    :param use_configs:
+        Specifies whether or not to use tracksim configuration settings that
+        override the default path location
+    """
+
+    return make_project_path(
+        'analysis', *args,
+        configs_override='path.analysis' if use_configs else None
+    )
 
 
 def make_reports_path(
@@ -82,12 +115,10 @@ def make_reports_path(
         override the default path location
     """
 
-    if use_configs:
-        resource_path = load_configs().get('path.reports')
-        if resource_path is not None:
-            return clean_path(os.path.join(resource_path, *args))
-
-    return make_results_path('report', *args)
+    return make_project_path(
+        'results', 'report', *args,
+        configs_override='path.reports' if use_configs else None
+    )
 
 
 def make_results_path(
@@ -106,12 +137,9 @@ def make_results_path(
         override the default path location
     """
 
-    if use_configs:
-        resource_path = load_configs().get('path.results')
-        if resource_path is not None:
-            return clean_path(os.path.join(resource_path, *args))
-
-    return make_project_path('results', *args)
+    return make_project_path(
+        'results', *args,
+        configs_override='path.results' if use_configs else None)
 
 
 def log(
