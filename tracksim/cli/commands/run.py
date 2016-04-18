@@ -111,13 +111,13 @@ def run(**kwargs):
         tracksim.log('ERROR: Invalid or missing path argument')
         sys.exit(1)
 
-    results = []
+    urls = []
 
     if os.path.isfile(path):
         with open(path, 'r+') as f:
             data = json.load(f)
 
-        results.append(run_simulation(
+        urls.append(run_simulation(
             is_group=bool('trials' in data),
             cli_configs=cli_configs,
             run_path=path,
@@ -130,7 +130,7 @@ def run(**kwargs):
             group_paths = group_paths[0:1]
 
         for p in group_paths:
-            results.append(run_simulation(
+            urls.append(run_simulation(
                 is_group=True,
                 cli_configs=cli_configs,
                 run_path=p,
@@ -138,7 +138,7 @@ def run(**kwargs):
             ))
 
     save_recent_path(kwargs.get('path'), cli_configs)
-    print_results(results)
+    print_results(urls)
 
 
 def save_recent_path(path: str, cli_configs: dict):
@@ -159,10 +159,10 @@ def save_recent_path(path: str, cli_configs: dict):
     tracksim.save_configs(cli_configs)
 
 
-def print_results(results: typing.List[dict]):
+def print_results(urls: typing.List[str]):
     """
 
-    :param results:
+    :param urls:
     :return:
     """
 
@@ -172,8 +172,8 @@ def print_results(results: typing.List[dict]):
     """
     tracksim.log(msg, whitespace=1)
 
-    for r in results:
-        tracksim.log('  * {}'.format(r['report']['url']))
+    for r in urls:
+        tracksim.log('  * {}'.format(r))
 
 
 def run_simulation(

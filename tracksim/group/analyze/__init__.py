@@ -1,4 +1,6 @@
+import os
 import typing
+import json
 from datetime import datetime
 
 import tracksim
@@ -7,27 +9,20 @@ from tracksim.reporting import plotting
 
 
 def create(
-        start_time: datetime,
         settings: dict,
-        analysis: dict,
         trials: typing.List[dict]
 ) -> dict:
     """
     Creates a group report dictionary and writes it to the group report
     directory as well as returning it.
 
-    :param start_time:
-        The datetime when the group of simulations started
     :param settings:
         Configuration for the group
-    :param analysis:
-        Group analysis dictionary
     :param trials:
         List of trial simulation results
-
     """
 
-    group_id = settings['name'].replace(' ', '-')
+    group_id = settings['id']
     report = reporting.Report('group', group_id)
 
     add_header_section(report, settings, trials)
@@ -36,7 +31,15 @@ def create(
     report.add_whitespace(10)
     report.write()
 
-    return {'url': report.url}
+    reporting.write_json_results(
+        path=os.path.join(report.directory, '{}.json'.format(group_id)),
+        data=dict(
+            trials=trials,
+            settings=settings
+        )
+    )
+
+    return report.url
 
 
 def add_header_section(
@@ -44,7 +47,6 @@ def add_header_section(
         settings: dict,
         trials: typing.List[dict]
 ):
-
     trial_data = []
     for t in trials:
         color = plotting.get_color(t['index'] - 1, as_string=True)
@@ -68,7 +70,7 @@ def add_header_section(
 
 def add_coupling_plots(
         report: reporting.Report,
-        trial_results: typing.List[dict]
+        trials: typing.List[dict]
 ):
     """
     Generates coupling report data from the analyzed coupling data and the
@@ -76,7 +78,7 @@ def add_coupling_plots(
 
     :param report:
         Grouped coupling data from the grouped simulation results
-    :param trial_results:
+    :param trials:
         Simulation results for each trial run by the group
     """
 
@@ -84,20 +86,27 @@ def add_coupling_plots(
     population_traces = []
     index = 0
 
-    for trial in trial_results:
+    for trial in trials:
+
+        path = tracksim.make_results_path(
+            'reports', 'trial', trial['id'], '{}.json'.format(trial['id'])
+        )
+        with open(path, 'r+') as f:
+            trial_data = json.load(f)
+
         index += 1
-        coupling = trial['results']['couplings']
+        coupling_data = trial_data['couplings']
 
         distribution_traces.append(dict(
-            x=coupling['distribution_profile']['x'],
-            y=coupling['distribution_profile']['y'],
+            x=coupling_data['distribution_profile']['x'],
+            y=coupling_data['distribution_profile']['y'],
             type='scatter',
             mode='lines',
             name='{}'.format(index)
         ))
 
         population_traces.append(dict(
-            x=coupling['population'],
+            x=coupling_data['population'],
             type='box',
             name='{}'.format(index),
             boxpoints=False
@@ -120,3 +129,4 @@ def add_coupling_plots(
             y_label='Trial Index (#)'
         )
     )
+

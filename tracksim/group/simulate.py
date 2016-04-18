@@ -1,12 +1,11 @@
 import os
 import typing
-from datetime import datetime
 
 import tracksim
 from tracksim import configs
 from tracksim.group import analyze
-from tracksim.group import report
 from tracksim.trial import simulate as simulate_trial
+
 
 def run(
         settings: typing.Union[str, dict],
@@ -25,7 +24,6 @@ def run(
     """
 
     settings = configs.load(settings, **kwargs)
-    start_time = datetime.utcnow()
     trials = []
 
     tracksim.log('[{}]: STARTING'.format(settings['id']))
@@ -37,25 +35,17 @@ def run(
             )
 
         trial_settings = configs.load(source, inherits=settings)
-        trial_results = simulate_trial.run(trial_settings)
+        simulate_trial.run(trial_settings)
         trials.append(dict(
             settings=trial_settings,
-            results=trial_results,
             index=len(trials) + 1,
             id=trial_settings['id'],
         ))
 
     tracksim.log('[{}]: ANALYZING'.format(settings['id']))
 
-    results = dict(
-        couplings=analyze.coupling_distribution_data(trials),
-        trials=trials
-    )
-
-    tracksim.log('[{}]: REPORTING'.format(settings['id']))
-
-    results['report'] = report.create(start_time, settings, results, trials)
+    url = analyze.create(settings, trials)
 
     tracksim.log('[{}]: COMPLETE'.format(settings['id']))
 
-    return results
+    return url

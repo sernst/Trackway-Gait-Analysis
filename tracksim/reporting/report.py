@@ -35,10 +35,23 @@ class Report(object):
 
     @property
     def url(self):
+        """
+        Returns the URL that will open this report file in the browser for
+        viewing
+        :return:
+        """
         return 'file://{path}?id={id}'.format(
             path=tracksim.make_results_path('{}.html'.format(self.type)),
             id=self.id
         )
+
+    @property
+    def directory(self):
+        """
+        Returns the directory where the report file will be written
+        :return:
+        """
+        return tracksim.make_results_path('reports', self.type, self.id)
 
     def add_header(self, level, text):
         """

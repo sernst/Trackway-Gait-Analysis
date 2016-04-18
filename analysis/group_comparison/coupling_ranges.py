@@ -18,49 +18,24 @@ report.add_plaintext("""
     duty cycles (50% and 75%).
 """)
 
+trial_info = shared.trial_info
 couplings = shared.couplings
 
 
-def add_to_plot(name, data_frame, lower_color, upper_color):
+def add_to_plot(name, data_frame, color):
     data_frame = data_frame.sort_values(by='print_interval')
-    x = data_frame['print_interval']
-    out = []
-    entries = [
-        {
-            'key': 'lower_2s', 'suffix': '-2s', 'line': True,
-            'size': 9, 'alpha': 0.4,
-            'color': lower_color
-        },
-        {
-            'key': 'upper_2s', 'suffix': '+2s', 'line': True,
-            'size': 9, 'alpha': 0.4,
-            'color': upper_color
-        }
-    ]
 
-    for e in entries:
-        trace = go.Scatter(
-            x=x,
-            y=data_frame[e['key']],
-            name='{} {}'.format(name, e['suffix']),
-            mode='markers',
-            marker=dict(
-                size=e['size'],
-                color=e['color'],
-                opacity=e['alpha'],
-                line=dict(width=1, color=e['color'])
-            )
-        )
+    data = []
+    for index, row in data_frame.iterrows():
+        coupling_data = couplings[row['id']]
 
-        if e['line']:
-            trace['mode'] = 'lines+markers'
-            trace['line'] = dict(
-                width=1,
-                color=e['color']
-            )
-        out.append(trace)
+        data.append(go.Box(
+            y=coupling_data['population'],
+            marker={'color': color},
+            boxpoints=False
+        ))
 
-    return out
+    return data
 
 
 def create_plot(limb_phase):
@@ -71,9 +46,8 @@ def create_plot(limb_phase):
 
         data += add_to_plot(
             '{size} DC 0.5'.format(size=size.capitalize()),
-            lower_color='blue',
-            upper_color='red',
-            data_frame=couplings.query("""
+            color='blue',
+            data_frame=trial_info.query("""
                 phase == {limb_phase} and
                 duty_cycle == 0.5 and
                 size == "{size}"
@@ -85,9 +59,8 @@ def create_plot(limb_phase):
 
         data += add_to_plot(
             '{size} DC 0.75'.format(size=size.capitalize()),
-            upper_color='orange',
-            lower_color='green',
-            data_frame=couplings.query("""
+            color='red',
+            data_frame=trial_info.query("""
                 phase == {limb_phase} and
                 duty_cycle == 0.75 and
                 size == "{size}"

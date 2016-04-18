@@ -38,6 +38,21 @@ class TrackPosition(object):
         self.y = y
         self.annotation = kwargs.get('annotation')
 
+    def to_dict(self) -> dict:
+        """
+        Creates a JSON serializable dictionary representation of this
+        track position
+
+        :return:
+        """
+
+        return dict(
+            uid=self.uid,
+            x={'value': self.x.value, 'uncertainty': self.x.uncertainty},
+            y={'value': self.y.value, 'uncertainty': self.y.uncertainty},
+            annotation=self.annotation
+        )
+
     def rotate(
             self,
             angle: float,

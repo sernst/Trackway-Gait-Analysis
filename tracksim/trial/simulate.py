@@ -8,7 +8,7 @@ from tracksim import configs
 from tracksim import generate
 from tracksim import limb
 from tracksim import trackway
-from tracksim.trial import analyze, report, compute
+from tracksim.trial import analyze, compute
 
 
 def run(
@@ -61,22 +61,16 @@ def run(
 
     tracksim.log('[{}]: ANALYZING'.format(settings['id']))
 
-    results = dict(
+    url = analyze.create(
+        track_definition=trackway_definition,
         settings=settings,
-        times=time_steps,
-        positions=foot_positions,
-        couplings=analyze.coupling_distance(foot_positions),
-        separations=analyze.separations(foot_positions),
-        extensions=analyze.plane_limb_extensions(foot_positions)
+        time_steps=time_steps,
+        foot_positions=foot_positions
     )
-
-    tracksim.log('[{}]: REPORTING'.format(settings['id']))
-
-    results['report'] = report.create(settings, trackway_definition, results)
 
     tracksim.log('[{}]: COMPLETED'.format(settings['id']))
 
-    return results
+    return url
 
 
 def load_limb_phases(settings: dict) -> limb.Property:

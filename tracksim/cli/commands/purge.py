@@ -35,14 +35,9 @@ def execute_command():
         tracksim.log('[ABORTED]: No files were deleted')
         return tracksim.end(0)
 
-    folders = ['groups', 'trials', 'analysis']
+    path = tracksim.make_results_path('reports')
 
-    for folder in folders:
-        path = tracksim.make_results_path(folder)
-
-        if not os.path.exists(path):
-            continue
-
+    if os.path.exists(path):
         try:
             shutil.rmtree(path)
         except Exception:
@@ -52,6 +47,6 @@ def execute_command():
                 pass
 
     tracksim.log("""
-        [SUCCESS]: All group, trial and analysis results files have been removed
+        [SUCCESS]: All results have been removed
         """, whitespace_top=1)
 
