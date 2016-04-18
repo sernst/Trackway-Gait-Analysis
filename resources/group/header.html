@@ -1,0 +1,23 @@
+<div class="top-box">
+  <div class="group-info">
+    <div class="title">{{ title }}</div>
+    <div class="date"><span class="label">Run At:</span> {{ date }}</div>
+    <div class="summary">{{ summary }}</div>
+  </div>
+
+  <div class="trial-listings-wrapper ">
+    <div class="trial-listings">
+      {% for trial in trials %}
+        <div class="entry"
+             style="background-color: {{ trial.back_color }}"
+             onclick="window.SIM.onTrialClick('{{ trial.id }}')">
+          <div class="entry-inner">
+            <div class="title">{{ trial.index }}. {{ trial.name }}</div>
+            <div class="summary">{{ trial.summary }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>

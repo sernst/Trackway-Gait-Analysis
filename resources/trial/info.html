@@ -1,0 +1,101 @@
+<div class="line-break"></div>
+
+<div class="results-container">
+  <div class="settings-box info-display-box">
+    <div class="info-header">Trial Results</div>
+
+    <div class="info-row">
+      <div id="lengthResults" class="entry">
+        <div class="title title-box">Average Calculated Lengths (m)</div>
+
+        <div>
+          <span class="label">Coupling Length:</span>
+          <span class="value">{{ coupling_length }}</span>
+          <span class="deviation">{{ coupling_length_deviation }}</span>
+        </div>
+
+        <div>
+          <span class="label">Coupling IQR:</span>
+          <span class="value">[{{ coupling_bounds[1] }}, {{ coupling_bounds[3] }}]</span>
+        </div>
+
+        <div>
+          <span class="label">Coupling Bounds (2%):</span>
+          <span class="value">[{{ coupling_bounds[0] }}, {{ coupling_bounds[4] }}]</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-box info-display-box">
+    <div class="info-header">Display Status</div>
+
+    <div class="info-row">
+      <div class="entry left_pes">
+        <div class="title left_pes_color">Left Pes</div>
+        <div>
+          <span class="label">X:&nbsp;</span>
+          <span class="value position x"></span>
+        </div>
+        <div>
+          <span class="label">Y:&nbsp;</span>
+          <span class="value position y"></span>
+        </div>
+        <div>
+          <span class="label">Status: </span>
+          <span class="value mode"></span>
+        </div>
+      </div>
+
+      <div class="entry left_manus">
+        <div class="title left_manus_color">Left Manus</div>
+        <div>
+          <span class="label">X:&nbsp;</span>
+          <span class="value position x"></span>
+        </div>
+        <div>
+          <span class="label">Y:&nbsp;</span>
+          <span class="value position y"></span>
+        </div>
+        <div>
+          <span class="label">Status: </span>
+          <span class="value mode"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="entry right_pes">
+        <div class="title right_pes_color">Right Pes</div>
+        <div>
+          <span class="label">X:&nbsp;</span>
+          <span class="value position x"></span>
+        </div>
+        <div>
+          <span class="label">Y:&nbsp;</span>
+          <span class="value position y"></span>
+        </div>
+        <div>
+          <span class="label">Status: </span>
+          <span class="value mode"></span>
+        </div>
+      </div>
+
+      <div class="entry right_manus">
+        <div class="title right_manus_color">Right Manus</div>
+        <div>
+          <span class="label">X:&nbsp;</span>
+          <span class="value position x"></span>
+        </div>
+        <div>
+          <span class="label">Y:&nbsp;</span>
+          <span class="value position y"></span>
+        </div>
+        <div>
+          <span class="label">Status: </span>
+          <span class="value mode"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

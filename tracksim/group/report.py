@@ -1,48 +1,24 @@
-import os
 import typing
 from datetime import datetime
 
-import measurement_stats as mstats
-
+import tracksim
 from tracksim import reporting
+from tracksim.reporting import plotting
 
 
 def create(
         start_time: datetime,
-        group_configs: dict,
+        settings: dict,
         analysis: dict,
         trials: typing.List[dict]
 ) -> dict:
     """
     Creates a group report dictionary and writes it to the group report
-    directory as well as returning it. The report JSON structure is:
-
-        * url: str
-        * id: str
-        * trials: list dict[N-Trials]
-          * index: number
-          * name: str
-          * id: str
-          * summary: str
-        * couplings: dict
-          * densities: dict
-            * series: list[N-Trials]
-              * list number[]
-            * x: list number[]
-          * populations: list[N-Trials]
-            * list number[]
-          * uncertainties: list number[N-Trials]
-          * bounds: list dict[N-Trials]
-            * two_sigma: list number[2]
-            * one_sigma: list number[2]
-          * values: list number[N-Trials]
-        * run_time: str
-        * configs: dict
-        * root_path: str
+    directory as well as returning it.
 
     :param start_time:
         The datetime when the group of simulations started
-    :param group_configs:
+    :param settings:
         Configuration for the group
     :param analysis:
         Group analysis dictionary
@@ -51,103 +27,96 @@ def create(
 
     """
 
-    group_id = group_configs['name'].replace(' ', '-')
+    group_id = settings['name'].replace(' ', '-')
+    report = reporting.Report('group', group_id)
 
-    root_results_path = reporting.initialize_output_directory(
-        group_configs.get('results_path')
-    )
+    add_header_section(report, settings, trials)
+    add_coupling_plots(report, trials)
 
-    url = 'file://{root_path}/group.html?id={id}'.format(
-        root_path=root_results_path,
-        id=group_id
-    )
+    report.add_whitespace(10)
+    report.write()
 
-    out = dict(
-        root_path=root_results_path,
-        run_time=start_time.isoformat(),
-        id=group_id,
-        url=url,
-        configs=group_configs,
-        trials=make_trial_data(trials),
-        couplings=make_coupling_data(analysis['couplings'], trials)
-    )
-
-    output_directory = os.path.join(root_results_path, 'groups', group_id)
-    reporting.write_javascript_files(
-        directory=output_directory,
-        sim_id=group_id,
-        key='SIM_DATA',
-        data=out
-    )
-
-    return out
+    return {'url': report.url}
 
 
-def make_trial_data(trial_results: typing.List[dict]) -> list:
-    """
-    Returns a list of trial pruned data information from the trial simulation
-    results list that is relevant for group reporting
+def add_header_section(
+        report: reporting.Report,
+        settings: dict,
+        trials: typing.List[dict]
+):
 
-    :param trial_results:
-        Simulation results for each trial run by the group
-    """
+    trial_data = []
+    for t in trials:
+        color = plotting.get_color(t['index'] - 1, as_string=True)
 
-    out = []
-
-    for t in trial_results:
-        out.append(dict(
+        trial_data.append(dict(
             index=t['index'],
             id=t['id'],
-            name=t['configs']['name'],
-            summary=t['configs'].get('summary', '')
+            name=t['settings']['name'],
+            summary=t['settings'].get('summary', ''),
+            back_color=color
         ))
 
-    return out
+    report.add_template(
+        path=tracksim.make_resource_path('group', 'header.html'),
+        title=settings['name'],
+        date=datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
+        summary=settings.get('summary'),
+        trials=trial_data
+    )
 
 
-def make_coupling_data(coupling_data, trial_results):
+def add_coupling_plots(
+        report: reporting.Report,
+        trial_results: typing.List[dict]
+):
     """
     Generates coupling report data from the analyzed coupling data and the
     individual simulation trial results
 
-    :param coupling_data:
+    :param report:
         Grouped coupling data from the grouped simulation results
     :param trial_results:
         Simulation results for each trial run by the group
     """
 
-    dists = []
-    bounds = []
+    distribution_traces = []
+    population_traces = []
+    index = 0
 
-    min_value = 1e6
-    max_value = -1e6
-    for t in trial_results:
-        couplings = t['results']['couplings']
+    for trial in trial_results:
+        index += 1
+        coupling = trial['results']['couplings']
 
-        bounds.append(couplings['bounds'])
+        distribution_traces.append(dict(
+            x=coupling['distribution_profile']['x'],
+            y=coupling['distribution_profile']['y'],
+            type='scatter',
+            mode='lines',
+            name='{}'.format(index)
+        ))
 
-        dist = mstats.density.create_distribution(couplings['data'])
-        min_value = min(min_value, dist.minimum_boundary(3))
-        max_value = max(max_value, dist.maximum_boundary(3))
-        dists.append(dist)
+        population_traces.append(dict(
+            x=coupling['population'],
+            type='box',
+            name='{}'.format(index),
+            boxpoints=False
+        ))
 
-    x_values = mstats.ops.linear_space(min_value, max_value, 250)
+    report.add_plotly(
+        data=distribution_traces,
+        layout=plotting.create_layout(
+            title='Coupling Length Trial Distributions',
+            x_label='Expectation Value (au)',
+            y_label='Coupling Length (m)'
+        )
+    )
 
-    densities = []
-    populations = []
-    for dist in dists:
-        populations.append(mstats.density.ops.population(dist, 256))
-        densities.append(dist.probabilities_at(x_values))
-
-    values, uncertainties = mstats.values.unzip(coupling_data['values'])
-
-    return dict(
-        values=values,
-        uncertainties=uncertainties,
-        populations=populations,
-        bounds=bounds,
-        densities={
-            'x':x_values,
-            'series':densities
-        }
+    report.add_plotly(
+        data=population_traces,
+        layout=plotting.create_layout(
+            title='Coupling Length Trials',
+            x_label='Coupling Length (m)',
+            y_label='Trial Index (#)'
+        )
     )

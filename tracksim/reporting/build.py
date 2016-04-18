@@ -67,8 +67,8 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
         out.append({
             'id': data['id'],
             'url': '{}.html?id={}'.format(report_type, data['id']),
-            'title': data['configs']['name'],
-            'summary': data['configs']['summary']
+            'title': data['settings']['name'],
+            'summary': data['settings']['summary']
         })
 
     return out

@@ -14,7 +14,8 @@ from tracksim.trial import analyze, report, compute
 def run(
         settings: typing.Union[str, dict],
         trackway_positions: trackway.TrackPosition = None,
-        **kwargs) -> dict:
+        **kwargs
+) -> dict:
     """
     Runs and analyzes a simulation of the trackway under the conditions
     specified by the arguments and returns a dictionary of results for the trial
@@ -60,19 +61,18 @@ def run(
 
     tracksim.log('[{}]: ANALYZING'.format(settings['id']))
 
-    results = {
-        'configs': settings,
-        'times': time_steps,
-        'positions': foot_positions,
-        'couplings': analyze.coupling_distance(foot_positions),
-        'separations': analyze.separations(foot_positions),
-        'extensions': analyze.plane_limb_extensions(foot_positions)
-    }
+    results = dict(
+        settings=settings,
+        times=time_steps,
+        positions=foot_positions,
+        couplings=analyze.coupling_distance(foot_positions),
+        separations=analyze.separations(foot_positions),
+        extensions=analyze.plane_limb_extensions(foot_positions)
+    )
 
-    if settings.get('report', True):
-        results['report'] = report.create(
-            settings, trackway_definition, results
-        )
+    tracksim.log('[{}]: REPORTING'.format(settings['id']))
+
+    results['report'] = report.create(settings, trackway_definition, results)
 
     tracksim.log('[{}]: COMPLETED'.format(settings['id']))
 

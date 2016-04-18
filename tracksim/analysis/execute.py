@@ -4,6 +4,7 @@ import json
 
 import tracksim
 from tracksim import analysis
+from tracksim.reporting.report import Report
 
 
 def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
@@ -16,21 +17,28 @@ def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
     :return:
     """
 
+    file_path = os.path.join(root_path, filename)
+
+    if filename.endswith('.md'):
+        with open(file_path, 'r+') as f:
+            analysis.report.add_markdown(f.read())
+        return
+
     module = types.ModuleType(filename.split('.')[0])
 
     # setattr(module, )
-    analysis.cacher.put(
-        __analysis_id__=analysis_id,
-        __step_id__=filename.split('.')[0],
-        __analysis_path__=root_path,
-        __analysis_settings__=settings
-    )
+    analysis.shared.put(__step_id__=filename.split('.')[0])
 
-    file_path = os.path.join(root_path, filename)
     with open(file_path, 'r+') as f:
         contents = f.read()
 
-    exec(contents, module.__dict__)
+    try:
+        exec(contents, module.__dict__)
+    except Exception:
+        tracksim.log("""
+            ERROR: Analysis failed during in "{filename}"
+            """.format(filename=filename))
+        raise
 
 
 def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
@@ -49,6 +57,20 @@ def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
     with open(run_path, 'r+') as f:
         settings = json.load(f)
 
+    report = Report('analysis', analysis_id)
+    analysis.report = report
+    report.initialize(
+        title=settings.get('title')
+    )
+
+    cache = analysis.SharedCache()
+    analysis.shared = cache
+    cache.put(
+        __analysis_id__=analysis_id,
+        __analysis_path__=analysis_path,
+        __analysis_settings__=settings
+    )
+
     for filename in settings['steps']:
         run_step(
             filename=filename,
@@ -57,7 +79,4 @@ def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
             settings=settings
         )
 
-    if results_path is None:
-        results_path = analysis.make_results_path()
-
-    return analysis.report.write_report(path=results_path)
+    return analysis.report.write(results_path=results_path)

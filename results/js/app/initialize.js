@@ -7,6 +7,24 @@
     exports.resizeCallbacks = [];
 
     /**
+     * A fake require function that is needed for the inclusion of some
+     * elements within the DOM (e.g. plotly offline)
+     *
+     * @param preloaders
+     * @param callback
+     */
+    function fakeRequire(preloaders, callback) {
+        var callers = [];
+        preloaders.forEach(function (entry) {
+            if (entry === 'plotly') {
+                callers.push(window.Plotly);
+            }
+        });
+        callback.apply(this, callers);
+    }
+    window.require = fakeRequire;
+
+    /**
      *
      * @param lower
      * @returns {*|string|XML|void}
@@ -33,14 +51,23 @@
     exports.toDisplayNumber = toDisplayNumber;
 
     /**
-     * @param key
      * @param filename
      */
-    function loadDataFile(key, filename) {
-        var script = document.createElement('script');
-        script.setAttribute('onload', 'window.SIM.onData(window.' + key + ')');
-        script.setAttribute('src', filename);
-        document.head.appendChild(script);
+    function loadDataFile(filename) {
+        return new Promise(function (resolve) {
+
+            function loadComplete() {
+                exports.DATA = window.SIM_DATA.data;
+                $('.body-wrapper').html(window.SIM_DATA.body);
+                resolve(exports.DATA);
+                $(window).trigger('resize');
+            }
+
+            var script = document.createElement('script');
+            script.onload = loadComplete;
+            script.src = filename;
+            document.head.appendChild(script);
+        });
     }
     exports.loadDataFile = loadDataFile;
 

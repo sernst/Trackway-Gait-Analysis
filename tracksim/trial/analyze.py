@@ -1,4 +1,5 @@
 import measurement_stats as mstats
+from measurement_stats import density
 
 from tracksim import limb
 from tracksim import trackway
@@ -44,10 +45,6 @@ def coupling_distance(foot_positions):
 
     data = []
 
-    two_sigma_bounds = [-1e6, 1e6]
-    one_sigma_bounds = [-1e6, 1e6]
-    bounds_list = []
-
     for i in range(len(foot_positions.values()[0])):
 
         pes_pos = get_midpoint(
@@ -61,39 +58,29 @@ def coupling_distance(foot_positions):
         )
 
         length = pes_pos.distance_between(manus_pos)
-
-        bounds = (
-            length.value - 2.0 * length.uncertainty,
-            length.value - length.uncertainty,
-            length.value,
-            length.value + length.uncertainty,
-            length.value + 2.0 * length.uncertainty
-        )
-        bounds_list.append(bounds)
-
-        one_sigma_bounds = [
-            max(one_sigma_bounds[0], bounds[1]),
-            min(one_sigma_bounds[1], bounds[3])
-        ]
-
-        two_sigma_bounds = [
-            max(two_sigma_bounds[0], bounds[0]),
-            min(two_sigma_bounds[1], bounds[4])
-        ]
         data.append(length)
 
-    mean = mstats.mean.weighted_mean_and_deviation(*data)
-    deviations = mstats.values.deviations(mean.value, data)
+    d = density.create_distribution(data)
+    bounds = mstats.density.boundaries.weighted_two(d)
+    median = bounds[2]
+    mad = mstats.density.ops.weighted_median_average_deviation(d)
+    deviations = mstats.values.deviations(median, data)
+
+    min_value = d.minimum_boundary(3)
+    max_value = d.maximum_boundary(3)
+
+    x_values = mstats.ops.linear_space(min_value, max_value, 250)
 
     return dict(
         data=data,
-        value=mean,
+        value=mstats.value.ValueUncertainty(median, mad),
         deviation_max=mstats.value.round_to_order(max(deviations), -2),
-        bounds=dict(
-            one_sigma=one_sigma_bounds,
-            two_sigma=two_sigma_bounds
-        ),
-        bounds_list=bounds_list
+        bounds=bounds,
+        distribution_profile={
+            'x': x_values,
+            'y': d.probabilities_at(x_values)
+        },
+        population=mstats.density.ops.population(d, 256)
     )
 
 

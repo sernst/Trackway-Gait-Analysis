@@ -15,45 +15,6 @@
     window.onresize = onWindowResize;
 
     /**
-     *
-     * @param data
-     */
-    function onData(data) {
-        exports.DATA = data;
-
-        var controlBar = $('.playback-controls');
-
-        $('.header-title').html(data.configs.name);
-        $('title').html(data.configs.name);
-        $('.header-summary').html(data.configs.summary);
-        $('.header-entry.date .value').html(data.date);
-        $('.header-entry.duty-cycle .value').html(
-            Math.round(100.0*data.configs.duty_cycle)
-        );
-
-        var box = $('.header-entry.limb-phases .value');
-        Object.keys(data.limb_phases).forEach(function (limbId) {
-            box.find('.' + limbId + '-value').html(
-                Math.round(100.0*data.limb_phases[limbId]) + '%'
-            );
-        });
-
-        exports.initializeResultsDisplay();
-        exports.createPlots();
-
-        controlBar.find('.control').click(function (event) {
-            exports.onPlaybackControl($(event.currentTarget).attr('data-role'));
-        });
-        controlBar.find('.play-icon').hide();
-
-        exports.populateCycleDisplay();
-        exports.onPlaybackControl('toggle-play');
-
-        $('#displayWrapper').show();
-        $(window).trigger('resize');
-    }
-
-    /**
      * RUN APPLICATION
      */
     $(function () {
@@ -83,7 +44,17 @@
                 exports.PARAMS[item[0]] = v;
             });
 
-        exports.run();
+        exports.run()
+            .then(function () {
+                // Add auto resizing to plotly graphs
+                exports.resizeCallbacks.push(function () {
+                    $('.plotly-graph-div').each(function (index, e) {
+                        var plot_id = $(e).attr('id');
+                        console.log(plot_id);
+                        Plotly.Plots.resize(e);
+                    });
+                });
+            });
     });
 
 }());

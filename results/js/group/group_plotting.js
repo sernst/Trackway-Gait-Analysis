@@ -10,12 +10,6 @@
         });
     }
 
-    function getIndexedNames(trials) {
-        return trials.map(function (trial, index) {
-            return index + 1 + '. ' + trial.name;
-        });
-    }
-
     /**
      *
      */
@@ -61,8 +55,8 @@
 
         dataSeries = couplings.bounds.map(function (item, index) {
             return {
-                inner: item.one_sigma,
-                outer: item.two_sigma,
+                inner: [item[1], item[3]],
+                outer: [item[0], item[4]],
                 index: index + 1,
                 name: index + 1
             };
@@ -74,7 +68,7 @@
             plot.data,
             exports.plot.makeLayout(
                 plot.layout,
-                'Coupling Length Valid Ranges',
+                'Coupling Length IQR Ranges',
                 'Length (m)',
                 'Trial (#)'
             )

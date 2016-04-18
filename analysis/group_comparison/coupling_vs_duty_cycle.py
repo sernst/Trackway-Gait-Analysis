@@ -1,14 +1,14 @@
 import plotly
 import plotly.graph_objs as go
 
-import tracksim
-from tracksim import analysis
+from tracksim.analysis import report
+from tracksim.analysis import shared
 
 LIMB_PHASE = 90
 PRINT_INTERVAL = 0
 
-trial_info = analysis.cacher.fetch('trial_info')
-results = analysis.cacher.fetch('results')
+trial_info = shared.trial_info
+results = shared.results
 
 df = trial_info.query(
         'phase == {} and print_interval == {} and size_id == "S"'
@@ -27,7 +27,7 @@ for index, row in df.iterrows():
         y=distribution
     ))
 
-analysis.report.add_html(plotly.offline.plot(
+report.add_html(plotly.offline.plot(
     {
         'data': traces,
         'layout': go.Layout(

@@ -1,14 +1,14 @@
 import plotly
 import plotly.graph_objs as go
 
-import tracksim
-from tracksim import analysis
+from tracksim.analysis import report
+from tracksim.analysis import shared
 
 LIMB_PHASE = 90
 DUTY_CYCLE = 0.8
 
-results = analysis.cacher.fetch('results')
-trial_info = analysis.cacher.fetch('trial_info')
+results = shared.results
+trial_info = shared.trial_info
 
 df = trial_info.query(
     'phase == {lp} and duty_cycle == {dc} and size_id == "S"'.format(
@@ -29,7 +29,7 @@ for index, row in df.iterrows():
         y=distribution
     ))
 
-analysis.report.add_html(plotly.offline.plot({
+report.add_html(plotly.offline.plot({
         'data': traces,
         'layout': go.Layout(
             title='Coupling Density Distributions for Phase {}% and DC {}'.format(

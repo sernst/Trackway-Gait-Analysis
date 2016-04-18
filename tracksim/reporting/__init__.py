@@ -6,6 +6,7 @@ from json import encoder
 
 import tracksim
 from tracksim.reporting.build import create_index_file
+from tracksim.reporting.report import Report
 
 def write_javascript_files(
         directory: str,

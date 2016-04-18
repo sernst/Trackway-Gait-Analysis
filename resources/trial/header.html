@@ -1,0 +1,96 @@
+<div class="top-container no-select">
+  <div style="display:flex;padding:0 1.0em;align-items: flex-end;">
+    <div class="header-box">
+      <div class="header-title">{{ title }}</div>
+      <div class="header-summary">{{ summary }}</div>
+      <div class="header-entry date">
+        <span class="name">Date:</span>
+        <span class="value">{{ date }}</span>
+      </div>
+      <div class="header-entry duty-cycle">
+        <span class="name">Duty Cycle:</span>
+        <span class="value">{{ duty_cycle }}</span>
+      </div>
+      <div class="header-entry limb-phases">
+        <span class="name">Limb Phases:</span>
+          <span class="value">
+            Pes: (<span class="left_pes-value">{{ limb_phases[0] }}</span>,
+            <span class="right_pes-value">{{ limb_phases[1] }}</span>)
+            Manus: (<span class="left_manus-value">{{ limb_phases[2] }}</span>,
+            <span class="right_manus-value">{{ limb_phases[3] }}</span>)
+          </span>
+      </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="playback-controls">
+      <div class="spacer"></div>
+
+      <div class="control" data-role="jump-back">
+        <img src="img/back.svg"/>
+      </div>
+      <div class="control" data-role="frame-back">
+        <img src="img/step-back.svg"/>
+      </div>
+      <div class="control" data-role="toggle-play">
+        <img src="img/play.svg" class="play-icon"/>
+        <img src="img/pause.svg" class="pause-icon"/>
+      </div>
+      <div class="control" data-role="frame-forward">
+        <img src="img/step-forward.svg"/>
+      </div>
+      <div class="control" data-role="jump-forward">
+        <img src="img/forward.svg"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="header">
+      <div class="value-box">
+        <div class="header">Left Pes</div>
+        <div class="swatch left_pes_color"></div>
+      </div>
+
+      <div class="value-box">
+        <div class="header">Right Pes</div>
+        <div class="swatch right_pes_color"></div>
+      </div>
+
+      <div class="value-box">
+        <div class="header">Left Manus</div>
+        <div class="swatch left_manus_color"></div>
+      </div>
+
+      <div class="value-box">
+        <div class="header">Right Manus</div>
+        <div class="swatch right_manus_color"></div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="value-box">
+        <div class="header">Cycle</div>
+        <div class="value cycle-value"></div>
+      </div>
+
+      <div class="value-box">
+        <div class="header">Phase</div>
+        <div class="value phase-value"></div>
+      </div>
+
+      <div class="value-box">
+        <div class="header">Progress</div>
+        <div class="value progress-value"></div>
+      </div>
+    </div>
+
+    <div class="outer">
+      <div class="inner"></div>
+      <div class="cycles left_pes left_pes_color"></div>
+      <div class="cycles left_manus left_manus_color"></div>
+      <div class="cycles right_manus right_manus_color"></div>
+      <div class="cycles right_pes right_pes_color"></div>
+    </div>
+  </div>
+</div>

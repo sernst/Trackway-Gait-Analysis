@@ -102,7 +102,7 @@ def run(**kwargs):
     :return:
     """
 
-    cli_configs = kwargs.get('configs')
+    cli_configs = kwargs.get('settings')
     if cli_configs is None:
         cli_configs = tracksim.load_configs()
 

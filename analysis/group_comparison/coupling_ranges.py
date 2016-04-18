@@ -1,13 +1,24 @@
-import plotly
 import plotly.graph_objs as go
 
-import tracksim
-from tracksim import analysis
+from tracksim.analysis import report
+from tracksim.analysis import shared
 
+report.add_header(2, 'Coupling Range Comparisons')
+report.add_plaintext("""
+    The following plots show the relationships between coupling
+    distance and print interval for a specified limb phase.
 
-LIMB_PHASE = 90
+    Each plot consists of 3 groups of 4 line graphs. The 3 groups represent
+    short, medium and long coupling distances for the given simulation as
+    defined by increasing the spacing between the manus and pes coupling
+    during simulation.
 
-couplings = analysis.cacher.fetch('couplings')
+    Within each of the 3 groups are 4 line graphs, which represent the
+    coupling range boundaries (+/- 2 standard deviations) for two different
+    duty cycles (50% and 75%).
+""")
+
+couplings = shared.couplings
 
 
 def add_to_plot(name, data_frame, lower_color, upper_color):
@@ -15,18 +26,20 @@ def add_to_plot(name, data_frame, lower_color, upper_color):
     x = data_frame['print_interval']
     out = []
     entries = [
-        {'key': 'lower_2s', 'suffix': '-2s', 'size': 9, 'alpha': 0.4,
-         'color': lower_color},
-        {'key': 'lower_1s', 'suffix': '-1s', 'size': 6, 'alpha': 0.6,
-         'color': lower_color},
-        {'key': 'upper_1s', 'suffix': '+1s', 'size': 6, 'alpha': 0.6,
-         'color': upper_color},
-        {'key': 'upper_2s', 'suffix': '+2s', 'size': 9, 'alpha': 0.4,
-         'color': upper_color}
+        {
+            'key': 'lower_2s', 'suffix': '-2s', 'line': True,
+            'size': 9, 'alpha': 0.4,
+            'color': lower_color
+        },
+        {
+            'key': 'upper_2s', 'suffix': '+2s', 'line': True,
+            'size': 9, 'alpha': 0.4,
+            'color': upper_color
+        }
     ]
 
     for e in entries:
-        out.append(go.Scatter(
+        trace = go.Scatter(
             x=x,
             y=data_frame[e['key']],
             name='{} {}'.format(name, e['suffix']),
@@ -37,37 +50,68 @@ def add_to_plot(name, data_frame, lower_color, upper_color):
                 opacity=e['alpha'],
                 line=dict(width=1, color=e['color'])
             )
-        ))
+        )
+
+        if e['line']:
+            trace['mode'] = 'lines+markers'
+            trace['line'] = dict(
+                width=1,
+                color=e['color']
+            )
+        out.append(trace)
+
     return out
 
 
-data = add_to_plot(
-    'DC 0.5',
-    couplings.query('phase == {} and duty_cycle == 0.5'.format(LIMB_PHASE)),
-    'blue',
-    'red'
-)
-data += add_to_plot(
-    'DC 0.75',
-    couplings.query('phase == {} and duty_cycle == 0.75'.format(LIMB_PHASE)),
-    'green',
-    'orange'
-)
+def create_plot(limb_phase):
 
-analysis.report.add_html(plotly.offline.plot(
-    {
-        'data': data,
-        "layout": go.Layout(
-            title='Coupling Ranges for Limb Phase {}%'.format(LIMB_PHASE),
-            height=600,
-            xaxis={
-                'title': 'Print Interval (%)'
-            },
-            yaxis={
-                'title': 'Coupling Distance (m)'
-            }
+    data = []
+
+    for size in ['short', 'medium', 'long']:
+
+        data += add_to_plot(
+            '{size} DC 0.5'.format(size=size.capitalize()),
+            lower_color='blue',
+            upper_color='red',
+            data_frame=couplings.query("""
+                phase == {limb_phase} and
+                duty_cycle == 0.5 and
+                size == "{size}"
+            """.format(
+                limb_phase=limb_phase,
+                size=size
+            ).replace('\n', ' '))
         )
-    },
-    output_type='div',
-    include_plotlyjs=False
-))
+
+        data += add_to_plot(
+            '{size} DC 0.75'.format(size=size.capitalize()),
+            upper_color='orange',
+            lower_color='green',
+            data_frame=couplings.query("""
+                phase == {limb_phase} and
+                duty_cycle == 0.75 and
+                size == "{size}"
+            """.format(
+                limb_phase=limb_phase,
+                size=size
+            ).replace('\n', ' '))
+        )
+
+    layout = go.Layout(
+        title='Coupling Ranges for Limb Phase {}%'.format(limb_phase),
+        height=600,
+        xaxis={
+            'title': 'Print Interval (%)'
+        },
+        yaxis={
+            'title': 'Coupling Distance (m)'
+        }
+    )
+
+    report.add_plotly(data, layout)
+
+
+create_plot(0)
+create_plot(90)
+create_plot(180)
+create_plot(270)

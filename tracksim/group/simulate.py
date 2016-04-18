@@ -39,7 +39,7 @@ def run(
         trial_settings = configs.load(source, inherits=settings)
         trial_results = simulate_trial.run(trial_settings)
         trials.append(dict(
-            configs=trial_settings,
+            settings=trial_settings,
             results=trial_results,
             index=len(trials) + 1,
             id=trial_settings['id'],
@@ -51,6 +51,8 @@ def run(
         couplings=analyze.coupling_distribution_data(trials),
         trials=trials
     )
+
+    tracksim.log('[{}]: REPORTING'.format(settings['id']))
 
     results['report'] = report.create(start_time, settings, results, trials)
 

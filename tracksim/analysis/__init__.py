@@ -1,51 +1,37 @@
-import os
-import shutil
-
-import tracksim
-from tracksim.analysis import cacher
-from tracksim.analysis import report
+shared = None
+report = None
 
 
-def initialize_path(path: str = None) -> str:
+class SharedCache(object):
     """
 
-    :param path:
-    :return:
     """
 
-    if not path:
-        path = make_results_path()
+    def __init__(self):
+        self.data = dict()
 
-    if os.path.exists(path):
-        try:
-            shutil.rmtree(path)
-        except Exception:
-            try:
-                shutil.rmtree(path)
-            except Exception:
-                return None
+    def put(self, **kwargs):
+        """
 
-    os.makedirs(path)
-    return path
+        :param kwargs:
+        :return:
+        """
 
+        for key, value in kwargs.items():
+            self.data[key] = value
 
-def make_results_path(*args, configs_override: str = None) -> str:
-    """
+    def fetch(self, key: str, default_value=None):
+        """
 
-    :param args:
-    :param configs_override:
-    :return:
-    """
+        :param key:
+        :param default_value:
+        :return:
+        """
 
-    if configs_override:
-        path = tracksim.load_configs().get(configs_override)
-        if path:
-            return tracksim.clean_path(os.path.join(path, *args))
+        return self.data.get(key, default_value)
 
-    analysis_id = cacher.fetch('__analysis_id__')
-    if analysis_id:
-        args = list(args)
-        args.insert(0, analysis_id)
+    def __getitem__(self, item):
+        return self.data.get(item)
 
-    return tracksim.make_results_path('analysis', *args)
-
+    def __getattr__(self, item):
+        return self.data.get(item)

@@ -17,6 +17,7 @@ setup(
         'boto3',
         'numpy',
         'six',
-        'jinja2'
+        'jinja2',
+        'markdown'
     ]
 )

@@ -7,26 +7,15 @@
     /**
      *
      */
-    function onData(data) {
-        exports.DATA = data;
-
-        $('.group-info .title').html(data.configs.name);
-        $('.group-info .summary').html(data.configs.summary);
-        $('.group-info .date').html(data.date);
-        $('title').html(data.configs.name);
-        exports.addTrialListings(data.trials);
-
-        exports.makeCouplingPlot();
-    }
-    exports.onData = onData;
-
-    /**
-     *
-     */
     function run() {
-        var dataFilename = 'groups/' + exports.PARAMS['id'] + '/' +
-                exports.PARAMS['id'] + '.js';
-        exports.loadDataFile('SIM_DATA', dataFilename);
+        var dataFilename = 'reports/group/' +
+            exports.PARAMS['id'] + '/' +
+            exports.PARAMS['id'] + '.js';
+
+        return exports.loadDataFile(dataFilename)
+            .then(function () {
+                $('title').html($('.group-info .title').html());
+            });
     }
     exports.run = run;
 

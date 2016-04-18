@@ -1,10 +1,12 @@
 import pandas as pd
 
 import tracksim
-from tracksim import analysis
 from tracksim import gather
+from tracksim.analysis import shared
+from tracksim.analysis import report
 
-analysis.initialize_path()
+report.add_header('Generated Parameter Space Analysis')
+
 results = gather.group_results(
     path=tracksim.load_configs().get('path.group_comparison')
 )
@@ -43,8 +45,10 @@ for item in results['trials']:
 trial_info = pd.DataFrame(trial_info)
 couplings = pd.concat([pd.DataFrame(couplings), trial_info], axis=1)
 
-analysis.cacher.put(
+shared.put(
     results=results,
     trial_info=trial_info,
     couplings=couplings
 )
+
+# report.add_table(couplings)
