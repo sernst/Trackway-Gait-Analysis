@@ -1,5 +1,6 @@
 import measurement_stats as mstats
 from measurement_stats import density
+from measurement_stats.density import boundaries
 
 from tracksim import limb
 from tracksim import trackway
@@ -61,7 +62,7 @@ def coupling_distance(foot_positions):
         data.append(length)
 
     d = density.create_distribution(data)
-    bounds = mstats.density.boundaries.weighted_two(d)
+    bounds = boundaries.weighted_two(d)
     median = bounds[2]
     mad = mstats.density.ops.weighted_median_average_deviation(d)
     deviations = mstats.values.deviations(median, data)
