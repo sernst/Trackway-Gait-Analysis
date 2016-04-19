@@ -1,4 +1,4 @@
-# Generated Data Analysis
+# Generated Parameter Space Analysis
 
 This is the results of an analysis of simulated data that ranges over the 
 variables:

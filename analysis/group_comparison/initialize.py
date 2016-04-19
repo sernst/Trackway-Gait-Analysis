@@ -5,8 +5,6 @@ from tracksim import reader
 from tracksim.analysis import shared
 from tracksim.analysis import report
 
-report.add_header('Generated Parameter Space Analysis')
-
 results_path = tracksim.load_configs().get('path.group_comparison')
 results = reader.all_groups(results_path=results_path)
 
@@ -33,10 +31,8 @@ for trial in results['trials']:
     trial_data = reader.read('trial', trial['id'], results_path)
     couplings[trial['id']] = trial_data['couplings']
 
-trial_info = pd.DataFrame(trial_info)
-
 shared.put(
     results=results,
-    trial_info=trial_info,
+    trial_info=pd.DataFrame(trial_info),
     couplings=couplings
 )

@@ -1,7 +1,9 @@
 {
-
+  "name": "Generated Analysis",
+  "summary": "Analyzing the results of a generated search of basic parameter spaces",
   "steps":[
     "introduction.md",
     "initialize.py",
     "coupling_ranges.py"
+  ]
 }

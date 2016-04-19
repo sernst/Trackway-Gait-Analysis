@@ -38,6 +38,9 @@ class TrackPosition(object):
         self.y = y
         self.annotation = kwargs.get('annotation')
 
+    def serialize(self) -> dict:
+        return self.to_dict()
+
     def to_dict(self) -> dict:
         """
         Creates a JSON serializable dictionary representation of this
@@ -138,10 +141,31 @@ class TrackPosition(object):
 
         return True
 
+    def midpoint_between(
+            self,
+            position: 'TrackPosition'
+    ) -> mstats.ValueUncertainty:
+        """
+        Calculates the midpoint between this trackway position and the one
+        specified in the arguments.
+
+        :param position:
+            Another trackway position to compute the midpoint between
+        :return:
+            A new trackway position that is the computed midpoint between this
+            position and the one specified in the arguments.
+        """
+
+        # noinspection PyTypeChecker
+        return TrackPosition(
+            x=0.5 * (self.x + position.x),
+            y=0.5 * (self.y + position.y)
+        )
+
     def distance_between(
             self,
             position: 'TrackPosition'
-    ) -> mstats.value.ValueUncertainty:
+    ) -> mstats.ValueUncertainty:
         """
         Returns the calculated distance between this position and the
         position argument

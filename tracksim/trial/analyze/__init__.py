@@ -11,6 +11,7 @@ from tracksim import svg
 from tracksim import trackway
 from tracksim.svg import draw
 from tracksim.trial.analyze import coupling
+from tracksim.trial.analyze import separation
 
 
 def create(
@@ -36,12 +37,14 @@ def create(
     sim_id = settings['id']
     times = make_time_data(time_steps)
     coupling_data = coupling.calculate(foot_positions)
+    separation_data = separation.calculate(foot_positions)
 
     report = reporting.Report('trial', sim_id)
     add_header_section(report, settings, track_definition)
     svg_settings = add_svg(sim_id, report, track_definition, foot_positions)
     add_info(report, settings, coupling_data)
     coupling.add_to_report(report, coupling_data, times)
+    separation.add_to_report(report, separation_data, times)
     report.add_whitespace(10)
 
     report.add_data(
@@ -53,7 +56,7 @@ def create(
         scale=svg_settings['scale'],
         offset=svg_settings['offset'],
         markerIds=limb.KEYS + [],
-        frames=make_animation_frame_data(foot_positions, times)
+        frames=make_animation_frame_data(foot_positions, coupling_data, times)
     )
 
     url = report.write()
@@ -185,6 +188,7 @@ def add_info(report: reporting.Report, settings: dict, coupling_data: dict):
 
 def make_animation_frame_data(
         foot_positions: limb.Property,
+        coupling_data: dict,
         times: dict
 ) -> typing.List[dict]:
     """
@@ -199,6 +203,7 @@ def make_animation_frame_data(
             - y: A list where y[0] is the position and y[1] is the uncertainty
             - f: The enumerated annotation for the position
 
+    :param coupling_data:
     :param foot_positions:
         The simulation results
     :param times:
@@ -208,14 +213,30 @@ def make_animation_frame_data(
     frames = []
 
     for i in range(times['count']):
-        frames.append({'time': times['cycles'][i], 'positions': []})
+        positions = []
         for key in limb.KEYS:
             pos = foot_positions.get(key)[i]
-            frames[-1]['positions'].append({
-                'x': [pos.x.value, pos.x.uncertainty],
-                'y': [pos.y.value, pos.y.uncertainty],
+            positions.append({
+                'x': [pos.x.value, pos.x.uncertainty, pos.x.raw],
+                'y': [pos.y.value, pos.y.uncertainty, pos.y.raw],
                 'f': pos.annotation
             })
+
+        rear = coupling_data['rear'][i]
+        forward = coupling_data['forward'][i]
+
+        frames.append(dict(
+            time=times['cycles'][i],
+            positions=positions,
+            rear_coupler={
+                'x': [rear.x.value, rear.x.uncertainty, rear.x.raw],
+                'y': [rear.y.value, rear.y.uncertainty, rear.y.raw]
+            },
+            forward_coupler={
+                'x': [forward.x.value, forward.x.uncertainty, forward.x.raw],
+                'y': [forward.y.value, forward.y.uncertainty, forward.y.raw]
+            }
+        ))
 
     return frames
 

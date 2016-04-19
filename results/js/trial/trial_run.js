@@ -14,6 +14,9 @@
 
         return exports.loadDataFile(filename)
             .then(function (data) {
+
+                $('title').html($('.header-title').html());
+
                 var controlBar = $('.playback-controls');
                 controlBar.find('.control').click(function (event) {
                     exports.onPlaybackControl(
@@ -22,6 +25,7 @@
                 });
                 controlBar.find('.play-icon').hide();
 
+                exports.initialize_animation();
                 exports.populateCycleDisplay();
                 exports.onPlaybackControl('toggle-play');
             });

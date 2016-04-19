@@ -16,9 +16,9 @@ def read(report_type: str, report_id: str, results_path: str = None) -> dict:
 
     first_character = report_type[0].lower()
     if first_character == 't':
-        report_type = 'trials'
+        report_type = 'trial'
     elif first_character == 'g':
-        report_type = 'groups'
+        report_type = 'group'
 
     if not results_path:
         results_path = tracksim.make_results_path()
@@ -33,10 +33,11 @@ def read(report_type: str, report_id: str, results_path: str = None) -> dict:
     with open(path, 'r+') as f:
         out = json.load(f)
 
+    out['id'] = report_id
     return out
 
 
-def all_by_type(report_type: str, results_path: str) -> typing.List[dict]:
+def all_by_type(report_type: str, results_path: str = None) -> typing.List[dict]:
     """
     Fetches the reported results for all simulations of the specified report
     type and returns them as a list of results dictionaries.
@@ -51,9 +52,9 @@ def all_by_type(report_type: str, results_path: str) -> typing.List[dict]:
 
     first_character = report_type[0].lower()
     if first_character == 't':
-        report_type = 'trials'
+        report_type = 'trial'
     elif first_character == 'g':
-        report_type = 'groups'
+        report_type = 'group'
 
     if not results_path:
         results_path = tracksim.make_results_path()

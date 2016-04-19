@@ -12,11 +12,15 @@
 
 <body>
 <div class="container">
-  <h1>Trial And Group Reports</h1>
+  <h1>Results</h1>
+  <h2>Analysis:</h2>
+  <div id="analysis" class="entries"></div>
+  <div style="clear:both;width:100%;height:20px"></div>
+
   <h2>Groups:</h2>
   <div id="groups" class="entries"></div>
-
   <div style="clear:both;width:100%;height:20px"></div>
+
   <h2>Trials:</h2>
   <div id="trials" class="entries"></div>
   <div style="clear:both;width:100%;height:100px"></div>
@@ -49,6 +53,10 @@
             .html(data.summary)
             .appendTo(e);
       }
+
+      window.DATA.analysis.forEach(function (analysis) {
+        createEntry($('#analysis'), analysis);
+      });
 
       window.DATA.groups.forEach(function (group) {
         createEntry($('#groups'), group);

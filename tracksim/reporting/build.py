@@ -17,7 +17,8 @@ def create_index_file(source_directory: str, target_directory: str) -> dict:
 
     data = json.dumps({
         'groups': get_report_info('group', target_directory),
-        'trials': get_report_info('trial', target_directory)
+        'trials': get_report_info('trial', target_directory),
+        'analysis': get_report_info('analysis', target_directory)
     })
 
     contents = contents.replace('\'###DATA###\'', data)
@@ -45,12 +46,12 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
     rt = report_type.lower()
     if rt.startswith('t'):
         report_type = 'trial'
-        folder = 'trials'
-    else:
+    elif rt.startswith('g'):
         report_type = 'group'
-        folder = 'groups'
+    else:
+        report_type = 'analysis'
 
-    directory = os.path.join(target_path, folder)
+    directory = os.path.join(target_path, 'reports', report_type)
 
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
@@ -65,8 +66,8 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
             data = json.load(f)
 
         out.append({
-            'id': data['id'],
-            'url': '{}.html?id={}'.format(report_type, data['id']),
+            'id': item,
+            'url': '{}.html?id={}'.format(report_type, item),
             'title': data['settings']['name'],
             'summary': data['settings']['summary']
         })

@@ -59,9 +59,6 @@ def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
 
     report = Report('analysis', analysis_id)
     analysis.report = report
-    report.initialize(
-        title=settings.get('title')
-    )
 
     cache = analysis.SharedCache()
     analysis.shared = cache
@@ -79,4 +76,19 @@ def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
             settings=settings
         )
 
-    return analysis.report.write(results_path=results_path)
+    url = analysis.report.write(results_path=results_path)
+
+    path = os.path.join(
+        analysis.report.directory,
+        '{}.json'.format(analysis_id)
+    )
+
+    settings['id'] = analysis_id
+    settings['name'] = settings.get('name', analysis_id)
+    with open(path, 'w+') as f:
+        json.dump({
+            'settings': settings
+        }, f)
+
+    return url
+

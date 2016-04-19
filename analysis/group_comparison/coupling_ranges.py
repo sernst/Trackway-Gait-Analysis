@@ -1,22 +1,10 @@
 import plotly.graph_objs as go
 
+from tracksim.reporting import plotting
 from tracksim.analysis import report
 from tracksim.analysis import shared
 
 report.add_header(2, 'Coupling Range Comparisons')
-report.add_plaintext("""
-    The following plots show the relationships between coupling
-    distance and print interval for a specified limb phase.
-
-    Each plot consists of 3 groups of 4 line graphs. The 3 groups represent
-    short, medium and long coupling distances for the given simulation as
-    defined by increasing the spacing between the manus and pes coupling
-    during simulation.
-
-    Within each of the 3 groups are 4 line graphs, which represent the
-    coupling range boundaries (+/- 2 standard deviations) for two different
-    duty cycles (50% and 75%).
-""")
 
 trial_info = shared.trial_info
 couplings = shared.couplings
@@ -29,9 +17,16 @@ def add_to_plot(name, data_frame, color):
     for index, row in data_frame.iterrows():
         coupling_data = couplings[row['id']]
 
+        print_interval = row['print_interval']
+
         data.append(go.Box(
+            name='PI {}%'.format(print_interval),
             y=coupling_data['population'],
             marker={'color': color},
+            line=dict(
+                outliercolor=color,
+                outlierwidth=2,
+            ),
             boxpoints=False
         ))
 
@@ -42,11 +37,11 @@ def create_plot(limb_phase):
 
     data = []
 
-    for size in ['short', 'medium', 'long']:
+    for size in ['medium']:
 
         data += add_to_plot(
-            '{size} DC 0.5'.format(size=size.capitalize()),
-            color='blue',
+            'DC 0.5',
+            color=plotting.get_color(0, 0.3, as_string=True),
             data_frame=trial_info.query("""
                 phase == {limb_phase} and
                 duty_cycle == 0.5 and
@@ -58,11 +53,11 @@ def create_plot(limb_phase):
         )
 
         data += add_to_plot(
-            '{size} DC 0.75'.format(size=size.capitalize()),
-            color='red',
+            'DC 0.8',
+            color=plotting.get_color(1, 0.3, as_string=True),
             data_frame=trial_info.query("""
                 phase == {limb_phase} and
-                duty_cycle == 0.75 and
+                duty_cycle == 0.8 and
                 size == "{size}"
             """.format(
                 limb_phase=limb_phase,
@@ -71,7 +66,7 @@ def create_plot(limb_phase):
         )
 
     layout = go.Layout(
-        title='Coupling Ranges for Limb Phase {}%'.format(limb_phase),
+        title='Medium Coupling Ranges for Limb Phase {}%'.format(limb_phase),
         height=600,
         xaxis={
             'title': 'Print Interval (%)'

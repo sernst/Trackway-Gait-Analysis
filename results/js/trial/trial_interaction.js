@@ -4,7 +4,15 @@
     var exports = window.SIM || {};
     window.SIM = exports;
 
-
+    /**
+     * A callback executed by clicking on one of the playback control buttons
+     * in the animation header section of the trial page. The action taken
+     * during the callback depends on the specified role argument.
+     *
+     * @param role
+     *  The specific role of the playback control that was clicked. Each role
+     *  is handled differently
+     */
     function onPlaybackControl(role) {
         var frameAdjust = 0;
 

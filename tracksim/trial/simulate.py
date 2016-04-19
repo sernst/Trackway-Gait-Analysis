@@ -30,6 +30,10 @@ def run(
 
     settings = configs.load(settings, **kwargs)
 
+    if 'moving_ambiguity' not in settings:
+        # The coefficient of uncertainty while the foot is moving
+        settings['moving_ambiguity'] = 0.125
+
     tracksim.log('[{}]: STARTING'.format(settings['id']))
 
     limb_phases = load_limb_phases(settings)

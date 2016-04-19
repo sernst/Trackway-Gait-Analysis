@@ -71,52 +71,68 @@ def create_layout(
     return layout
 
 
-def make_line_data(x: list, y: list, y_unc: list):
+def make_line_data(
+        x: list,
+        y: list,
+        y_unc: list,
+        name: str = None,
+        color: str = None,
+        fill_color: str = None
+):
 
     lower = []
     upper = []
+
+    if not name:
+        name = 'Measurement'
+
+    if not fill_color:
+        fill_color = 'rgba(68, 68, 68, 0.1)'
+
+    if not color:
+        color = get_color(0, as_string=True)
 
     for y_value, y_unc_value in zip(y, y_unc):
         lower.append(y_value - y_unc_value)
         upper.append(y_value + y_unc_value)
 
-
-    lowerTrace = dict(
+    lower_trace = dict(
         x=x,
         y=lower,
-        line={'width': 0},
-        marker={'color': '444'},
+        line={'width': 0, 'color': color},
         mode='lines',
-        name='Lower Bound',
-        type='scatter'
+        name='- {}'.format(name),
+        type='scatter',
+        showlegend=False
     )
 
-    middleTrace = dict(
+    middle_trace = dict(
         x=x,
         y=y,
         fill='tonexty',
-        fillcolor='rgba(68, 68, 68, 0.1)',
-        line={'color': 'rgb(31, 119, 180)'},
+        fillcolor=fill_color,
         mode='markers',
-        name='Measurement',
-        type='scatter'
+        marker={'color': color},
+        name=name,
+        type='scatter',
+        showlegend=bool(name is not None)
     )
 
-    upperTrace = dict(
+    upper_trace = dict(
         x=x,
         y=upper,
         fill='tonexty',
-        fillcolor='rgba(68, 68, 68, 0.1)',
-        line={'width': 0},
-        marker={'color': '444'},
+        fillcolor=fill_color,
+        line={'width': 0, 'color': color},
         mode='lines',
-        name='Upper Bound',
-        type='scatter'
+        name='+ {}'.format(name),
+        type='scatter',
+        showlegend=False
     )
 
     return {
-        'data': [lowerTrace, middleTrace, upperTrace],
-        'layout': {'showlegend': False}
+        'data': [lower_trace, middle_trace, upper_trace],
+        'layout': {}
     }
 
 

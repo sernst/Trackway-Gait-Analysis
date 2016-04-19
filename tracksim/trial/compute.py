@@ -97,7 +97,7 @@ def position_at_cycle_time(
     During the duty cycle time period for the limb, the position will be
     located at the before position. After the duty cycle, the limb position is
     largely unknown because we have no evidence of the position, or even the
-    accelerations and velocities, during that period. Therefore, the value
+    accelerations and advance, during that period. Therefore, the value
     returned if the midpoint between the before and after positions with a
     large uncertainty value that encompasses the region between the before and
     after positions.
@@ -126,20 +126,23 @@ def position_at_cycle_time(
         pos.annotation = FIXED_ANNOTATION
         return pos
 
+    # The coefficient of uncertainty while the foot is moving
+    moving_ambiguity = settings['moving_ambiguity']
+
     bp = before_position
     ap = after_position
     progress = max(0.0, min(1.0, cycle_time / move_time))
 
     return trackway.TrackPosition.from_raw_values(
-        x=bp.x.raw + progress*(ap.x.raw - bp.x.raw),
+        x=bp.x.raw + progress * (ap.x.raw - bp.x.raw),
         x_uncertainty=max(
                 ap.x.raw_uncertainty,
-                abs(0.25*(ap.x.raw - bp.x.raw))
+                abs(moving_ambiguity * (ap.x.raw - bp.x.raw))
         ),
-        y=bp.y.raw + progress*(ap.y.raw - bp.y.raw),
+        y=bp.y.raw + progress * (ap.y.raw - bp.y.raw),
         y_uncertainty=max(
                 ap.y.raw_uncertainty,
-                abs(0.25*(ap.y.raw - bp.y.raw))
+                abs(moving_ambiguity * (ap.y.raw - bp.y.raw))
         ),
         annotation=MOVING_ANNOTATION
     )

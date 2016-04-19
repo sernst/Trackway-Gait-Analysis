@@ -114,7 +114,7 @@ def execute_command():
         '-s', '--source',
         dest='source_directory',
         type=str,
-        default=tracksim.make_results_path('report'),
+        default=tracksim.make_results_path(),
         help=cli.reformat("""
             The source reports directory to be exported. This flag allows you
             to export results that are stored in locations other than the
