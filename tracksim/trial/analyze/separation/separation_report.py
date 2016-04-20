@@ -15,38 +15,62 @@ def add_length_plot(report: Report, separation_data: dict, times:dict):
 
     sources = [
         dict(
-            name='Left',
-            data=separation_data['left_lengths'],
-            index=2
+            layout=plotting.create_layout(
+                title='Left &amp; Right Separations',
+                x_label='Cycle (#)',
+                y_label='Separation (m)'
+            ),
+            items=[
+                dict(
+                    name='Left',
+                    data=separation_data['left_lengths'],
+                    index=2
+                ),
+                dict(
+                    name='Right',
+                    data=separation_data['right_lengths'],
+                    index=4
+                )
+            ]
         ),
+
         dict(
-            name='Right',
-            data=separation_data['right_lengths'],
-            index=4
+            layout=plotting.create_layout(
+                title='Forward &amp; Rear Separations',
+                x_label='Cycle (#)',
+                y_label='Separation (m)'
+            ),
+            items=[
+                dict(
+                    name='Forward',
+                    data=separation_data['forward_lengths'],
+                    index=1
+                ),
+                dict(
+                    name='Rear',
+                    data=separation_data['rear_lengths'],
+                    index=0
+                )
+            ]
         )
     ]
 
-    traces = []
-
     for source in sources:
-        index = sources.index(source)
-        values, uncertainties = mstats.values.unzip(source['data'])
+        traces = []
 
-        plot = plotting.make_line_data(
-            x=times['cycles'],
-            y=values,
-            y_unc=uncertainties,
-            name=source['name'],
-            color=plotting.get_color(source['index'], 0.7, as_string=True),
-            fill_color=plotting.get_color(source['index'], 0.2, as_string=True)
-        )
-        traces += plot['data']
+        for item in source['items']:
+            values, uncertainties = mstats.values.unzip(item['data'])
+            color = plotting.get_color(item['index'], 0.7, as_string=True)
+            fill = plotting.get_color(item['index'], 0.2, as_string=True)
 
-    report.add_plotly(
-        data=traces,
-        layout=plotting.create_layout(
-            title='Manus-Pes Separations',
-            x_label='Cycle (#)',
-            y_label='Separation (m)'
-        )
-    )
+            plot = plotting.make_line_data(
+                x=times['cycles'],
+                y=values,
+                y_unc=uncertainties,
+                name=item['name'],
+                color=color,
+                fill_color=fill
+            )
+            traces += plot['data']
+
+        report.add_plotly(data=traces, layout=source['layout'])

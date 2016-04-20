@@ -224,6 +224,7 @@ def make_animation_frame_data(
 
         rear = coupling_data['rear'][i]
         forward = coupling_data['forward'][i]
+        midpoint = coupling_data['midpoints'][i]
 
         frames.append(dict(
             time=times['cycles'][i],
@@ -235,6 +236,10 @@ def make_animation_frame_data(
             forward_coupler={
                 'x': [forward.x.value, forward.x.uncertainty, forward.x.raw],
                 'y': [forward.y.value, forward.y.uncertainty, forward.y.raw]
+            },
+            midpoint={
+                'x': [midpoint.x.value, midpoint.x.uncertainty, midpoint.x.raw],
+                'y': [midpoint.y.value, midpoint.y.uncertainty, midpoint.y.raw]
             }
         ))
 

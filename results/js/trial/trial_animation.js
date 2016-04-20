@@ -11,6 +11,26 @@
         right_manus: 'DarkOrchid'
     };
 
+    function drawMidline() {
+        var lineMaker = d3.svg.line()
+            .x(function (frame) {
+                return exports.DATA.scale * frame.midpoint.x[2];
+            })
+            .y(function (frame) {
+                return -exports.DATA.scale * frame.midpoint.y[2];
+            })
+            .interpolate('linear');
+
+        d3.select($('.svg-box svg')[0])
+            .append('path')
+            .attr('d', lineMaker(exports.DATA.frames))
+            .style('stroke', 'rgba(0, 0, 0, 0.1)')
+            .style('stroke-dasharray', '2,2')
+            .style('stroke-width', '2')
+            .style('fill', 'transparent');
+    }
+    exports.drawMidline = drawMidline;
+
     function initialize_animation() {
         var root = d3.select($('.svg-box svg')[0]);
 

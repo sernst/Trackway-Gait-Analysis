@@ -98,8 +98,8 @@ def plot_advance(report: Report, coupling_data: dict, times: dict):
     report.add_plotly(
         data=traces,
         layout=plotting.create_layout(
-            title='Coupler Advancement',
+            title='Coupler Rate of Advancement',
             x_label='Cycle (#)',
-            y_label='Advance (m/cycle)'
+            y_label='Advance Rate (m/cycle)'
         )
     )

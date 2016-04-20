@@ -144,7 +144,7 @@ class TrackPosition(object):
     def midpoint_between(
             self,
             position: 'TrackPosition'
-    ) -> mstats.ValueUncertainty:
+    ) -> 'TrackPosition':
         """
         Calculates the midpoint between this trackway position and the one
         specified in the arguments.

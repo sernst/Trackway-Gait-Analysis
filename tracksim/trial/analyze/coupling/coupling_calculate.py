@@ -24,6 +24,7 @@ def positions(foot_positions: limb.Property) -> typing.Dict[str, list]:
     coupling_lengths = []
     pes_coupler_positions = []
     manus_coupler_positions = []
+    midpoint_positions = []
 
     for i in range(len(foot_positions.values()[0])):
         pes_pos = foot_positions.left_pes[i].midpoint_between(
@@ -36,12 +37,16 @@ def positions(foot_positions: limb.Property) -> typing.Dict[str, list]:
         )
         manus_coupler_positions.append(manus_pos)
 
+        midpoint_pos = pes_pos.midpoint_between(manus_pos)
+        midpoint_positions.append(midpoint_pos)
+
         coupling_lengths.append(pes_pos.distance_between(manus_pos))
 
     return dict(
         lengths=coupling_lengths,
         rear=pes_coupler_positions,
-        forward=manus_coupler_positions
+        forward=manus_coupler_positions,
+        midpoints=midpoint_positions
     )
 
 

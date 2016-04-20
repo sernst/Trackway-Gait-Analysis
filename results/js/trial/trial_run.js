@@ -25,6 +25,7 @@
                 });
                 controlBar.find('.play-icon').hide();
 
+                exports.drawMidline();
                 exports.initialize_animation();
                 exports.populateCycleDisplay();
                 exports.onPlaybackControl('toggle-play');

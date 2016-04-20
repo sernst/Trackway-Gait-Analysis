@@ -45,8 +45,15 @@ def serialize(coupling_data: dict) -> dict:
 
     out = dict(**coupling_data)
 
-    keys = ['lengths', 'rear', 'forward', 'rear_advance', 'forward_advance']
+    keys = [
+        'lengths', 'rear', 'forward', 'rear_advance', 'forward_advance',
+        'midpoints'
+    ]
+
     for k in keys:
+        if k not in coupling_data:
+            continue
+
         serialized = []
         for value in coupling_data[k]:
             serialized.append(value.serialize())
