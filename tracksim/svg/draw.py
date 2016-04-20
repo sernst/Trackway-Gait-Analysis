@@ -5,8 +5,17 @@ RADIUS = 12
 STROKE = 4
 
 
-def trackway_positions(limb_positions, drawer, positions=None):
+def trackway_positions(
+        limb_positions: limb.Property,
+        drawer,
+        positions=None
+):
     """
+
+    :param limb_positions:
+    :param drawer:
+    :param positions:
+    :return:
     """
 
     limb_positions = create_positions(limb_positions, positions)
@@ -26,24 +35,48 @@ def trackway_positions(limb_positions, drawer, positions=None):
 
     drawer.add_style_definition('.left_pes', {
         'fill': svg.SvgWriter.LIMB_COLORS.left_pes,
-        'opacity': '0.5'})
+        'opacity': '0.5'
+    })
+
     drawer.add_style_definition('.right_pes', {
         'fill': svg.SvgWriter.LIMB_COLORS.right_pes,
-        'opacity': '0.5'})
+        'opacity': '0.5'
+    })
+
     drawer.add_style_definition('.left_manus', {
         'fill': svg.SvgWriter.LIMB_COLORS.left_manus,
-        'opacity': '0.5'})
+        'opacity': '0.5'
+    })
+
     drawer.add_style_definition('.right_manus', {
         'fill': svg.SvgWriter.LIMB_COLORS.right_manus,
-        'opacity': '0.5'})
+        'opacity': '0.5'
+    })
 
     for key, positions in limb_positions.items():
         for pos in positions:
+            html_data = {
+                'x': '{}'.format(pos.x.value),
+                'x-unc': '{}'.format(pos.x.uncertainty),
+                'y': '{}'.format(pos.y.value),
+                'y-unc': '{}'.format(pos.y.uncertainty),
+                'color': svg.SvgWriter.LIMB_COLORS.get(key)
+            }
+
+            if pos.annotation:
+                html_data['annotation'] = pos.annotation
+            if pos.uid:
+                html_data['uid'] = pos.uid
+            if pos.name:
+                html_data['name'] = pos.name
+
             drawer.draw_circle(
                 x=scale*pos.x.raw,
                 y=-scale*pos.y.raw,
                 radius=RADIUS,
-                classes=key)
+                classes=[key, 'track-pos'],
+                data=html_data
+            )
 
         drawer.add_style_definition('.{}'.format(key), {
             'fill': svg.SvgWriter.LIMB_COLORS.get(key),

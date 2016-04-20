@@ -29,6 +29,7 @@
                 exports.initialize_animation();
                 exports.populateCycleDisplay();
                 exports.onPlaybackControl('toggle-play');
+                exports.add_svg_tooltips();
             });
     }
     exports.run = run;

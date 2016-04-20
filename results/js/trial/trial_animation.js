@@ -27,7 +27,8 @@
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-dasharray', '2,2')
             .style('stroke-width', '2')
-            .style('fill', 'transparent');
+            .style('fill', 'transparent')
+            .style('pointer-events', 'none');
     }
     exports.drawMidline = drawMidline;
 
@@ -37,62 +38,74 @@
         root.append('line')
             .attr('id', 'left_pes_coupling')
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-width', '2');
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'right_pes_coupling')
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-width', '2');
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'left_manus_coupling')
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-width', '2');
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'right_manus_coupling')
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-width', '2');
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'coupling_length')
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-width', '2');
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'rear_coupler')
             .attr('r', 4)
-            .style('fill', 'rgb(100, 100, 100)');
+            .style('fill', 'rgb(100, 100, 100)')
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'forward_coupler')
             .attr('r', 4)
-            .style('fill', 'rgb(100, 100, 100)');
+            .style('fill', 'rgb(100, 100, 100)')
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'left_pes_pin')
             .attr("r", 4)
-            .style("fill", exports.LIMB_COLORS.left_pes);
+            .style("fill", exports.LIMB_COLORS.left_pes)
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'right_pes_pin')
             .attr("r", 4)
-            .style("fill", exports.LIMB_COLORS.right_pes);
+            .style("fill", exports.LIMB_COLORS.right_pes)
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'left_manus_pin')
             .attr("r", 4)
-            .style("fill", exports.LIMB_COLORS.left_manus);
+            .style("fill", exports.LIMB_COLORS.left_manus)
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'right_manus_pin')
             .attr("r", 4)
-            .style("fill", exports.LIMB_COLORS.right_manus);
+            .style("fill", exports.LIMB_COLORS.right_manus)
+            .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'right_manus_pin')
             .attr("r", 4)
-            .style("fill", exports.LIMB_COLORS.right_manus);
+            .style("fill", exports.LIMB_COLORS.right_manus)
+            .style('pointer-events', 'none');
     }
     exports.initialize_animation = initialize_animation;
 

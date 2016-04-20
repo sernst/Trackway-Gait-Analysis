@@ -65,4 +65,44 @@
     }
     exports.populateCycleDisplay = populateCycleDisplay;
 
+    /**
+     *
+     */
+    function add_svg_tooltips() {
+        var div = window.d3.select("body")
+            .append("div")
+            .attr("class", "track-pos-tooltip")
+            .style("opacity", 0);
+
+        $('.svg-box .track-pos')
+            .on("mouseover", function (event) {
+
+                var w = $(window).width();
+                var horizontal = event.pageX;
+                var on_left = (w - horizontal) >= 250;
+                if (!on_left) {
+                    horizontal = w - horizontal;
+                }
+
+                var e = $(event.currentTarget);
+
+                div.transition()
+                    .duration(200)
+                    .style("opacity", 0.9);
+                div.html(e.attr('data-name') + "<br/>" + e.attr('data-uid'))
+                    .style('left', null)
+                    .style('right', null)
+                    .style(on_left ? "left" : "right", (horizontal) + "px")
+                    .style('width', '250px')
+                    .style("top", (event.pageY - 28) + "px")
+                    .style('background-color', e.attr('data-color'));
+            })
+            .on("mouseout", function () {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+    }
+    exports.add_svg_tooltips = add_svg_tooltips;
+
 }());

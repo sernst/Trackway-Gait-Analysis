@@ -43,8 +43,7 @@ class SvgWriter(object):
         """
         self.styles.append(dict(name=classifier, styles=styles))
 
-
-    def draw_circle(self, x, y, radius, classes, name = None):
+    def draw_circle(self, x, y, radius, classes, name=None, data=None):
         """
 
         :param x:
@@ -62,12 +61,23 @@ class SvgWriter(object):
             x_attrs=dict(cx=x),
             y_attrs=dict(cy=y),
             attrs=dict(r=radius),
-            classes=classes)
+            classes=classes,
+            data=data
+        )
 
     def add_element(self, **kwargs):
+        """
+
+        :param kwargs:
+        :return:
+        """
         self.elements.append(kwargs)
 
     def calculate_global_bounds(self):
+        """
+
+        :return:
+        """
         b = [1e12, 1e12, -1e12, -1e12]
         for element in self.elements:
             element_bounds = element.get('bounds')
@@ -96,8 +106,9 @@ class SvgWriter(object):
         out = list()
         out.append(
             dedent(self.PREFIX)
-                .replace('###VIEW_BOX###', ' '.join(view_box))
-                .replace('###NAME###', self.name) )
+            .replace('###VIEW_BOX###', ' '.join(view_box))
+            .replace('###NAME###', self.name)
+        )
 
         styles = []
         for entry in self.styles:
@@ -128,6 +139,10 @@ class SvgWriter(object):
             for key, value in element['y_attrs'].items():
                 attrs.append('{}="{}"'.format(key, value))
 
+            if element.get('data'):
+                for key, value in element['data'].items():
+                    attrs.append('data-{}="{}"'.format(key, value))
+
             if attrs:
                 attrs = ' '.join(attrs) + ' '
 
@@ -141,7 +156,8 @@ class SvgWriter(object):
                 element['tag_name'],
                 ident,
                 classes,
-                attrs ))
+                attrs
+            ))
 
         out.append(self.SUFFIX)
         return '\n'.join(out)

@@ -31,11 +31,14 @@ class TrackPosition(object):
         assert isinstance(y, mstats.value.ValueUncertainty), \
             'y must be a ValueUncertainty instance'
 
-        self.__class__._instance_index += 1
-        self.uid = self.__class__._instance_index
+        self.uid = kwargs.get('uid')
+        if not self.uid:
+            self.__class__._instance_index += 1
+            self.uid = self.__class__._instance_index
 
         self.x = x
         self.y = y
+        self.name = kwargs.get('name')
         self.annotation = kwargs.get('annotation')
 
     def serialize(self) -> dict:
@@ -49,12 +52,16 @@ class TrackPosition(object):
         :return:
         """
 
-        return dict(
+        out = dict(
             uid=self.uid,
             x={'value': self.x.value, 'uncertainty': self.x.uncertainty},
-            y={'value': self.y.value, 'uncertainty': self.y.uncertainty},
-            annotation=self.annotation
+            y={'value': self.y.value, 'uncertainty': self.y.uncertainty}
         )
+        if self.annotation:
+            out['annotation'] = self.annotation
+        if self.name:
+            out['name'] = self.name
+        return out
 
     def rotate(
             self,
@@ -102,7 +109,9 @@ class TrackPosition(object):
         return TrackPosition(
             x=self.x.clone(),
             y=self.y.clone(),
-            annotation=self.annotation
+            annotation=self.annotation,
+            name=self.name,
+            uid=self.uid
         )
 
     def echo(self) -> str:
@@ -111,7 +120,8 @@ class TrackPosition(object):
         return '[POS({}) x: {} +/- {} | y: {} +/- {}]'.format(
                 self.uid,
                 self.x.value, self.x.uncertainty,
-                self.y.value, self.y.uncertainty)
+                self.y.value, self.y.uncertainty
+        )
 
     def __repr__(self):
         return self.echo()
@@ -312,27 +322,43 @@ def load_positions_file(path: str) -> limb.Property:
 
     trackway_positions = limb.Property().assign([], [], [], [])
 
-    def add_track(limb_data, x, dx, y, dy):
+    def add_track(limb_data, x, dx, y, dy) -> TrackPosition:
         if not dx or np.isnan(dx) or not dy or np.isnan(dy):
             # Don't add track if the uncertainty values are invalid, which is
             # an indicator that the row is not a valid position
-            return
+            return None
 
-        limb_data.append(TrackPosition.from_raw_values(
-            x=x, x_uncertainty=dx, y=y, y_uncertainty=dy
-        ))
+        tp = TrackPosition.from_raw_values(
+            x=x,
+            x_uncertainty=dx,
+            y=y,
+            y_uncertainty=dy
+        )
+        limb_data.append(tp)
+        return tp
 
-    for index, series in df.iterrows():
+    for index, row in df.iterrows():
 
         for prefix, limb_key in limb.LIMB_KEY_LOOKUP.items():
             try:
-                add_track(
+                track_position = add_track(
                     limb_data=trackway_positions.get(limb_key),
-                    x=series['{}_x'.format(prefix)],
-                    dx=series['{}_dx'.format(prefix)],
-                    y=series['{}_y'.format(prefix)],
-                    dy=series['{}_dy'.format(prefix)]
+                    x=row['{}_x'.format(prefix)],
+                    dx=row['{}_dx'.format(prefix)],
+                    y=row['{}_y'.format(prefix)],
+                    dy=row['{}_dy'.format(prefix)]
                 )
+                if not track_position:
+                    continue
+
+                name_key = '{}_name'.format(prefix)
+                if name_key in df.columns:
+                    track_position.name = row[name_key]
+
+                uid_key = '{}_uid'.format(prefix)
+                if uid_key in df.columns:
+                    track_position.uid = row[uid_key]
+
             except KeyError:
                 # If the key is missing in the csv file, move one
                 continue

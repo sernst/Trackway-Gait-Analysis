@@ -83,12 +83,22 @@
     overflow: visible;
 }
 
-.marker.FIXED {
-    opacity: 1.0;
+.track-pos-tooltip {
+    position: absolute;
+    z-index: 1000;
+    padding: 4px;
+    background: #666;
+    border: 1px solid black;
+    border-radius: 5px;
+    opacity: 0.7;
+    pointer-events: none;
+    color: white;
+    font-size: 10px;
+    font-family: "courier new", monospace;
 }
 
-.marker.MOVING {
-    opacity: 0.4;
+.FIXED, .MOVING {
+    pointer-events: none;
 }
 
 .playback-controls {
