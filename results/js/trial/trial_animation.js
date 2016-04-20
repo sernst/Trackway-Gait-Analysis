@@ -78,6 +78,12 @@
             .style('pointer-events', 'none');
 
         root.append('circle')
+            .attr('id', 'geometric_center')
+            .attr('r', 4)
+            .style('fill', 'rgb(100, 100, 100)')
+            .style('pointer-events', 'none');
+
+        root.append('circle')
             .attr('id', 'left_pes_pin')
             .attr("r", 4)
             .style("fill", exports.LIMB_COLORS.left_pes)
@@ -106,6 +112,7 @@
             .attr("r", 4)
             .style("fill", exports.LIMB_COLORS.right_manus)
             .style('pointer-events', 'none');
+
     }
     exports.initialize_animation = initialize_animation;
 
@@ -135,13 +142,18 @@
     }
 
     function onEnterFrame() {
-        var i,
+        var i, interpValue,
             keys = exports.DATA.markerIds,
             frame = exports.DATA.frames[exports.animation.frameIndex],
             progressBar = $('.progress-bar'),
             progress = 100.0*exports.animation.frameIndex /
                 (exports.DATA.time.count - 1),
             cycle = Math.floor(frame.time);
+
+        var interpolator = d3.interpolateRgb(
+            d3.rgb(40, 40, 40),
+            d3.rgb(255, 60, 60)
+        );
 
         progressBar.find('.inner').width(progress + '%');
         progressBar.find('.progress-value').html(Math.round(progress) + '%');
@@ -184,13 +196,32 @@
             .attr('x2', exports.DATA.scale * frame.forward_coupler.x[2])
             .attr('y2', -exports.DATA.scale * frame.forward_coupler.y[2]);
 
+        interpValue = Math.max(0, Math.min(1.0, 5 * Math.max(
+           frame.rear_coupler.x[1],
+           frame.rear_coupler.y[1]
+        )));
         d3.select(getLocator('rear_coupler')[0])
             .attr('cx', exports.DATA.scale * frame.rear_coupler.x[2])
-            .attr('cy', -exports.DATA.scale * frame.rear_coupler.y[2]);
+            .attr('cy', -exports.DATA.scale * frame.rear_coupler.y[2])
+            .style('fill', interpolator(interpValue));
 
+        interpValue = Math.max(0, Math.min(1.0, 5 * Math.max(
+            frame.forward_coupler.x[1],
+            frame.forward_coupler.y[1]
+        )));
         d3.select(getLocator('forward_coupler')[0])
             .attr('cx', exports.DATA.scale * frame.forward_coupler.x[2])
-            .attr('cy', -exports.DATA.scale * frame.forward_coupler.y[2]);
+            .attr('cy', -exports.DATA.scale * frame.forward_coupler.y[2])
+            .style('fill', interpolator(interpValue));
+
+        interpValue = Math.max(0, Math.min(1.0, 5 * Math.max(
+           frame.midpoint.x[1],
+           frame.midpoint.y[1]
+        )));
+        d3.select(getLocator('geometric_center')[0])
+            .attr('cx', exports.DATA.scale * frame.midpoint.x[2])
+            .attr('cy', -exports.DATA.scale * frame.midpoint.y[2])
+            .style('fill', interpolator(interpValue));
 
         if (exports.animation.paused) {
             return;
