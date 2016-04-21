@@ -103,6 +103,11 @@
 
 .playback-controls {
     display:flex;
+    flex-direction: column;
+}
+
+.playback-controls .control-row {
+    display: flex;
 }
 
 .control {
