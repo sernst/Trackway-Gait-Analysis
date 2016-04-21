@@ -25,7 +25,7 @@
             .append('path')
             .attr('d', lineMaker(exports.DATA.frames))
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
-            .style('stroke-dasharray', '2,2')
+            .style('stroke-dasharray', '4,3')
             .style('stroke-width', '2')
             .style('fill', 'transparent')
             .style('pointer-events', 'none');
@@ -37,42 +37,56 @@
 
         root.append('line')
             .attr('id', 'left_pes_coupling')
+            .classed('pes-coupling-assembly', true)
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-width', '2')
             .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'right_pes_coupling')
+            .classed('pes-coupling-assembly', true)
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-width', '2')
             .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'left_manus_coupling')
+            .classed('manus-coupling-assembly', true)
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-width', '2')
             .style('pointer-events', 'none');
 
         root.append('line')
             .attr('id', 'right_manus_coupling')
+            .classed('manus-coupling-assembly', true)
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-width', '2')
             .style('pointer-events', 'none');
 
         root.append('line')
-            .attr('id', 'coupling_length')
+            .attr('id', 'coupling_length_pes')
+            .classed('pes-coupling-assembly', true)
+            .style('stroke', 'rgba(0, 0, 0, 0.1)')
+            .style('stroke-width', '2')
+            .style('pointer-events', 'none');
+
+        root.append('line')
+            .attr('id', 'coupling_length_manus')
+            .classed('manus-coupling-assembly', true)
             .style('stroke', 'rgba(0, 0, 0, 0.1)')
             .style('stroke-width', '2')
             .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'rear_coupler')
+            .classed('pes-coupling-assembly', true)
             .attr('r', 4)
             .style('fill', 'rgb(100, 100, 100)')
             .style('pointer-events', 'none');
 
         root.append('circle')
             .attr('id', 'forward_coupler')
+            .classed('manus-coupling-assembly', true)
             .attr('r', 4)
             .style('fill', 'rgb(100, 100, 100)')
             .style('pointer-events', 'none');
@@ -190,9 +204,15 @@
             .attr('x2', exports.DATA.scale * frame.forward_coupler.x[2])
             .attr('y2', -exports.DATA.scale * frame.forward_coupler.y[2]);
 
-        d3.select(getLocator('coupling_length')[0])
+        d3.select(getLocator('coupling_length_pes')[0])
             .attr('x1', exports.DATA.scale * frame.rear_coupler.x[2])
             .attr('y1', -exports.DATA.scale * frame.rear_coupler.y[2])
+            .attr('x2', exports.DATA.scale * frame.midpoint.x[2])
+            .attr('y2', -exports.DATA.scale * frame.midpoint.y[2]);
+
+        d3.select(getLocator('coupling_length_manus')[0])
+            .attr('x1', exports.DATA.scale * frame.midpoint.x[2])
+            .attr('y1', -exports.DATA.scale * frame.midpoint.y[2])
             .attr('x2', exports.DATA.scale * frame.forward_coupler.x[2])
             .attr('y2', -exports.DATA.scale * frame.forward_coupler.y[2]);
 
