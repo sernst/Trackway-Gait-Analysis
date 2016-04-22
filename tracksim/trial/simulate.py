@@ -28,11 +28,13 @@ def run(
         A TrackwayDefinition instance populated with phase and position values
     """
 
-    settings = configs.load(settings, **kwargs)
+    settings = configs.load('trial', settings, **kwargs)
 
     if 'moving_ambiguity' not in settings:
         # The coefficient of uncertainty while the foot is moving
         settings['moving_ambiguity'] = 0.125
+    if 'duty_cycle' not in settings:
+        settings['duty_cycle'] = 0.6
 
     tracksim.log('[{}]: STARTING'.format(settings['id']))
 

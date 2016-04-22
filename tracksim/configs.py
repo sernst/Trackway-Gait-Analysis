@@ -7,6 +7,7 @@ import tracksim
 
 
 def load(
+        configs_type: str,
         source: typing.Union[str, dict],
         inherits: dict = None,
         **kwargs
@@ -19,6 +20,8 @@ def load(
     Then any specified keyword arguments are added to the configurations,
     replacing any keys that were already defined.
 
+    :param configs_type:
+        The enumerated type of the configurations to be loaded
     :param source:
         Either a string representing an absolute path to the configs JSON file
         to be loaded, or a dictionary object of configuration values
@@ -28,6 +31,12 @@ def load(
     :return: The loaded configuration dictionary object augmented by any
         keyword arguments
     """
+
+    c = configs_type[0].lower()
+    if c == 't':
+        configs_type = 'trial'
+    elif c == 'g':
+        configs_type = 'group'
 
     if isinstance(source, str):
         path = source
@@ -61,8 +70,13 @@ def load(
     else:
         source = json.loads(json.dumps(source))
 
+    source['type'] = configs_type
+
     if inherits:
         for k, v in inherits.items():
+            if configs_type == 'trial' and k in ['trials']:
+                continue
+
             if k not in source:
                 source[k] = v
 

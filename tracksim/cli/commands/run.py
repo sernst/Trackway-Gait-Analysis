@@ -120,7 +120,7 @@ def run(**kwargs):
         urls.append(run_simulation(
             is_group=bool('trials' in data),
             cli_configs=cli_configs,
-            run_path=path,
+            settings_path=path,
             **kwargs
         ))
 
@@ -133,7 +133,7 @@ def run(**kwargs):
             urls.append(run_simulation(
                 is_group=True,
                 cli_configs=cli_configs,
-                run_path=p,
+                settings_path=p,
                 **kwargs
             ))
 
@@ -179,25 +179,30 @@ def print_results(urls: typing.List[str]):
 def run_simulation(
         is_group: bool,
         cli_configs: dict,
-        run_path: str,
+        settings_path: str,
         **kwargs
 ) -> dict:
     """
 
     :param is_group:
     :param cli_configs:
-    :param run_path:
+    :param settings_path:
     :param kwargs:
     :return:
     """
 
     runner = simulate_group if is_group else simulate_trial
 
+    args = dict()
+    if kwargs.get('end_time', -1) > 0:
+        args['end_time'] = kwargs.get('end_time')
+    if kwargs.get('start_time', -1) >= 0:
+        args['start_time'] = kwargs.get('start_time')
+
     return runner.run(
-        run_path,
-        start_time=kwargs.get('start_time', 0),
-        end_time=kwargs.get('end_time', 1.0e8),
-        results_path=kwargs.get('results_path')
+        settings_path,
+        results_path=kwargs.get('results_path'),
+        **args
     )
 
 
@@ -231,7 +236,7 @@ def execute_command():
         '-st', '--startTime',
         dest='start_time',
         type=float,
-        default=0.0,
+        default=-1,
         help=cli.reformat("""
             The time at which the simulation should start. The default value
             is 0.
@@ -242,7 +247,7 @@ def execute_command():
         '-et', '--endTime',
         dest='end_time',
         type=float,
-        default=1.0e8,
+        default=-1,
         help=cli.reformat("""
             The time at which the simulation should stop. The default value is
             to run until the end of the simulation.

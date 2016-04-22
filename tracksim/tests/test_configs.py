@@ -18,7 +18,7 @@ class test_configs(unittest.TestCase):
         mm_end = mock.MagicMock(name='end')
         tracksim.end = mm_end
 
-        configs.load(path)
+        configs.load('trial', path)
         mm_end.assert_called_once_with(1)
 
     def test_load_invalid(self):
@@ -28,7 +28,7 @@ class test_configs(unittest.TestCase):
         mm_end = mock.MagicMock(name='end')
         tracksim.end = mm_end
 
-        configs.load(path)
+        configs.load('trial', path)
         mm_end.assert_called_once_with(1)
 
 ################################################################################

@@ -23,18 +23,16 @@ def run(
         Optional setting overrides to be included in the group configuration
     """
 
-    settings = configs.load(settings, **kwargs)
+    settings = configs.load('group', settings, **kwargs)
     trials = []
 
     tracksim.log('[{}]: STARTING'.format(settings['id']))
 
     for source in settings.get('trials', []):
         if isinstance(source, str):
-            source = os.path.abspath(
-                os.path.join(settings['path'], source)
-            )
+            source = os.path.abspath(os.path.join(settings['path'], source))
 
-        trial_settings = configs.load(source, inherits=settings)
+        trial_settings = configs.load('trial', source, inherits=settings)
         simulate_trial.run(trial_settings)
         trials.append(dict(
             settings=trial_settings,

@@ -130,7 +130,7 @@ def add_header_section(
         tracksim.make_resource_path('trial', 'header.html'),
         title=settings.get('name'),
         summary=settings.get('summary'),
-        duty_cycle=settings.get('duty_cycle'),
+        duty_cycle=round(100.0 * settings['duty_cycle']),
         limb_phases=phases,
         date=datetime.utcnow().strftime("%m-%d-%Y %H:%M")
     )
