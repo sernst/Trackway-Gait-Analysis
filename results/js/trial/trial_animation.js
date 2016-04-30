@@ -156,13 +156,15 @@
     }
 
     function onEnterFrame() {
-        var i, interpValue,
-            keys = exports.DATA.markerIds,
-            frame = exports.DATA.frames[exports.animation.frameIndex],
-            progressBar = $('.progress-bar'),
-            progress = 100.0*exports.animation.frameIndex /
-                (exports.DATA.time.count - 1),
-            cycle = Math.floor(frame.time);
+        var i, interpValue;
+        var keys = exports.DATA.markerIds;
+        var frame = exports.DATA.frames[exports.animation.frameIndex];
+        var cycle = Math.floor(frame.time);
+        var progressBar = $('.progress-bar');
+
+        var progress = 100.0*exports.animation.frameIndex / (
+            exports.DATA.time.count - 1
+        );
 
         var interpolator = d3.interpolateRgb(
             d3.rgb(40, 40, 40),
@@ -247,7 +249,7 @@
             return;
         }
 
-        exports.animation.frameIndex++;
+        exports.animation.frameIndex += 1;
         if (exports.animation.frameIndex >= exports.DATA.time.count) {
             exports.animation.frameIndex = 0;
         }

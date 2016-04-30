@@ -18,6 +18,7 @@ def reformat(source: str) -> str:
 
     return dedent(source.strip('\n')).strip()
 
+
 def fetch_command():
     """
 

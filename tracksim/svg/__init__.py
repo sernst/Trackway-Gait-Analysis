@@ -26,7 +26,8 @@ class SvgWriter(object):
         left_pes='DodgerBlue',
         right_pes='DarkOrange',
         left_manus='DarkOliveGreen',
-        right_manus='DarkOrchid' )
+        right_manus='DarkOrchid'
+    )
 
     def __init__(self, **kwargs):
         self.padding = kwargs.get('padding', 0)

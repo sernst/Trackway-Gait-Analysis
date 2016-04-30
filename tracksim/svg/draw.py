@@ -1,7 +1,8 @@
 from tracksim import limb
 from tracksim import svg
 
-RADIUS = 12
+PES_RADIUS = 14
+RADIUS = 10
 STROKE = 4
 
 
@@ -34,12 +35,14 @@ def trackway_positions(
     )
 
     drawer.add_style_definition('.left_pes', {
-        'fill': svg.SvgWriter.LIMB_COLORS.left_pes,
+        'fill': 'transparent',
+        'stroke': svg.SvgWriter.LIMB_COLORS.left_pes,
         'opacity': '0.5'
     })
 
     drawer.add_style_definition('.right_pes', {
-        'fill': svg.SvgWriter.LIMB_COLORS.right_pes,
+        'fill': 'transparent',
+        'stroke': svg.SvgWriter.LIMB_COLORS.right_pes,
         'opacity': '0.5'
     })
 
@@ -54,6 +57,8 @@ def trackway_positions(
     })
 
     for key, positions in limb_positions.items():
+        is_pes = key in [limb.LEFT_PES, limb.RIGHT_PES]
+
         for pos in positions:
             html_data = {
                 'x': '{}'.format(pos.x.value),
@@ -73,13 +78,16 @@ def trackway_positions(
             drawer.draw_circle(
                 x=scale*pos.x.raw,
                 y=-scale*pos.y.raw,
-                radius=RADIUS,
+                radius=PES_RADIUS if is_pes else RADIUS,
                 classes=[key, 'track-pos'],
                 data=html_data
             )
 
+        color = svg.SvgWriter.LIMB_COLORS.get(key)
         drawer.add_style_definition('.{}'.format(key), {
-            'fill': svg.SvgWriter.LIMB_COLORS.get(key),
+            'fill': 'transparent' if is_pes else color,
+            'stroke': color if is_pes else 'transparent',
+            'stroke-width': '{}px'.format(STROKE + 4) if is_pes else '0',
             'opacity': '0.5'
         })
 
@@ -90,7 +98,7 @@ def trackway_positions(
             'stroke': svg.SvgWriter.LIMB_COLORS.get(key)
         }
 
-        if key.find('manus') != -1:
+        if not is_pes:
             style['stroke-dasharray'] = '{},{}'.format(STROKE, STROKE)
 
         drawer.add_style_definition('.{}'.format(style_name), style)
@@ -99,7 +107,7 @@ def trackway_positions(
         drawer.draw_circle(
             x=scale*p0.x.raw,
             y=-scale*p0.y.raw,
-            radius=RADIUS,
+            radius=PES_RADIUS if is_pes else RADIUS,
             classes=style_name,
             name=key
         )
