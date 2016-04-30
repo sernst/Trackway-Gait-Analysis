@@ -1,7 +1,7 @@
 from tracksim import limb
 from tracksim import svg
 
-PES_RADIUS = 14
+PES_RADIUS = 16
 RADIUS = 10
 STROKE = 4
 
@@ -35,14 +35,12 @@ def trackway_positions(
     )
 
     drawer.add_style_definition('.left_pes', {
-        'fill': 'transparent',
-        'stroke': svg.SvgWriter.LIMB_COLORS.left_pes,
+        'fill': svg.SvgWriter.LIMB_COLORS.left_pes,
         'opacity': '0.5'
     })
 
     drawer.add_style_definition('.right_pes', {
-        'fill': 'transparent',
-        'stroke': svg.SvgWriter.LIMB_COLORS.right_pes,
+        'fill': svg.SvgWriter.LIMB_COLORS.right_pes,
         'opacity': '0.5'
     })
 
@@ -84,31 +82,39 @@ def trackway_positions(
             )
 
         color = svg.SvgWriter.LIMB_COLORS.get(key)
-        drawer.add_style_definition('.{}'.format(key), {
-            'fill': 'transparent' if is_pes else color,
-            'stroke': color if is_pes else 'transparent',
-            'stroke-width': '{}px'.format(STROKE + 4) if is_pes else '0',
-            'opacity': '0.5'
-        })
 
-        style_name = '{}-marker'.format(key)
-        style = {
+        print_style_name = '.{}'.format(key)
+        print_style = {
+            'fill': color,
+            'opacity': '0.5'
+        }
+
+        marker_style_name = '.{}-marker'.format(key)
+        marker_style = {
             'fill': 'transparent',
             'stroke-width': '{}px'.format(STROKE),
-            'stroke': svg.SvgWriter.LIMB_COLORS.get(key)
+            'stroke': color
         }
 
         if not is_pes:
-            style['stroke-dasharray'] = '{},{}'.format(STROKE, STROKE)
+            marker_style['stroke-dasharray'] = '{},{}'.format(STROKE, STROKE)
 
-        drawer.add_style_definition('.{}'.format(style_name), style)
+            print_style.update({
+                'stroke': color,
+                'stroke-dasharray': '{},{}'.format(STROKE, STROKE),
+                'stroke-width': 2 * STROKE
+            })
+
+
+        drawer.add_style_definition(print_style_name, print_style)
+        drawer.add_style_definition(marker_style_name, marker_style)
 
         p0 = positions[0]
         drawer.draw_circle(
             x=scale*p0.x.raw,
             y=-scale*p0.y.raw,
             radius=PES_RADIUS if is_pes else RADIUS,
-            classes=style_name,
+            classes=marker_style_name[1:],
             name=key
         )
 
