@@ -65,6 +65,17 @@ def run(
 
     prune_invalid_positions(settings, time_steps, foot_positions)
 
+    if len(time_steps) < 1:
+        tracksim.log(
+            """
+            [{}]: INVALID RESULTS
+                There are no simulated results to analyze. Either the
+                simulation is not valid, or you have set a start and end time
+                that is not within the range of valid values. Please check your
+                settings file.
+            """.format(settings['id']))
+        raise ValueError('Invalid Results')
+
     tracksim.log('[{}]: ANALYZING'.format(settings['id']))
 
     url = analyze.create(
