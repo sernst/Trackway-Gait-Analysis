@@ -231,3 +231,14 @@
 .plot-container {
     padding: 2.0em;
 }
+
+.svg-box .status {
+    text-align: right;
+    font-family: "Lucida Console", Monaco, "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+.svg-box .animation-controls {
+    display:flex;
+}

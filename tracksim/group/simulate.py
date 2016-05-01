@@ -30,7 +30,17 @@ def run(
 
     for source in settings.get('trials', []):
         if isinstance(source, str):
+            original = source
             source = os.path.abspath(os.path.join(settings['path'], source))
+            if not os.path.exists(source):
+                source = '{}.json'.format(source)
+            if not os.path.exists(source):
+                tracksim.log(
+                    """
+                    [ERROR]: Unable to locate simulation trial file "{}"
+                    """.format(original)
+                )
+                raise FileNotFoundError('No such file {}'.format(source))
 
         trial_settings = configs.load('trial', source, inherits=settings)
         simulate_trial.run(trial_settings)

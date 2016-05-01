@@ -261,7 +261,7 @@ class TrackwayDefinition(object):
 
         return TrackwayDefinition(limb_positions, limb_phases)
 
-    def reorient_positions(self):
+    def reorient_positions(self, *args):
         """
         Reorient the trackway positions so that they begin at the origin and
         travel toward the +x axis. Returns this instance for method chaining
@@ -300,6 +300,11 @@ class TrackwayDefinition(object):
                 pos.x -= offset.x
                 pos.y -= offset.y
                 pos.rotate(angle=-orientation_angle, pivot=pivot)
+
+        for pos in args:
+            pos.x -= offset.x
+            pos.y -= offset.y
+            pos.rotate(angle=-orientation_angle, pivot=pivot)
 
         return self
 

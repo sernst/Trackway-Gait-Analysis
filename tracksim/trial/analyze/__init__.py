@@ -35,12 +35,12 @@ def create(
     """
 
     sim_id = settings['id']
-    times = make_time_data(time_steps)
+    times = make_time_data(time_steps, settings)
     coupling_data = coupling.calculate(foot_positions)
     separation_data = separation.calculate(foot_positions)
 
     report = reporting.Report('trial', sim_id)
-    add_header_section(report, settings, track_definition)
+    add_header_section(report, settings, track_definition.limb_phases)
     svg_settings = add_svg(sim_id, report, track_definition, foot_positions)
     add_info(report, settings, coupling_data)
     coupling.add_to_report(report, coupling_data, times)
@@ -113,17 +113,17 @@ def write_data(
 def add_header_section(
         report: reporting.Report,
         settings: dict,
-        track_definition: trackway.TrackwayDefinition
+        limb_phases: limb.Property
 ):
     """
 
     :param report:
     :param settings:
-    :param track_definition:
+    :param limb_phases:
     :return:
     """
 
-    phases = track_definition.limb_phases.values()
+    phases = limb_phases.values()
     phases = ['{}%'.format(round(100 * x)) for x in phases]
 
     report.add_template(
@@ -157,7 +157,21 @@ def add_svg(
         positions=foot_positions,
         drawer=drawer
     )
-    report.add_svg(drawer.dumps(), filename='{}.svg'.format(sim_id))
+
+    dom_template = """
+        <div class="svg-box">
+          {{ svg }}
+          <div class="svg-controls-box" style="display:none">
+            <div class="status"></div>
+          </div>
+        </div>
+        """
+
+    report.add_svg(
+        drawer.dumps(),
+        filename='{}.svg'.format(sim_id),
+        dom_template=dom_template
+    )
 
     return svg_settings
 
@@ -278,7 +292,7 @@ def make_cycle_data(
     return gait_cycles
 
 
-def make_time_data(times: list) -> dict:
+def make_time_data(times: list, settings: dict) -> dict:
     """
     Creates a dictionary with temporal information about the simulation for
     use in the report. The returned dictionary contains:
@@ -295,6 +309,7 @@ def make_time_data(times: list) -> dict:
     return {
         'count': len(times),
         'cycles': times,
+        'steps_per_cycle': settings['steps_per_cycle'],
         'progress': list(mstats.ops.linear_space(0, 100.0, len(times)))
     }
 

@@ -215,16 +215,19 @@ class Report(object):
 
         return self.url
 
-    def add_svg(self, svg:str, filename: str = None):
+    def add_svg(self, svg:str, filename: str = None, dom_template = None):
         """
 
         :param svg:
         :param filename:
+        :param dom_template:
         :return:
         """
 
-        template = Template('<div class="svg-box">{{ svg }}</div>')
+        if dom_template is None:
+            dom_template = '<div class="svg-box">{{ svg }}</div>'
 
+        template = Template(dom_template)
         self.body.append(template.render(svg=svg))
 
         if not filename:

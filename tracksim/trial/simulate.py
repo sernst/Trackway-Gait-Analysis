@@ -8,7 +8,9 @@ from tracksim import configs
 from tracksim import generate
 from tracksim import limb
 from tracksim import trackway
-from tracksim.trial import analyze, compute
+from tracksim.trial import analyze
+from tracksim.trial import compute
+from tracksim.trial import prune
 
 
 def run(
@@ -30,6 +32,8 @@ def run(
 
     settings = configs.load('trial', settings, **kwargs)
 
+    if 'steps_per_cycle' not in settings:
+        settings['steps_per_cycle'] = 20
     if 'moving_ambiguity' not in settings:
         # The coefficient of uncertainty while the foot is moving
         settings['moving_ambiguity'] = 0.125
@@ -63,7 +67,11 @@ def run(
         )
         foot_positions.set(key, out)
 
-    prune_invalid_positions(settings, time_steps, foot_positions)
+    prune.invalid_positions(
+        settings,
+        time_steps,
+        foot_positions
+    )
 
     if len(time_steps) < 1:
         tracksim.log(
@@ -77,6 +85,20 @@ def run(
         raise ValueError('Invalid Results')
 
     tracksim.log('[{}]: ANALYZING'.format(settings['id']))
+
+    reorientation_needed = prune.unused_foot_prints(
+        trackway_definition.limb_positions,
+        foot_positions
+    )
+
+    if reorientation_needed:
+        # Reorient positions again now that the trackway has been pruned
+        trackway_definition.reorient_positions(
+            *foot_positions.left_pes,
+            *foot_positions.right_pes,
+            *foot_positions.left_manus,
+            *foot_positions.right_manus
+        )
 
     url = analyze.create(
         track_definition=trackway_definition,
@@ -145,47 +167,3 @@ def load_trackway_positions(
         positional_uncertainty=data.get('uncertainty')
     )
 
-
-def prune_invalid_positions(
-        settings: dict,
-        time_steps: list,
-        foot_positions: limb.Property
-):
-    """
-    Iterates through the time_steps and foot_positions lists and removes values
-    at the beginning and end where any invalid data is found. Such invalid data
-    exists when some amount of time at the beginning or end of the simulation
-    is valid for 1 or more of the limbs in the trackway, but not all 4.
-
-    :param settings:
-        Configuration for the simulation trial
-    :param time_steps:
-        A list of times at which the simulation calculated foot positions
-    :param foot_positions:
-        The calculated positions of each foot for each time step in the
-        time_steps list
-    """
-
-    start_time = settings.get('start_time', 0)
-    end_time = settings.get('end_time', 1e8)
-
-    values = list(foot_positions.values())
-    values.append(time_steps)
-    index = 0
-
-    while index < len(values[0]):
-        entries = []
-        for v in values:
-            entries.append(v[index])
-
-        cull = (
-            None in entries or
-            entries[-1] < start_time or
-            entries[-1] > end_time
-        )
-
-        if cull:
-            for v in values:
-                v[index:index+1] = []
-        else:
-            index += 1
