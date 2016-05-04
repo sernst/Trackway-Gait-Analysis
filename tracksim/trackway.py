@@ -40,6 +40,7 @@ class TrackPosition(object):
         self.y = y
         self.name = kwargs.get('name')
         self.annotation = kwargs.get('annotation')
+        self.assumed = kwargs.get('assumed', False)
 
     def serialize(self) -> dict:
         return self.to_dict()
@@ -61,6 +62,8 @@ class TrackPosition(object):
             out['annotation'] = self.annotation
         if self.name:
             out['name'] = self.name
+        if self.assumed:
+            out['assumed'] = True
         return out
 
     def rotate(
@@ -111,7 +114,8 @@ class TrackPosition(object):
             y=self.y.clone(),
             annotation=self.annotation,
             name=self.name,
-            uid=self.uid
+            uid=self.uid,
+            assumed=self.assumed
         )
 
     def echo(self) -> str:
@@ -314,10 +318,10 @@ def load_positions_file(path: str) -> limb.Property:
     Loads a limb positions property object from the specified path to a CSV
     file with columns:
 
-        lp_x, lp_dx, lp_y, lp_dy
-        rp_x, rp_dx, rp_y, rp_dy
-        lm_x, lm_dx, lm_y, lm_dy
-        rm_x, rm_dx, rm_y, rm_dy
+        lp_x, lp_dx, lp_y, lp_dy, [lp_assumed], [lp_name], [lp_uid]
+        rp_x, rp_dx, rp_y, rp_dy, [rp_assumed], [rp_name], [rp_uid]
+        lm_x, lm_dx, lm_y, lm_dy, [lm_assumed], [lm_name], [lm_uid]
+        rm_x, rm_dx, rm_y, rm_dy, [rm_assumed], [rm_name], [rm_uid]
 
     :param path:
         The path to the positions file to be loaded
@@ -363,6 +367,10 @@ def load_positions_file(path: str) -> limb.Property:
                 uid_key = '{}_uid'.format(prefix)
                 if uid_key in df.columns:
                     track_position.uid = row[uid_key]
+
+                assumed_key = '{}_assumed'
+                if assumed_key in df.columns:
+                    track_position.assumed = bool(assumed_key)
 
             except KeyError:
                 # If the key is missing in the csv file, move one

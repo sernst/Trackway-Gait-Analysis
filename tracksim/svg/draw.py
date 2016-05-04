@@ -1,9 +1,9 @@
 from tracksim import limb
 from tracksim import svg
 
-PES_RADIUS = 16
-RADIUS = 10
-STROKE = 4
+PES_RADIUS = 12
+RADIUS = 8
+STROKE = 8
 
 
 def trackway_positions(
@@ -58,6 +58,8 @@ def trackway_positions(
         is_pes = key in [limb.LEFT_PES, limb.RIGHT_PES]
 
         for pos in positions:
+            classes = [key, 'track-pos']
+
             html_data = {
                 'x': '{}'.format(pos.x.value),
                 'x-unc': '{}'.format(pos.x.uncertainty),
@@ -72,12 +74,15 @@ def trackway_positions(
                 html_data['uid'] = pos.uid
             if pos.name:
                 html_data['name'] = pos.name
+            if pos.assumed:
+                html_data['assumed'] = '1'
+                classes.append('assumed')
 
             drawer.draw_circle(
                 x=scale*pos.x.raw,
                 y=-scale*pos.y.raw,
                 radius=PES_RADIUS if is_pes else RADIUS,
-                classes=[key, 'track-pos'],
+                classes=classes,
                 data=html_data
             )
 
@@ -86,7 +91,15 @@ def trackway_positions(
         print_style_name = '.{}'.format(key)
         print_style = {
             'fill': color,
-            'opacity': '0.5'
+            'opacity': '0.5',
+            'stroke-width': '{}px'.format(STROKE),
+            'stroke': color
+        }
+
+        assumed_style_name = '.{}.assumed'.format(key)
+        assumed_style = {
+            'fill': 'white',
+            'opacity': '0.33'
         }
 
         marker_style_name = '.{}-marker'.format(key)
@@ -97,23 +110,20 @@ def trackway_positions(
         }
 
         if not is_pes:
-            marker_style['stroke-dasharray'] = '{},{}'.format(STROKE, STROKE)
-
-            print_style.update({
-                'stroke': color,
-                'stroke-dasharray': '{},{}'.format(STROKE, STROKE),
-                'stroke-width': 2 * STROKE
-            })
-
+            dash_array = '{},{}'.format(4, 4)
+            marker_style['stroke-dasharray'] = '{},{}'.format(8,4)
+            print_style['stroke-dasharray'] = dash_array
+            assumed_style['stroke-dasharray'] = dash_array
 
         drawer.add_style_definition(print_style_name, print_style)
+        drawer.add_style_definition(assumed_style_name, assumed_style)
         drawer.add_style_definition(marker_style_name, marker_style)
 
         p0 = positions[0]
         drawer.draw_circle(
             x=scale*p0.x.raw,
             y=-scale*p0.y.raw,
-            radius=PES_RADIUS if is_pes else RADIUS,
+            radius=(PES_RADIUS if is_pes else RADIUS) + 0.5 * STROKE,
             classes=marker_style_name[1:],
             name=key
         )
