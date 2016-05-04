@@ -85,7 +85,7 @@
 
 .track-pos-tooltip {
     position: absolute;
-    z-index: 1000;
+    z-index: 10000;
     padding: 4px;
     background: #666;
     border: 1px solid black;
