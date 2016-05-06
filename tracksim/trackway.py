@@ -368,9 +368,11 @@ def load_positions_file(path: str) -> limb.Property:
                 if uid_key in df.columns:
                     track_position.uid = row[uid_key]
 
-                assumed_key = '{}_assumed'
+                assumed_key = '{}_assumed'.format(prefix)
                 if assumed_key in df.columns:
-                    track_position.assumed = bool(assumed_key)
+                    value = row[assumed_key]
+                    value = not np.isnan(value) and bool(value)
+                    track_position.assumed = bool(value)
 
             except KeyError:
                 # If the key is missing in the csv file, move one
