@@ -36,8 +36,8 @@ def create(
 
     sim_id = settings['id']
     times = make_time_data(time_steps, settings)
-    coupling_data = coupling.calculate(foot_positions)
-    separation_data = separation.calculate(foot_positions)
+    coupling_data = coupling.calculate(foot_positions, times)
+    separation_data = separation.calculate(foot_positions, times)
 
     report = reporting.Report('trial', sim_id)
     add_header_section(report, settings, track_definition.limb_phases)

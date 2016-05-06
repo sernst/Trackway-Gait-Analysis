@@ -42,11 +42,19 @@ def positions(foot_positions: limb.Property) -> typing.Dict[str, list]:
 
         coupling_lengths.append(pes_pos.distance_between(manus_pos))
 
+    d = mstats.create_distribution(coupling_lengths)
+    median = mstats.distributions.percentile(d, 0.5)
+    median_deviations = []
+
+    for cl in coupling_lengths:
+        median_deviations.append(cl - median)
+
     return dict(
         lengths=coupling_lengths,
         rear=pes_coupler_positions,
         forward=manus_coupler_positions,
-        midpoints=midpoint_positions
+        midpoints=midpoint_positions,
+        deviations=median_deviations
     )
 
 
@@ -79,11 +87,13 @@ def statistics(coupling_positions: typing.Dict[str, list]) -> dict:
 
 
 def advance(
-        coupling_positions: typing.Dict[str, list]
+        coupling_positions: typing.Dict[str, list],
+        times: dict
 ) -> typing.Dict[str, typing.List[mstats.ValueUncertainty]]:
     """
 
     :param coupling_positions:
+    :param times:
     :return:
     """
 
@@ -93,14 +103,15 @@ def advance(
     rear_advance = []
     fore_advance = []
 
-    for i in range(1, len(rear) - 1):
+    time_delta = times['cycles'][1] - times['cycles'][0]
 
+    for i in range(1, len(rear) - 1):
         rear_advance.append(
-            0.5 * rear[i + 1].distance_between(rear[i - 1])
+            0.5 / time_delta * rear[i + 1].distance_between(rear[i - 1])
         )
 
         fore_advance.append(
-            0.5 * fore[i + 1].distance_between(fore[i - 1])
+            0.5 / time_delta * fore[i + 1].distance_between(fore[i - 1])
         )
 
     rear_advance.insert(0, rear_advance[0].clone())

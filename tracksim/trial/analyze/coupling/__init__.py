@@ -4,16 +4,17 @@ from tracksim.trial.analyze.coupling import coupling_calculate
 from tracksim.trial.analyze.coupling import coupling_report
 
 
-def calculate(foot_positions: limb.Property) -> dict:
+def calculate(foot_positions: limb.Property, times: dict) -> dict:
     """
 
     :param foot_positions:
+    :param times:
     :return:
     """
 
     positions = coupling_calculate.positions(foot_positions)
     stats = coupling_calculate.statistics(positions)
-    speeds = coupling_calculate.advance(positions)
+    speeds = coupling_calculate.advance(positions, times)
 
     return dict(
         **positions,
@@ -33,6 +34,7 @@ def add_to_report(report: Report, coupling_data: dict, times: dict):
 
     coupling_report.plot_distribution(report, coupling_data)
     coupling_report.plot_lengths(report, coupling_data, times)
+    coupling_report.plot_deviations(report, coupling_data, times)
     coupling_report.plot_advance(report, coupling_data, times)
 
 
@@ -47,7 +49,7 @@ def serialize(coupling_data: dict) -> dict:
 
     keys = [
         'lengths', 'rear', 'forward', 'rear_advance', 'forward_advance',
-        'midpoints'
+        'midpoints', 'deviations'
     ]
 
     for k in keys:

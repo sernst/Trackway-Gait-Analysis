@@ -6,10 +6,11 @@ from tracksim.trial.analyze.separation import separation_calculate
 from tracksim.trial.analyze.separation import separation_report
 
 
-def calculate(foot_positions: limb.Property) -> dict:
+def calculate(foot_positions: limb.Property, times: dict) -> dict:
     """
 
     :param foot_positions:
+    :param times:
     :return:
     """
 

@@ -23,7 +23,8 @@ def plot_lengths(
     plot = plotting.make_line_data(
         times['cycles'],
         values,
-        uncertainties
+        uncertainties,
+        name='Length'
     )
 
     report.add_plotly(
@@ -33,6 +34,44 @@ def plot_lengths(
             'Coupling Lengths',
             'Cycle (#)',
             'Length (m)'
+        )
+    )
+
+
+def plot_deviations(
+        report: Report,
+        coupling_data: dict,
+        times: dict
+):
+    """
+
+    :param report:
+    :param coupling_data:
+    :param times:
+    :return:
+    """
+
+    deviations = []
+    for dev in coupling_data['deviations']:
+        deviations.append(100.0 * dev)
+
+    values, uncertainties = mstats.values.unzip(deviations)
+
+    plot = plotting.make_line_data(
+        times['cycles'],
+        values,
+        uncertainties,
+        name='Deviation',
+        color=plotting.get_color(1, as_string=True)
+    )
+
+    report.add_plotly(
+        data=plot['data'],
+        layout=plotting.create_layout(
+            plot['layout'],
+            'Coupling Length Median Deviations',
+            'Cycle (#)',
+            'Median Deviation (%)'
         )
     )
 
