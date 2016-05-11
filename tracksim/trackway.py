@@ -243,27 +243,27 @@ class TrackwayDefinition(object):
     def __init__(
             self,
             limb_positions: limb.Property = None,
-            limb_phases: limb.Property = None
+            activity_phases: limb.Property = None
     ):
         """
-        Assigns limb_positions and limb_phases to the trackway definition
+        Assigns limb_positions and activity_phases to the trackway definition
         """
 
         self.limb_positions = limb_positions
-        self.limb_phases = limb_phases
+        self.activity_phases = activity_phases
 
     def clone(self):
         """ Returns a deep copy of this instance """
 
-        limb_phases = None
-        if self.limb_phases:
-            limb_phases = self.limb_positions.clone()
+        activity_phases = None
+        if self.activity_phases:
+            activity_phases = self.activity_phases.clone()
 
         limb_positions = None
         if self.limb_positions:
             limb_positions = self.limb_positions.clone()
 
-        return TrackwayDefinition(limb_positions, limb_phases)
+        return TrackwayDefinition(limb_positions, activity_phases)
 
     def reorient_positions(self, *args):
         """

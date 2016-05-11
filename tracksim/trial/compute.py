@@ -9,7 +9,7 @@ FIXED_ANNOTATION = 'F'
 def positions_over_time(
         time_steps: list,
         limb_positions: list,
-        limb_phase: float,
+        activity_phase: float,
         settings: dict
 ) -> typing.List[trackway.TrackPosition]:
     """
@@ -25,7 +25,7 @@ def positions_over_time(
         A list of TrackPosition instances for each position of the track within
         the trackway. These positions must be consecutive with no missing
         values, as the location computation assumes.
-    :param limb_phase:
+    :param activity_phase:
         A value of 0 indicates that the limb starts moving from the first track
         position to the second track position at time t = 0. A value of 0.5
         indicates that the limb starts moving from the first track position to
@@ -42,14 +42,14 @@ def positions_over_time(
     duty_cycle = settings['duty_cycle']
     track_count = len(limb_positions)
 
-    first_valid_time = limb_phase - duty_cycle
-    last_valid_time = track_count - 1 + limb_phase
+    first_valid_time = activity_phase - duty_cycle
+    last_valid_time = track_count - 1 + activity_phase
 
     for time in time_steps:
 
         # Convert from world "lab" frame time to the time for this limb, which
         # removes its limb phase
-        limb_time = time - limb_phase
+        limb_time = time - activity_phase
         limb_cycle = int(limb_time)
 
         if time < first_valid_time or time > last_valid_time:

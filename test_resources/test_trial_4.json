@@ -1,7 +1,7 @@
 {
-  "name": "Shorter Pace",
+  "name": "UNIT-TEST Walk",
   "duty_cycle": 0.6,
-  "limb_phases":[0, 0.5, 0, -0.5],
+  "activity_phases":[0, 0.5, -0.25, -0.75],
   "steps_per_cycle": 20,
   "summary": "A test run to verify that the simulation system works.",
 

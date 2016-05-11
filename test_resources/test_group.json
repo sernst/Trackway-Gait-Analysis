@@ -1,5 +1,5 @@
 {
-  "name":"Unit Test Trials",
+  "name":"UNIT-TEST Trial Group",
   "summary": "A run of unit tests within a group to compare",
   "trials":[
     "test_trial_1.json",

@@ -15,7 +15,7 @@ class test_trackway(unittest.TestCase):
         """
         """
 
-        path = tracksim.make_project_path('tests', 'resources', 'test_data.csv')
+        path = tracksim.make_project_path('test_resources', 'test_data.csv')
         positions = trackway.load_positions_file(path)
         self.assertEqual(len(positions.left_manus), 18)
         self.assertEqual(len(positions.right_manus), 20)
@@ -30,7 +30,7 @@ class test_trackway(unittest.TestCase):
         """
 
         path = tracksim.make_project_path(
-            'tests', 'resources', 'pes_only_test_data.csv'
+            'test_resources', 'pes_only_test_data.csv'
         )
 
         positions = trackway.load_positions_file(path)

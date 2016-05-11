@@ -242,3 +242,15 @@
 .svg-box .animation-controls {
     display:flex;
 }
+
+
+.time-box {
+    display: flex;
+}
+
+.svg-controls-box {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}

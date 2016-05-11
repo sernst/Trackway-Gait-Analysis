@@ -5,11 +5,13 @@ from datetime import datetime
 import measurement_stats as mstats
 
 import tracksim
+from tracksim import configs
 from tracksim import limb
 from tracksim import reporting
 from tracksim import svg
 from tracksim import trackway
 from tracksim.svg import draw
+from tracksim.trial.analyze import advancement
 from tracksim.trial.analyze import coupling
 from tracksim.trial.analyze import separation
 
@@ -38,12 +40,14 @@ def create(
     times = make_time_data(time_steps, settings)
     coupling_data = coupling.calculate(foot_positions, times)
     separation_data = separation.calculate(foot_positions, times)
+    advancement_data = advancement.calculate(foot_positions, times)
 
     report = reporting.Report('trial', sim_id)
-    add_header_section(report, settings, track_definition.limb_phases)
+    add_header_section(report, settings, track_definition.activity_phases)
     svg_settings = add_svg(sim_id, report, track_definition, foot_positions)
     add_info(report, settings, coupling_data)
     coupling.add_to_report(report, coupling_data, times)
+    advancement.add_to_report(report, advancement_data, times)
     separation.add_to_report(report, separation_data, times)
     report.add_whitespace(10)
 
@@ -66,7 +70,8 @@ def create(
         trackway_definition=track_definition,
         foot_positions=foot_positions,
         times=times,
-        coupling_data=coupling_data
+        coupling_data=coupling_data,
+        advancement_data=advancement_data
     )
 
     return url
@@ -78,7 +83,8 @@ def write_data(
         trackway_definition: trackway.TrackwayDefinition,
         foot_positions: limb.Property,
         times: dict,
-        coupling_data: dict
+        coupling_data: dict,
+        advancement_data: dict
 ):
     """
     Writes a JSON serialized data file containing the results of the trial for
@@ -90,6 +96,7 @@ def write_data(
     :param foot_positions:
     :param times:
     :param coupling_data:
+    :param advancement_data:
     :return:
     """
 
@@ -106,32 +113,40 @@ def write_data(
         times=times,
         foot_positions=position_data,
         track_positions=track_data,
-        couplings=coupling.serialize(coupling_data)
+        couplings=coupling.serialize(coupling_data),
+        advancement=advancement.serialize(advancement_data)
     ))
 
 
 def add_header_section(
         report: reporting.Report,
         settings: dict,
-        limb_phases: limb.Property
+        activity_phases: limb.Property
 ):
     """
 
     :param report:
     :param settings:
-    :param limb_phases:
+    :param activity_phases:
     :return:
     """
 
-    phases = limb_phases.values()
-    phases = ['{}%'.format(round(100 * x)) for x in phases]
+    activity_phases = activity_phases.values()
+    support_phases = configs.activity_to_support_phases(
+        activity_phases,
+        settings['duty_cycle']
+    )
+
+    activity_phases = ['{}%'.format(round(100 * x)) for x in activity_phases]
+    support_phases = ['{}%'.format(round(100 * x)) for x in support_phases]
 
     report.add_template(
         tracksim.make_resource_path('trial', 'header.html'),
         title=settings.get('name'),
         summary=settings.get('summary'),
         duty_cycle=round(100.0 * settings['duty_cycle']),
-        limb_phases=phases,
+        activity_phases=activity_phases,
+        support_phases=support_phases,
         date=datetime.utcnow().strftime("%m-%d-%Y %H:%M")
     )
 
@@ -162,7 +177,11 @@ def add_svg(
         <div class="svg-box">
           {{ svg }}
           <div class="svg-controls-box" style="display:none">
-            <div class="status"></div>
+            <div>
+                <div>Activity: <span class="activity-status"></span></div>
+                <div>Support: <span class="support-status"></span></div>
+            </div>
+            <div class="spacer"></div>
           </div>
         </div>
         """
@@ -242,6 +261,7 @@ def make_animation_frame_data(
 
         frames.append(dict(
             time=times['cycles'][i],
+            support_time=times['support_cycles'][i],
             positions=positions,
             rear_coupler={
                 'x': [rear.x.value, rear.x.uncertainty, rear.x.raw],
@@ -303,13 +323,17 @@ def make_time_data(times: list, settings: dict) -> dict:
             simulation
 
     :param times:
-        Simulation time step lise
+        Simulation time step list
+    :param settings:
     """
 
-    return {
-        'count': len(times),
-        'cycles': times,
-        'steps_per_cycle': settings['steps_per_cycle'],
-        'progress': list(mstats.ops.linear_space(0, 100.0, len(times)))
-    }
+    support_cycles = [x - settings['duty_cycle'] for x in times]
+
+    return dict(
+        count=len(times),
+        cycles=times,
+        support_cycles=support_cycles,
+        steps_per_cycle=settings['steps_per_cycle'],
+        progress=list(mstats.ops.linear_space(0, 100.0, len(times)))
+    )
 

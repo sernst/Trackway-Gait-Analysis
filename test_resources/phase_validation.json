@@ -1,7 +1,7 @@
 {
-  "name": "Phase Validation",
+  "name": "UNIT-TEST Phase Validation",
   "duty_cycle": 0.6,
-  "limb_phases":[0.0, 0.75, 0.25, 0.5],
+  "activity_phases":[0.0, 0.75, 0.25, 0.5],
   "steps_per_cycle": 20,
   "summary": "Validates the phase relationships.",
 

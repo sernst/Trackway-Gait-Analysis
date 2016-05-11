@@ -17,7 +17,7 @@ def add_length_plot(report: Report, separation_data: dict, times:dict):
         dict(
             layout=plotting.create_layout(
                 title='Left &amp; Right Separations',
-                x_label='Cycle (#)',
+                x_label='Activity Cycle (#)',
                 y_label='Separation (m)'
             ),
             items=[
@@ -37,7 +37,7 @@ def add_length_plot(report: Report, separation_data: dict, times:dict):
         dict(
             layout=plotting.create_layout(
                 title='Forward &amp; Rear Separations',
-                x_label='Cycle (#)',
+                x_label='Activity Cycle (#)',
                 y_label='Separation (m)'
             ),
             items=[

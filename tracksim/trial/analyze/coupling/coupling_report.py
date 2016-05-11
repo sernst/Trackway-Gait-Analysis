@@ -32,7 +32,7 @@ def plot_lengths(
         layout=plotting.create_layout(
             plot['layout'],
             'Coupling Lengths',
-            'Cycle (#)',
+            'Activity Cycle (#)',
             'Length (m)'
         )
     )
@@ -70,7 +70,7 @@ def plot_deviations(
         layout=plotting.create_layout(
             plot['layout'],
             'Coupling Length Median Deviations',
-            'Cycle (#)',
+            'Activity Cycle (#)',
             'Median Deviation (%)'
         )
     )
@@ -138,7 +138,7 @@ def plot_advance(report: Report, coupling_data: dict, times: dict):
         data=traces,
         layout=plotting.create_layout(
             title='Coupler Rate of Advancement',
-            x_label='Cycle (#)',
+            x_label='Activity Cycle (#)',
             y_label='Advance Rate (m/cycle)'
         )
     )

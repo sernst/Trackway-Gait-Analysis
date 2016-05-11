@@ -103,7 +103,8 @@ def make_line_data(
         mode='lines',
         name='- {}'.format(name),
         type='scatter',
-        showlegend=False
+        showlegend=False,
+        legendgroup=name
     )
 
     middle_trace = dict(
@@ -115,7 +116,8 @@ def make_line_data(
         marker={'color': color},
         name=name,
         type='scatter',
-        showlegend=bool(name is not None)
+        showlegend=bool(name is not None),
+        legendgroup=name
     )
 
     upper_trace = dict(
@@ -127,7 +129,8 @@ def make_line_data(
         mode='lines',
         name='+ {}'.format(name),
         type='scatter',
-        showlegend=False
+        showlegend=False,
+        legendgroup=name
     )
 
     return {

@@ -60,7 +60,7 @@ def time_steps(
 def trackway_data(
         cycle_count: int,
         step_size: float,
-        limb_phases: limb.Property,
+        activity_phases: limb.Property,
         track_offsets: limb.Property,
         lateral_displacement: typing.Union[float, list, tuple],
         positional_uncertainty: float = None
@@ -74,7 +74,7 @@ def trackway_data(
     :param step_size:
         The length (in meters) between successive steps for each limb in the
         trackway
-    :param limb_phases:
+    :param activity_phases:
         The phases for each limb, which is the standard phases object used by
         both
     :param track_offsets:
@@ -87,7 +87,7 @@ def trackway_data(
     """
 
     return trackway.TrackwayDefinition(
-        limb_phases=limb_phases,
+        activity_phases=activity_phases,
         limb_positions=trackway_positions(
             cycle_count=cycle_count,
             step_size=step_size,

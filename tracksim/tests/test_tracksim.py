@@ -6,6 +6,7 @@ import tracksim
 MY_PATH = os.path.abspath(__file__)
 MY_DIRECTORY = os.path.abspath(os.path.dirname(MY_PATH))
 
+
 class test_tracksim(unittest.TestCase):
     """
         Unit testing for the top-level tracksim module
@@ -17,13 +18,18 @@ class test_tracksim(unittest.TestCase):
         """
 
         # Without arguments
-        project_root_path = os.path.abspath(os.path.join(MY_DIRECTORY, '..'))
+        project_root_path = os.path.abspath(os.path.join(
+            MY_DIRECTORY, '..', '..'
+        ))
         self.assertEqual(project_root_path, tracksim.make_project_path())
 
         # With arguments
         self.assertEqual(
-                MY_PATH,
-                tracksim.make_project_path('tests', 'test_tracksim.py'))
+            MY_PATH,
+            tracksim.make_project_path(
+                'tracksim', 'tests', 'test_tracksim.py'
+            )
+        )
 
     def test_resource_path(self):
         """
@@ -32,7 +38,8 @@ class test_tracksim(unittest.TestCase):
 
         # Without arguments
         resources_root_path = os.path.abspath(os.path.join(
-                MY_DIRECTORY, '..', 'resources' ))
+            MY_DIRECTORY, '..', '..', 'resources'
+        ))
         self.assertEqual(resources_root_path, tracksim.make_resource_path())
 
     def test_logging(self):

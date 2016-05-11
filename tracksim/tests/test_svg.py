@@ -40,7 +40,7 @@ class test_svg(unittest.TestCase):
             cycle_count=12,
             step_size=0.75,
             track_offsets=phases,
-            limb_phases=phases,
+            activity_phases=phases,
             lateral_displacement=0.1
         )
 

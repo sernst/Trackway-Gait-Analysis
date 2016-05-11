@@ -14,7 +14,8 @@ class test_simulate(unittest.TestCase):
         """
 
         configs_path = tracksim.make_project_path(
-                'tests', 'resources', 'phase_validation.json')
+                'test_resources', 'phase_validation.json'
+        )
         simulate_trial.run(configs_path)
 
     def test_run_group(self):
@@ -24,7 +25,8 @@ class test_simulate(unittest.TestCase):
         """
 
         configs_path = tracksim.make_project_path(
-                'tests', 'resources', 'test_group.json')
+                'test_resources', 'test_group.json'
+        )
         simulate_group.run(configs_path)
 
 ################################################################################

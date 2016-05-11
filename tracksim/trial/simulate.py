@@ -20,7 +20,8 @@ def run(
 ) -> dict:
     """
     Runs and analyzes a simulation of the trackway under the conditions
-    specified by the arguments and returns a dictionary of results for the trial
+    specified by the arguments and returns a dictionary of results for the
+    trial
 
     :param settings:
         Either a dictionary containing the configuration values for the trial
@@ -42,12 +43,12 @@ def run(
 
     tracksim.log('[{}]: STARTING'.format(settings['id']))
 
-    limb_phases = load_limb_phases(settings)
+    activity_phases = load_activity_phases(settings)
     trackway_positions = load_trackway_positions(settings, trackway_positions)
 
     trackway_definition = trackway.TrackwayDefinition(
         trackway_positions,
-        limb_phases
+        activity_phases
     )
     trackway_definition.reorient_positions()
 
@@ -62,7 +63,7 @@ def run(
         out = compute.positions_over_time(
             time_steps=time_steps,
             limb_positions=trackway_definition.limb_positions.get(key),
-            limb_phase=trackway_definition.limb_phases.get(key),
+            activity_phase=trackway_definition.activity_phases.get(key),
             settings=settings
         )
         foot_positions.set(key, out)
@@ -112,16 +113,27 @@ def run(
     return url
 
 
-def load_limb_phases(settings: dict) -> limb.Property:
+def load_activity_phases(settings: dict) -> limb.Property:
     """
-    Returns the loaded limb phases as defined by the settings object
+    Returns the loaded activity phases as defined by the settings object
 
     :param settings:
         Configuration for the simulation trial
     """
 
+    if 'activity_phases' in settings:
+        settings['support_phases'] = configs.activity_to_support_phases(
+            settings['activity_phases'],
+            settings['duty_cycle']
+        )
+    else:
+        settings['activity_phases'] = configs.support_to_activity_phases(
+            settings['support_phases'],
+            settings['duty_cycle']
+        )
+
     out = limb.Property()
-    source = settings['limb_phases']
+    source = settings['activity_phases']
 
     if isinstance(source, (list, tuple)):
         return out.assign(*source)

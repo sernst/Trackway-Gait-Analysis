@@ -11,13 +11,22 @@
         <span class="name">Duty Cycle:</span>
         <span class="value">{{ duty_cycle }}%</span>
       </div>
-      <div class="header-entry limb-phases">
-        <span class="name">Limb Phases:</span>
+      <div class="header-entry activity-phases">
+        <span class="name">Activity Phases:</span>
           <span class="value">
-            Pes: (<span class="left_pes-value">{{ limb_phases[0] }}</span>,
-            <span class="right_pes-value">{{ limb_phases[1] }}</span>)
-            Manus: (<span class="left_manus-value">{{ limb_phases[2] }}</span>,
-            <span class="right_manus-value">{{ limb_phases[3] }}</span>)
+            Pes: (<span class="left_pes-value">{{ activity_phases[0] }}</span>,
+            <span class="right_pes-value">{{ activity_phases[1] }}</span>)
+            Manus: (<span class="left_manus-value">{{ activity_phases[2] }}</span>,
+            <span class="right_manus-value">{{ activity_phases[3] }}</span>)
+          </span>
+      </div>
+      <div class="header-entry support-phases">
+        <span class="name">Support Phases:</span>
+          <span class="value">
+            Pes: (<span class="left_pes-value">{{ support_phases[0] }}</span>,
+            <span class="right_pes-value">{{ support_phases[1] }}</span>)
+            Manus: (<span class="left_manus-value">{{ support_phases[2] }}</span>,
+            <span class="right_manus-value">{{ support_phases[3] }}</span>)
           </span>
       </div>
     </div>
@@ -91,19 +100,29 @@
 
       <div class="spacer"></div>
 
-      <div class="value-box">
-        <div class="header">Cycle</div>
-        <div class="value cycle-value"></div>
-      </div>
+      <div class="time-box">
 
-      <div class="value-box">
-        <div class="header">Phase</div>
-        <div class="value phase-value"></div>
-      </div>
+        <div class="value-box">
+          <div class="header">Progress</div>
+          <div class="value progress-value"></div>
+        </div>
 
-      <div class="value-box">
-        <div class="header">Progress</div>
-        <div class="value progress-value"></div>
+        <div class="value-box activity-time-box">
+          <div class="header">Activity Cycle</div>
+          <div class="value">
+            <span class="cycle-value"></span> :
+            <span class="phase-value"></span>
+          </div>
+        </div>
+
+        <div class="value-box support-time-box">
+          <div class="header">Support Cycle</div>
+          <div class="value">
+            <span class="cycle-value"></span> :
+            <span class="phase-value"></span>
+          </div>
+        </div>
+
       </div>
     </div>
 

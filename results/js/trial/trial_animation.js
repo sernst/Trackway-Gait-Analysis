@@ -155,14 +155,39 @@
     }
   }
 
+
+  /**
+   *
+   * @param type
+   * @param time
+   */
+  function updateDisplayTime(type, time) {
+    var cycle = Math.floor(time);
+    var phase = '' + Math.round(100.0 * (time - cycle));
+
+    while (phase.length < 2) {
+      phase = '0' + phase;
+    }
+    phase += '%&nbsp;';
+
+    var box = $('.' + type + '-time-box');
+    box.find('.cycle-value').html(cycle);
+    box.find('.phase-value').html(phase);
+
+    $('.svg-box .' + type + '-status').html(cycle + ' : ' + phase);
+  }
+
+
+  /**
+   *
+   */
   function onEnterFrame() {
     var i, interpValue;
     var keys = exports.DATA.markerIds;
     var frame = exports.DATA.frames[exports.animation.frameIndex];
-    var cycle = Math.floor(frame.time);
     var progressBar = $('.progress-bar');
 
-    var progress = 100.0*exports.animation.frameIndex / (
+    var progress = 100.0 * exports.animation.frameIndex / (
       exports.DATA.time.count - 1
     );
 
@@ -171,18 +196,11 @@
       d3.rgb(255, 60, 60)
     );
 
-    var phase = '' + Math.round(100.0 * (frame.time - cycle));
-    while (phase.length < 2) {
-      phase = '0' + phase;
-    }
-    phase += '%&nbsp;';
-
     progressBar.find('.inner').width(progress + '%');
     progressBar.find('.progress-value').html(Math.round(progress) + '%');
-    progressBar.find('.cycle-value').html(cycle);
-    progressBar.find('.phase-value').html(phase);
 
-    var status = $('.svg-box .status').html(cycle + ' : ' + phase);
+    updateDisplayTime('activity', frame.time);
+    updateDisplayTime('support', frame.support_time);
 
     for (i = 0; i < 4; i++) {
       setLocatorValues(keys[i], frame.positions[i]);

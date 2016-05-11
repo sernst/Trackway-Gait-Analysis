@@ -84,9 +84,52 @@ def load(
         source[k] = v
 
     source['id'] = source['name'].replace(' ', '-')
+
     return source
 
 
+def activity_to_support_phases(
+        activity_phases: typing.Union[dict, typing.Iterable],
+        duty_cycle: float
+) -> typing.Iterable[float]:
+    """
+
+    :param activity_phases:
+    :param duty_cycle:
+    :return:
+    """
+
+    if isinstance(activity_phases, dict):
+        out = dict()
+        for key, value in activity_phases.items():
+            out[key] = value - duty_cycle
+        return out
+
+    out = []
+    for ap in activity_phases:
+        out.append(ap - duty_cycle)
+    return out
 
 
+def support_to_activity_phases(
+        support_phases: typing.Union[dict, typing.Iterable],
+        duty_cycle: float
+) -> typing.Iterable[float]:
+    """
+
+    :param support_phases:
+    :param duty_cycle:
+    :return:
+    """
+
+    if isinstance(support_phases, dict):
+        out = dict()
+        for key, value in support_phases.items():
+            out[key] = value + duty_cycle
+        return out
+
+    out = []
+    for sp in support_phases:
+        out.append(sp + duty_cycle)
+    return out
 
