@@ -1,12 +1,12 @@
 {
-  "name": "UNIT-TEST Trot",
+  "name": "UNIT-TEST Longer Pace",
   "duty_cycle": 0.6,
-  "activity_phases":[0, 0.5, -0.5, -1.0],
+  "activity_phases":[0, 0.5, -1.0, -1.5],
   "steps_per_cycle": 20,
   "summary": "A test run to verify that the simulation system works.",
 
   "data": {
-    "count": 10,
+    "count": 5,
     "offsets": [0, 0.5, 0.75, 0.25],
     "step_size": 0.35,
     "lateral_displacement": 0.1

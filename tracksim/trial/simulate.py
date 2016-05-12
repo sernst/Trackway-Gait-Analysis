@@ -122,15 +122,30 @@ def load_activity_phases(settings: dict) -> limb.Property:
     """
 
     if 'activity_phases' in settings:
-        settings['support_phases'] = configs.activity_to_support_phases(
-            settings['activity_phases'],
-            settings['duty_cycle']
+        settings['activity_phases'] = configs.to_phases_list(
+            settings['activity_phases']
         )
     else:
-        settings['activity_phases'] = configs.support_to_activity_phases(
+        out = configs.support_to_activity_phases(
             settings['support_phases'],
             settings['duty_cycle']
         )
+
+        # Zero the calculated settings around the lowest pes phase
+        settings['activity_phases'] = [x - min(out[:2]) for x in out]
+
+    if 'support_phases' in settings:
+        settings['support_phases'] = configs.to_phases_list(
+            settings['support_phases']
+        )
+    else:
+        out = configs.activity_to_support_phases(
+            settings['activity_phases'],
+            settings['duty_cycle']
+        )
+
+        # Zero the calculated settings around the lowest pes phase
+        settings['support_phases'] = [x - min(out[:2]) for x in out]
 
     out = limb.Property()
     source = settings['activity_phases']

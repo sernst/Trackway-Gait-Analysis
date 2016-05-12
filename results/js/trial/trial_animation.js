@@ -120,13 +120,6 @@
       .attr("r", 4)
       .style("fill", exports.LIMB_COLORS.right_manus)
       .style('pointer-events', 'none');
-
-    root.append('circle')
-      .attr('id', 'right_manus_pin')
-      .attr("r", 4)
-      .style("fill", exports.LIMB_COLORS.right_manus)
-      .style('pointer-events', 'none');
-
   }
   exports.initialize_animation = initialize_animation;
 

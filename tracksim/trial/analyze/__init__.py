@@ -132,10 +132,7 @@ def add_header_section(
     """
 
     activity_phases = activity_phases.values()
-    support_phases = configs.activity_to_support_phases(
-        activity_phases,
-        settings['duty_cycle']
-    )
+    support_phases = settings['support_phases']
 
     activity_phases = ['{}%'.format(round(100 * x)) for x in activity_phases]
     support_phases = ['{}%'.format(round(100 * x)) for x in support_phases]
@@ -327,7 +324,8 @@ def make_time_data(times: list, settings: dict) -> dict:
     :param settings:
     """
 
-    support_cycles = [x - settings['duty_cycle'] for x in times]
+    dc = settings['duty_cycle']
+    support_cycles = [configs.time_to_support_time(t, dc) for t in times]
 
     return dict(
         count=len(times),

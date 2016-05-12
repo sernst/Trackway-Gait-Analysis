@@ -4,6 +4,7 @@ import typing
 from json import decoder as json_decoder
 
 import tracksim
+from tracksim import limb
 
 
 def load(
@@ -91,7 +92,7 @@ def load(
 def activity_to_support_phases(
         activity_phases: typing.Union[dict, typing.Iterable],
         duty_cycle: float
-) -> typing.Iterable[float]:
+) -> typing.List[float]:
     """
 
     :param activity_phases:
@@ -99,22 +100,18 @@ def activity_to_support_phases(
     :return:
     """
 
-    if isinstance(activity_phases, dict):
-        out = dict()
-        for key, value in activity_phases.items():
-            out[key] = value - duty_cycle
-        return out
-
+    activity_phases = to_phases_list(activity_phases)
     out = []
     for ap in activity_phases:
-        out.append(ap - duty_cycle)
+        out.append(time_to_support_time(ap, duty_cycle))
+
     return out
 
 
 def support_to_activity_phases(
         support_phases: typing.Union[dict, typing.Iterable],
         duty_cycle: float
-) -> typing.Iterable[float]:
+) -> typing.List[float]:
     """
 
     :param support_phases:
@@ -122,14 +119,54 @@ def support_to_activity_phases(
     :return:
     """
 
-    if isinstance(support_phases, dict):
-        out = dict()
-        for key, value in support_phases.items():
-            out[key] = value + duty_cycle
-        return out
+    support_phases = to_phases_list(support_phases)
 
     out = []
     for sp in support_phases:
-        out.append(sp + duty_cycle)
+        out.append(support_time_to_time(sp, duty_cycle))
+
     return out
 
+
+def time_to_support_time(time: float, duty_cycle: float) -> float:
+    """
+
+    :param time:
+    :param duty_cycle:
+    :return:
+    """
+
+    return time - (1.0 - duty_cycle)
+
+
+def support_time_to_time(support_time: float, duty_cycle: float) -> float:
+    """
+
+    :param support_time:
+    :param duty_cycle:
+    :return:
+    """
+
+    return support_time + (1.0 - duty_cycle)
+
+
+def to_phases_list(
+        source: typing.Union[list, tuple, dict]
+) -> typing.List[float]:
+    """
+
+    :param source:
+    :return:
+    """
+
+    if not isinstance(source, dict):
+        return list(source)
+
+    out = [0, 0, 0, 0]
+    for index, key in enumerate(limb.KEYS):
+        if key in source:
+            out[index] = source[key]
+    for index, key in enumerate(limb.SHORT_KEYS):
+        if key in source:
+            out[index] = source[key]
+    return out
