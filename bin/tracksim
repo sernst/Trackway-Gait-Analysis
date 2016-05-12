@@ -7,7 +7,7 @@ import sys
 PROJECT_BIN_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.abspath(os.path.join(PROJECT_BIN_PATH, '..')))
 
-import tracksim
+from tracksim import system
 from tracksim import cli
 from tracksim.cli import commands
 
@@ -18,13 +18,13 @@ cmd = cli.fetch_command()
 
 if cmd == 'help':
     commands.show_help()
-    tracksim.end(0)
+    system.end(0)
 
 command_module = commands.get_module(cmd)
 if command_module:
     command_module.execute_command()
 else:
-    tracksim.log('[ERROR]: Unrecognized command "{}"'.format(cmd))
+    system.log('[ERROR]: Unrecognized command "{}"'.format(cmd))
     commands.show_help()
 
-tracksim.end(0)
+system.end(0)

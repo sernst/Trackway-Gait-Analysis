@@ -65,9 +65,8 @@ def load(
             ])
             return system.end(1)
 
-        source['path'] = os.path.dirname(path)
         source['filename'] = os.path.abspath(path)
-
+        source['path'] = os.path.dirname(source['filename'])
     else:
         source = json.loads(json.dumps(source))
 

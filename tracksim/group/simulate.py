@@ -1,7 +1,9 @@
 import os
+import json
 import typing
 
 from tracksim import configs
+from tracksim import paths
 from tracksim import system
 from tracksim.group import analyze
 from tracksim.trial import simulate as simulate_trial
@@ -28,7 +30,7 @@ def run(
 
     system.log('[{}]: STARTING'.format(settings['id']))
 
-    for source in settings.get('trials', []):
+    for source in fetch_trial_list(settings):
         if isinstance(source, str):
             original = source
             source = os.path.abspath(os.path.join(settings['path'], source))
@@ -57,3 +59,46 @@ def run(
     system.log('[{}]: COMPLETE'.format(settings['id']))
 
     return url
+
+
+def fetch_trial_list(settings: dict) -> list:
+    """
+
+    :param settings:
+    :return:
+    """
+
+    trials = settings.get('trials', [])
+
+    if isinstance(trials, (list, tuple)):
+        return trials
+
+    if not isinstance(trials, str):
+        trials = ''
+
+    if not trials:
+        directory = settings['path']
+    else:
+        directory = paths.clean(os.path.join(settings['path'], trials))
+
+    if not os.path.exists(directory):
+        return []
+
+    out = []
+    for item in os.listdir(directory):
+        if not item.endswith('.json'):
+            continue
+
+        item_path = os.path.join(directory, item)
+        try:
+            with open(item_path, 'r+') as f:
+                contents = json.load(f)
+        except Exception:
+            continue
+
+        if 'trials' in contents:
+            continue
+
+        if 'name' in contents:
+            out.append(item)
+    return out
