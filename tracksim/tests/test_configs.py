@@ -1,7 +1,8 @@
 import unittest
 from unittest import mock
 
-import tracksim
+from tracksim import paths
+from tracksim import system
 from tracksim import configs
 
 class test_configs(unittest.TestCase):
@@ -14,9 +15,9 @@ class test_configs(unittest.TestCase):
     def test_load_missing(self):
         """
         """
-        path = tracksim.make_project_path('does_not_exist.fake')
+        path = paths.project('does_not_exist.fake')
         mm_end = mock.MagicMock(name='end')
-        tracksim.end = mm_end
+        system.end = mm_end
 
         configs.load('trial', path)
         mm_end.assert_called_once_with(1)
@@ -24,9 +25,9 @@ class test_configs(unittest.TestCase):
     def test_load_invalid(self):
         """
         """
-        path = tracksim.make_project_path('tests', 'resources', 'invalid.json')
+        path = paths.project('tests', 'resources', 'invalid.json')
         mm_end = mock.MagicMock(name='end')
-        tracksim.end = mm_end
+        system.end = mm_end
 
         configs.load('trial', path)
         mm_end.assert_called_once_with(1)

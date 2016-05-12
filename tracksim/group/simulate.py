@@ -1,8 +1,8 @@
 import os
 import typing
 
-import tracksim
 from tracksim import configs
+from tracksim import system
 from tracksim.group import analyze
 from tracksim.trial import simulate as simulate_trial
 
@@ -26,7 +26,7 @@ def run(
     settings = configs.load('group', settings, **kwargs)
     trials = []
 
-    tracksim.log('[{}]: STARTING'.format(settings['id']))
+    system.log('[{}]: STARTING'.format(settings['id']))
 
     for source in settings.get('trials', []):
         if isinstance(source, str):
@@ -35,7 +35,7 @@ def run(
             if not os.path.exists(source):
                 source = '{}.json'.format(source)
             if not os.path.exists(source):
-                tracksim.log(
+                system.log(
                     """
                     [ERROR]: Unable to locate simulation trial file "{}"
                     """.format(original)
@@ -50,10 +50,10 @@ def run(
             id=trial_settings['id'],
         ))
 
-    tracksim.log('[{}]: ANALYZING'.format(settings['id']))
+    system.log('[{}]: ANALYZING'.format(settings['id']))
 
     url = analyze.create(settings, trials)
 
-    tracksim.log('[{}]: COMPLETE'.format(settings['id']))
+    system.log('[{}]: COMPLETE'.format(settings['id']))
 
     return url

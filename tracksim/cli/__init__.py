@@ -1,10 +1,7 @@
-import json
-import os
 import sys
-from json import decoder as json_decoder
 from textwrap import dedent
 
-import tracksim
+from tracksim import system
 
 
 def reformat(source: str) -> str:
@@ -33,7 +30,7 @@ def fetch_command():
         return 'help'
 
     if cmd is None or cmd.startswith('-'):
-        tracksim.log("""
+        system.log("""
         [ERROR]: tracksim requires a command argument that defines the
         operation to be carried out. The expected structure is:
 
@@ -44,6 +41,6 @@ def fetch_command():
             $ tracksim help
         """)
 
-        tracksim.end(1)
+        system.end(1)
 
     return cmd

@@ -2,7 +2,8 @@ import os
 import types
 import json
 
-import tracksim
+from tracksim import system
+from tracksim import paths
 from tracksim import analysis
 from tracksim.reporting.report import Report
 
@@ -35,7 +36,7 @@ def run_step(filename: str, analysis_id: str, root_path: str, settings: dict):
     try:
         exec(contents, module.__dict__)
     except Exception:
-        tracksim.log("""
+        system.log("""
             ERROR: Analysis failed during in "{filename}"
             """.format(filename=filename))
         raise
@@ -51,7 +52,7 @@ def run(analysis_id: str, analysis_path: str = None, results_path: str = None):
     """
 
     if analysis_path is None:
-        analysis_path = tracksim.make_analysis_path()
+        analysis_path = paths.analysis()
 
     run_path = os.path.join(analysis_path, analysis_id, 'run.json')
     with open(run_path, 'r+') as f:

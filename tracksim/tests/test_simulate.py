@@ -1,6 +1,7 @@
 import unittest
 
-import tracksim
+from tracksim import paths
+from tracksim import system
 from tracksim.group import simulate as simulate_group
 from tracksim.trial import simulate as simulate_trial
 
@@ -13,7 +14,7 @@ class test_simulate(unittest.TestCase):
         :return:
         """
 
-        configs_path = tracksim.make_project_path(
+        configs_path = paths.project(
                 'test_resources', 'phase_validation.json'
         )
         simulate_trial.run(configs_path)
@@ -24,8 +25,8 @@ class test_simulate(unittest.TestCase):
             generated data
         """
 
-        configs_path = tracksim.make_project_path(
-                'test_resources', 'test_group.json'
+        configs_path = paths.project(
+                'test_resources', 'unit_test_group.json'
         )
         simulate_group.run(configs_path)
 

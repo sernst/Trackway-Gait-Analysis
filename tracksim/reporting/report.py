@@ -1,15 +1,15 @@
-import os
 import json
-import shutil
+import os
 import random
+import shutil
 from datetime import datetime
 
 import markdown
-from jinja2 import Template
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
+from jinja2 import Template
 
-import tracksim
+from tracksim import paths
 
 try:
     import plotly
@@ -24,7 +24,7 @@ class Report(object):
 
     def __init__(self, report_type:str, identifier: str = None, **kwargs):
         self.env = Environment(
-            loader=FileSystemLoader(tracksim.make_resource_path('reports'))
+            loader=FileSystemLoader(paths.resource('reports'))
         )
 
         self.id = identifier
@@ -41,7 +41,7 @@ class Report(object):
         :return:
         """
         return 'file://{path}?id={id}'.format(
-            path=tracksim.make_results_path('{}.html'.format(self.type)),
+            path=paths.results('{}.html'.format(self.type)),
             id=self.id
         )
 
@@ -51,7 +51,7 @@ class Report(object):
         Returns the directory where the report file will be written
         :return:
         """
-        return tracksim.make_results_path('reports', self.type, self.id)
+        return paths.results('reports', self.type, self.id)
 
     def add_header(self, level, text):
         """
@@ -182,7 +182,7 @@ class Report(object):
             return None
 
         if not results_path:
-            results_path = tracksim.make_results_path()
+            results_path = paths.results()
 
         path = os.path.join(results_path, 'reports', self.type, self.id)
 

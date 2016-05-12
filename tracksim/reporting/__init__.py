@@ -2,7 +2,7 @@ import json
 import os
 from json import encoder
 
-import tracksim
+from tracksim import paths
 from tracksim.reporting.build import create_index_file
 from tracksim.reporting.report import Report
 
@@ -55,7 +55,7 @@ def save_temp_json_file(filename: str, data: dict):
         The data to be stored in the temp file
     """
 
-    temp_path = tracksim.make_results_path('temp', filename)
+    temp_path = paths.results('temp', filename)
     temp_folder = os.path.dirname(temp_path)
     if not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
@@ -182,7 +182,7 @@ def list_results(path: str = None, trials: bool = True):
     out = []
 
     if not path:
-        path = tracksim.make_results_path('report')
+        path = paths.results('report')
     path = os.path.join(path, 'trials' if trials else 'groups')
 
     if not os.path.exists(path):

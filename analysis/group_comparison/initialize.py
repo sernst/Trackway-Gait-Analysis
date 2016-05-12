@@ -1,11 +1,11 @@
 import pandas as pd
 
-import tracksim
+from tracksim import system
 from tracksim import reader
 from tracksim.analysis import shared
 from tracksim.analysis import report
 
-results_path = tracksim.load_configs().get('path.group_comparison')
+results_path = system.load_configs().get('path.group_comparison')
 results = reader.all_groups(results_path=results_path)
 
 couplings = dict()

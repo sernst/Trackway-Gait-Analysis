@@ -1,7 +1,8 @@
 import typing
 from argparse import ArgumentParser
 
-import tracksim
+from tracksim import system
+from tracksim import paths
 from tracksim import cli
 
 DESCRIPTION = """
@@ -20,8 +21,8 @@ def remove_key(configs: dict, key: str):
 
     if key in configs:
         del configs[key]
-    tracksim.save_configs(configs)
-    tracksim.log(
+    system.save_configs(configs)
+    system.log(
         '[REMOVED]: "{}" from configuration settings'.format(key)
     )
 
@@ -39,14 +40,14 @@ def set_key(configs: dict, key: str, value: typing.List[str]):
 
     if key.startswith('path.'):
         for index in range(len(value)):
-            value[index] = tracksim.clean_path(value[index])
+            value[index] = paths.clean(value[index])
 
     if len(value) == 1:
         value = value[0]
 
     configs[key] = value
-    tracksim.save_configs(configs)
-    tracksim.log('[SET]: "{}" to "{}"'.format(key, value))
+    system.save_configs(configs)
+    system.log('[SET]: "{}" to "{}"'.format(key, value))
 
 
 def echo_key(configs: dict, key: str):
@@ -58,10 +59,10 @@ def echo_key(configs: dict, key: str):
     """
 
     if key not in configs:
-        tracksim.log('[MISSING]: No "{}" key was found'.format(key))
+        system.log('[MISSING]: No "{}" key was found'.format(key))
         return
 
-    tracksim.log('[VALUE]: "{}" = {}'.format(key, configs[key]))
+    system.log('[VALUE]: "{}" = {}'.format(key, configs[key]))
 
 
 def echo_all(configs: dict):
@@ -77,7 +78,7 @@ def echo_all(configs: dict):
     for k in keys:
         out.append('  * {key}: {value}'.format(key=k, value=configs[k]))
 
-    tracksim.log('\n'.join(out))
+    system.log('\n'.join(out))
 
 
 def execute_command():
@@ -138,7 +139,7 @@ def execute_command():
 
     args = vars(parser.parse_args())
 
-    configs = tracksim.load_configs()
+    configs = system.load_configs()
     if args['key'] is None:
         if args['list']:
             echo_all(configs)
@@ -152,4 +153,4 @@ def execute_command():
     else:
         set_key(configs, args['key'], args['value'])
 
-    tracksim.end(0)
+    system.end(0)

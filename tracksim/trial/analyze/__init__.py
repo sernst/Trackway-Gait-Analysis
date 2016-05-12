@@ -4,9 +4,9 @@ from datetime import datetime
 
 import measurement_stats as mstats
 
-import tracksim
 from tracksim import configs
 from tracksim import limb
+from tracksim import paths
 from tracksim import reporting
 from tracksim import svg
 from tracksim import trackway
@@ -138,7 +138,7 @@ def add_header_section(
     support_phases = ['{}%'.format(round(100 * x)) for x in support_phases]
 
     report.add_template(
-        tracksim.make_resource_path('trial', 'header.html'),
+        paths.resource('trial', 'header.html'),
         title=settings.get('name'),
         summary=settings.get('summary'),
         duty_cycle=round(100.0 * settings['duty_cycle']),
@@ -210,7 +210,7 @@ def add_info(report: reporting.Report, settings: dict, coupling_data: dict):
     bounds = [mstats.value.round_significant(b, 4) for b in bounds]
 
     report.add_template(
-        tracksim.make_resource_path('trial', 'info.html'),
+        paths.resource('trial', 'info.html'),
         coupling_length=coupling_data['value'].html_label,
         coupling_bounds=bounds
     )

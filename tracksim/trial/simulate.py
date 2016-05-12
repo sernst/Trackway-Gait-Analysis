@@ -3,10 +3,10 @@ import typing
 
 import six
 
-import tracksim
 from tracksim import configs
 from tracksim import generate
 from tracksim import limb
+from tracksim import system
 from tracksim import trackway
 from tracksim.trial import analyze
 from tracksim.trial import compute
@@ -41,7 +41,7 @@ def run(
     if 'duty_cycle' not in settings:
         settings['duty_cycle'] = 0.6
 
-    tracksim.log('[{}]: STARTING'.format(settings['id']))
+    system.log('[{}]: STARTING'.format(settings['id']))
 
     activity_phases = load_activity_phases(settings)
     trackway_positions = load_trackway_positions(settings, trackway_positions)
@@ -75,7 +75,7 @@ def run(
     )
 
     if len(time_steps) < 1:
-        tracksim.log(
+        system.log(
             """
             [{}]: INVALID RESULTS
                 There are no simulated results to analyze. Either the
@@ -85,7 +85,7 @@ def run(
             """.format(settings['id']))
         raise ValueError('Invalid Results')
 
-    tracksim.log('[{}]: ANALYZING'.format(settings['id']))
+    system.log('[{}]: ANALYZING'.format(settings['id']))
 
     reorientation_needed = prune.unused_foot_prints(
         trackway_definition.limb_positions,
@@ -108,7 +108,7 @@ def run(
         foot_positions=foot_positions
     )
 
-    tracksim.log('[{}]: COMPLETED'.format(settings['id']))
+    system.log('[{}]: COMPLETED'.format(settings['id']))
 
     return url
 

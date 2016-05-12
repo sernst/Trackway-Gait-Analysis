@@ -1,7 +1,8 @@
 import os
 import shutil
 
-import tracksim
+from tracksim import system
+from tracksim import paths
 from tracksim.cli import query
 
 DESCRIPTION = """
@@ -15,7 +16,7 @@ def execute_command():
     :return:
     """
 
-    tracksim.log("""
+    system.log("""
         ==============
         REMOVE RESULTS
         ==============
@@ -24,7 +25,7 @@ def execute_command():
         located in the directory:
 
         {}
-        """.format(tracksim.make_results_path()), whitespace_bottom=1)
+        """.format(paths.results()), whitespace_bottom=1)
 
     do_it = query.confirm(
         'Are you sure you want to continue',
@@ -32,10 +33,10 @@ def execute_command():
     )
 
     if not do_it:
-        tracksim.log('[ABORTED]: No files were deleted')
-        return tracksim.end(0)
+        system.log('[ABORTED]: No files were deleted')
+        return system.end(0)
 
-    path = tracksim.make_results_path('reports')
+    path = paths.results('reports')
 
     if os.path.exists(path):
         try:
@@ -46,7 +47,7 @@ def execute_command():
             except Exception:
                 pass
 
-    tracksim.log("""
+    system.log("""
         [SUCCESS]: All results have been removed
         """, whitespace_top=1)
 

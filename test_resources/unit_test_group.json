@@ -2,7 +2,7 @@
   "name":"UNIT-TEST Trial Group",
   "summary": "A run of unit tests within a group to compare",
   "trials":[
-    "test_trial_1.json",
-    "test_trial_5.json"
+    "unit_test_trial_trot.json",
+    "unit_test_trial_trot_data.json"
   ]
 }

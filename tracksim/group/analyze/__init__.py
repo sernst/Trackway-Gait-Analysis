@@ -1,9 +1,9 @@
+import json
 import os
 import typing
-import json
 from datetime import datetime
 
-import tracksim
+from tracksim import paths
 from tracksim import reporting
 from tracksim.reporting import plotting
 
@@ -60,7 +60,7 @@ def add_header_section(
         ))
 
     report.add_template(
-        path=tracksim.make_resource_path('group', 'header.html'),
+        path=paths.resource('group', 'header.html'),
         title=settings['name'],
         date=datetime.utcnow().strftime("%m-%d-%Y %H:%M"),
         summary=settings.get('summary'),
@@ -88,7 +88,7 @@ def add_coupling_plots(
 
     for trial in trials:
 
-        path = tracksim.make_results_path(
+        path = paths.results(
             'reports', 'trial', trial['id'], '{}.json'.format(trial['id'])
         )
         with open(path, 'r+') as f:

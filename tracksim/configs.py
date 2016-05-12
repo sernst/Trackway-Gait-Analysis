@@ -3,7 +3,7 @@ import os
 import typing
 from json import decoder as json_decoder
 
-import tracksim
+from tracksim import system
 from tracksim import limb
 
 
@@ -46,13 +46,13 @@ def load(
             with open(path, 'r+') as f:
                 source = json.load(f)
         except FileNotFoundError:
-            tracksim.log([
+            system.log([
                 '[ERROR]: No such configuration file',
                 ['PATH: {}'.format(path)]
             ])
-            return tracksim.end(1)
+            return system.end(1)
         except json_decoder.JSONDecodeError as err:
-            tracksim.log([
+            system.log([
                 '[ERROR]: Failed to decode configs json file',
                 [
                     'PATH: {}'.format(path),
@@ -63,7 +63,7 @@ def load(
                     ]
                 ]
             ])
-            return tracksim.end(1)
+            return system.end(1)
 
         source['path'] = os.path.dirname(path)
         source['filename'] = os.path.abspath(path)

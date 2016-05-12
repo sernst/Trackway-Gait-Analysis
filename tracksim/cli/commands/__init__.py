@@ -1,6 +1,6 @@
 import sys
 
-import tracksim
+from tracksim import system
 from tracksim import cli
 from tracksim.cli.commands import run
 from tracksim.cli.commands import register
@@ -20,7 +20,7 @@ def list_modules():
         item = getattr(ME, key)
         if hasattr(item, 'DESCRIPTION'):
             print('')
-            tracksim.log('[{}]:\n   {}'.format(
+            system.log('[{}]:\n   {}'.format(
                 key,
                 cli.reformat(getattr(item, 'DESCRIPTION'))
                     .replace('\n', '\n   ')
@@ -43,7 +43,7 @@ def get_module(command):
 def show_help():
     """ Prints the basic command help to the console """
 
-    tracksim.log('The following commands are available:')
+    system.log('The following commands are available:')
     list_modules()
 
     msg = """
@@ -52,4 +52,4 @@ def show_help():
 
             tracksim [COMMAND] --help
         """
-    tracksim.log(msg, whitespace_top=1)
+    system.log(msg, whitespace_top=1)

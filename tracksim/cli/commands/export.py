@@ -1,11 +1,10 @@
 import os
 import shutil
-import json
-import typing
 from argparse import ArgumentParser
 
-import tracksim
 from tracksim import cli
+from tracksim import paths
+from tracksim import system
 from tracksim.reporting import create_index_file
 
 DESCRIPTION = """
@@ -35,7 +34,7 @@ def run(
     if os.path.exists(target_path):
 
         if not force:
-            tracksim.log("""
+            system.log("""
             [ABORTED EXPORT]
             A file or directory already exists at the specified path:
 
@@ -45,9 +44,9 @@ def run(
             either delete the existing data first, or run this command with the
             force flag.
             """.format(path=target_path))
-            tracksim.end(1)
+            system.end(1)
 
-        tracksim.log('[REMOVING]: Existing directory {}'.format(target_path))
+        system.log('[REMOVING]: Existing directory {}'.format(target_path))
         try:
             shutil.rmtree(target_path)
         except OSError:
@@ -55,18 +54,18 @@ def run(
                 # Give it a second
                 shutil.rmtree(target_path)
             except OSError:
-                tracksim.log("""
+                system.log("""
                     [ABORTED EXPORT]
                     The existing directory could not be removed.
                     Unable to continue.
                     """)
-                tracksim.end(1)
+                system.end(1)
 
     shutil.copytree(source_directory, target_path)
 
     result = create_index_file(source_directory, target_path)
 
-    tracksim.log("""
+    system.log("""
         [EXPORT COMPLETE]
         The export process was successful. All existing reports are now
         accessible through the index file:
@@ -114,7 +113,7 @@ def execute_command():
         '-s', '--source',
         dest='source_directory',
         type=str,
-        default=tracksim.make_results_path(),
+        default=paths.results(),
         help=cli.reformat("""
             The source reports directory to be exported. This flag allows you
             to export results that are stored in locations other than the

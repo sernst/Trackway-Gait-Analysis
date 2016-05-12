@@ -2,7 +2,7 @@ import os
 import json
 import typing
 
-import tracksim
+from tracksim import paths
 
 
 def read(report_type: str, report_id: str, results_path: str = None) -> dict:
@@ -21,7 +21,7 @@ def read(report_type: str, report_id: str, results_path: str = None) -> dict:
         report_type = 'group'
 
     if not results_path:
-        results_path = tracksim.make_results_path()
+        results_path = paths.results()
     path = os.path.join(
         results_path, 'reports', report_type,
         report_id, '{}.json'.format(report_id)
@@ -57,7 +57,7 @@ def all_by_type(report_type: str, results_path: str = None) -> typing.List[dict]
         report_type = 'group'
 
     if not results_path:
-        results_path = tracksim.make_results_path()
+        results_path = paths.results()
 
     path = os.path.join(results_path, 'reports', report_type)
 

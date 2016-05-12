@@ -5,8 +5,8 @@ import typing
 from argparse import ArgumentParser
 from json import decoder as json_decoder
 
-import tracksim
 from tracksim import cli
+from tracksim import system
 from tracksim.group import simulate as simulate_group
 from tracksim.trial import simulate as simulate_trial
 
@@ -72,7 +72,7 @@ def find_group_files(path: str) -> typing.List[str]:
             with open(item_path, 'r+') as f:
                 data = json.load(f)
         except json_decoder.JSONDecodeError as err:
-            tracksim.log([
+            system.log([
                 '[ERROR]: Failed to decode json file',
                 [
                     'PATH: {}'.format(path),
@@ -83,14 +83,14 @@ def find_group_files(path: str) -> typing.List[str]:
                     ]
                 ]
             ])
-            return tracksim.end(1)
+            return system.end(1)
 
         if 'trials' in data:
             paths.append(item_path)
 
     if not paths:
-        tracksim.log('ERROR: No group trial found in path: "{}"'.format(path))
-        tracksim.end(2)
+        system.log('ERROR: No group trial found in path: "{}"'.format(path))
+        system.end(2)
 
     return paths
 
@@ -104,11 +104,11 @@ def run(**kwargs):
 
     cli_configs = kwargs.get('settings')
     if cli_configs is None:
-        cli_configs = tracksim.load_configs()
+        cli_configs = system.load_configs()
 
     path = get_path(kwargs.get('path'), cli_configs)
     if path is None:
-        tracksim.log('ERROR: Invalid or missing path argument')
+        system.log('ERROR: Invalid or missing path argument')
         sys.exit(1)
 
     urls = []
@@ -156,7 +156,7 @@ def save_recent_path(path: str, cli_configs: dict):
     recent_paths = list(filter((path).__ne__, recent_paths))
     recent_paths.insert(0, path)
     cli_configs['recent'] = recent_paths[:5]
-    tracksim.save_configs(cli_configs)
+    system.save_configs(cli_configs)
 
 
 def print_results(urls: typing.List[str]):
@@ -170,10 +170,10 @@ def print_results(urls: typing.List[str]):
     ------------------------------------------
     Simulation Complete. Results Available At:
     """
-    tracksim.log(msg, whitespace=1)
+    system.log(msg, whitespace=1)
 
     for r in urls:
-        tracksim.log('  * {}'.format(r))
+        system.log('  * {}'.format(r))
 
 
 def run_simulation(

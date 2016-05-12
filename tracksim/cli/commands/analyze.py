@@ -1,7 +1,8 @@
 import os
 from argparse import ArgumentParser
 
-import tracksim
+from tracksim import system
+from tracksim import paths
 from tracksim import cli
 from tracksim.analysis import execute
 
@@ -13,7 +14,7 @@ DESCRIPTION = """
 def list_all(analysis_path: str = None):
 
     if not analysis_path:
-        analysis_path = tracksim.make_analysis_path()
+        analysis_path = paths.analysis()
 
     items = []
     for item in os.listdir(analysis_path):
@@ -28,10 +29,10 @@ def list_all(analysis_path: str = None):
         items.append(item)
 
     if not items:
-        tracksim.log('No analyses found at: {}'.format(analysis_path))
+        system.log('No analyses found at: {}'.format(analysis_path))
         return
 
-    tracksim.log("""
+    system.log("""
         The following analyses are available:
           * {items}
         """.format(items='  * '.join(items)))
@@ -96,7 +97,7 @@ def execute_command():
     else:
         url = execute.run(args['name'], args['analysis_path'])
         if url:
-            tracksim.log("""
+            system.log("""
                 Analysis Complete. Report available at:
                  * {}
             """.format(url))

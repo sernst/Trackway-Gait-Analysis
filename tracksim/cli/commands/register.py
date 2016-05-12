@@ -1,7 +1,8 @@
 import os
 import stat
 
-import tracksim
+from tracksim import system
+from tracksim import paths
 
 DESCRIPTION = """
     Adds a tracksim script file to /usr/local/bin so that the tracksim cli
@@ -20,7 +21,7 @@ def register_global_var():
         lines = f.read().split('\n')
 
     entry = 'export TRACKSIM_HOME="{}"'.format(
-        tracksim.make_project_path()
+        paths.project()
     )
 
     found_existing = False
@@ -46,12 +47,12 @@ def register_global_var():
 
 def execute_command():
 
-    source = tracksim.make_resource_path('tracksim.global.sh')
+    source = paths.resource('tracksim.global.sh')
 
     with open(source, 'r+') as f:
         contents = f.read()
 
-    path = tracksim.make_project_path('bin', 'tracksim')
+    path = paths.project('bin', 'tracksim')
     contents = contents.replace('###TRACKSIM_PATH###', path)
 
     path = '/usr/local/bin/tracksim'
@@ -67,7 +68,7 @@ def execute_command():
 
     register_global_var()
 
-    tracksim.log("""
+    system.log("""
         [SUCCESS]: The tracksim command has been registered for global use. You
         can now call tracksim globally from a terminal.
 

@@ -4,12 +4,14 @@ import mimetypes
 from argparse import ArgumentParser
 
 import boto3
-import tracksim
+from tracksim import system
+from tracksim import paths
 from tracksim import cli
 
 DESCRIPTION = """
     Uploads existing trial and group data files to the AWS cloud
     """
+
 
 def get_aws_settings(
         configs: dict,
@@ -35,7 +37,7 @@ def get_aws_settings(
     """
 
     def error_and_exit(label, key):
-        tracksim.log("""
+        system.log("""
             [ERROR]: No {label} was specified in your tracksim settings.
 
             Use the configure command to fix this:
@@ -65,6 +67,7 @@ def get_aws_settings(
         out[e[2]] = value
 
     return out
+
 
 def execute_command():
     """ Runs the deploy command """
@@ -109,13 +112,14 @@ def execute_command():
     )
 
     args = vars(parser.parse_args())
-    configs = tracksim.load_configs()
+    configs = system.load_configs()
 
     upload_in_folder(
         get_aws_settings(configs, **args),
-        tracksim.make_results_path('report')
+        paths.results('report')
     )
-    tracksim.log('[COMPLETE]: Trials have been deployed')
+    system.log('[COMPLETE]: Trials have been deployed')
+
 
 def upload_in_folder(aws_configs, root_path, *parts):
     """
