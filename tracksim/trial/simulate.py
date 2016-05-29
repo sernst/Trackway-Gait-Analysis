@@ -182,6 +182,16 @@ def load_trackway_positions(
         # Load from a specified file
         if not data.startswith('/'):
             data = os.path.join(settings['path'], data)
+        if not os.path.exists(data):
+            system.log(
+                """
+                [ERROR]: No CSV source data exists at the path:
+
+                    {}
+                """.format(data)
+            )
+            raise FileNotFoundError('No CSV source file found')
+
         return trackway.load_positions_file(data)
 
     # Generate from configuration settings

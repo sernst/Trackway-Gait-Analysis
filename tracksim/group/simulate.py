@@ -70,7 +70,7 @@ def fetch_trial_list(settings: dict) -> list:
 
     trials = settings.get('trials', [])
 
-    if isinstance(trials, (list, tuple)):
+    if isinstance(trials, (list, tuple)) and len(trials) > 0:
         return trials
 
     if not isinstance(trials, str):
