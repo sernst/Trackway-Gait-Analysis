@@ -55,8 +55,8 @@ class TrackPosition(object):
 
         out = dict(
             uid=self.uid,
-            x={'value': self.x.value, 'uncertainty': self.x.uncertainty},
-            y={'value': self.y.value, 'uncertainty': self.y.uncertainty}
+            x=self.x.serialize(),
+            y=self.y.serialize()
         )
         if self.annotation:
             out['annotation'] = self.annotation
@@ -175,6 +175,23 @@ class TrackPosition(object):
             x=0.5 * (self.x + position.x),
             y=0.5 * (self.y + position.y)
         )
+
+    def distance_from(
+        self,
+        x: float,
+        y: float
+    ) -> float:
+        """
+
+        :param x:
+        :param y:
+        :return:
+        """
+
+        return (
+            (self.x - x) ** 2 +
+            (self.y - y) ** 2
+        ) ** 0.5
 
     def distance_between(
             self,
