@@ -299,9 +299,9 @@ class LineSegment2D(object):
         if rotate or (abs(slope) > 1.0 and abs(slopeUnc / slope) > 0.5):
             a = Angle(degrees=20.0)
             line = self.clone()
-            line.rotate(a.value, self.start)
+            line.rotate(a.radians, self.start)
             p = point.clone()
-            p.rotate(a, self.start)
+            p.rotate(a.radians, self.start)
             result = line.closest_point_on_line(p, contained=contained)
             if result is None:
                 return result
