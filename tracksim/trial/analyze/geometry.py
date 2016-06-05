@@ -148,7 +148,7 @@ class LineSegment2D(object):
 
         return point
 
-    def rotate(self, angle, pivot=None):
+    def rotate(self, angle: float, pivot=None):
         """rotate doc..."""
 
         self.start.rotate(angle, pivot=pivot)
@@ -299,7 +299,7 @@ class LineSegment2D(object):
         if rotate or (abs(slope) > 1.0 and abs(slopeUnc / slope) > 0.5):
             a = Angle(degrees=20.0)
             line = self.clone()
-            line.rotate(a, self.start)
+            line.rotate(a.value, self.start)
             p = point.clone()
             p.rotate(a, self.start)
             result = line.closest_point_on_line(p, contained=contained)
