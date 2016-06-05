@@ -11,6 +11,10 @@
     right_manus: 'DarkOrchid'
   };
 
+
+  /**
+   *
+   */
   function drawMidline() {
     var lineMaker = d3.svg.line()
       .x(function (frame) {
@@ -32,6 +36,26 @@
   }
   exports.drawMidline = drawMidline;
 
+
+  /**
+   *
+   * @returns {*}
+   */
+  function boxPathDrawer() {
+    return d3.svg.line()
+        .x(function (point) {
+          return exports.DATA.scale * point.x;
+        })
+        .y(function (point) {
+          return -exports.DATA.scale * point.y;
+        })
+        .interpolate('linear');
+  }
+
+
+  /**
+   *
+   */
   function initialize_animation() {
     var root = d3.select($('.svg-box svg')[0]);
 
@@ -76,6 +100,16 @@
       .style('stroke', 'rgba(0, 0, 0, 0.1)')
       .style('stroke-width', '2')
       .style('pointer-events', 'none');
+
+    root.append('path')
+        .attr('id', 'rear_support_box')
+        .style('fill', 'rgba(0, 0, 0, 0.25)')
+        .style('pointer-events', 'none');
+
+    root.append('path')
+        .attr('id', 'forward_support_box')
+        .style('fill', 'rgba(0, 0, 0, 0.25)')
+        .style('pointer-events', 'none');
 
     root.append('circle')
       .attr('id', 'rear_coupler')
@@ -234,6 +268,12 @@
       .attr('y1', -exports.DATA.scale * frame.midpoint.y[2])
       .attr('x2', exports.DATA.scale * frame.forward_coupler.x[2])
       .attr('y2', -exports.DATA.scale * frame.forward_coupler.y[2]);
+
+    d3.select(getLocator('rear_support_box')[0])
+      .attr('d', boxPathDrawer()(frame.rear_support_box));
+
+    d3.select(getLocator('forward_support_box')[0])
+      .attr('d', boxPathDrawer()(frame.forward_support_box));
 
     interpValue = Math.max(0, Math.min(1.0, 5 * Math.max(
        frame.rear_coupler.x[1],

@@ -10,6 +10,7 @@ from tracksim.cli.commands import purge
 from tracksim.cli.commands import export
 from tracksim.cli.commands import configure
 from tracksim.cli.commands import analyze
+from tracksim.cli.commands import list_
 
 ME = sys.modules[__name__]
 
@@ -21,7 +22,7 @@ def list_modules():
         if hasattr(item, 'DESCRIPTION'):
             print('')
             system.log('[{}]:\n   {}'.format(
-                key,
+                key.strip('_'),
                 cli.reformat(getattr(item, 'DESCRIPTION'))
                     .replace('\n', '\n   ')
             ))
@@ -35,7 +36,9 @@ def get_module(command):
     """
 
     if not hasattr(ME, command):
-        return None
+        command = '{}_'.format(command)
+        if not hasattr(ME, command):
+            return None
 
     return getattr(ME, command)
 

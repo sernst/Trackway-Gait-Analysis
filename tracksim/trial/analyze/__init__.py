@@ -14,6 +14,7 @@ from tracksim.svg import draw
 from tracksim.trial.analyze import advancement
 from tracksim.trial.analyze import coupling
 from tracksim.trial.analyze import separation
+from tracksim.trial.analyze import tangent
 
 
 def create(
@@ -41,12 +42,14 @@ def create(
     coupling_data = coupling.calculate(foot_positions, times)
     separation_data = separation.calculate(foot_positions, times)
     advancement_data = advancement.calculate(foot_positions, times)
+    tangent_data = tangent.calculate(foot_positions)
 
     report = reporting.Report('trial', sim_id)
     add_header_section(report, settings, track_definition.activity_phases)
     svg_settings = add_svg(sim_id, report, track_definition, foot_positions)
     add_info(report, settings, coupling_data)
     coupling.add_to_report(report, coupling_data, times)
+    tangent.add_to_report(report, tangent_data, times)
     advancement.add_to_report(report, advancement_data, times)
     separation.add_to_report(report, separation_data, times)
     report.add_whitespace(10)
@@ -60,7 +63,12 @@ def create(
         scale=svg_settings['scale'],
         offset=svg_settings['offset'],
         markerIds=limb.KEYS + [],
-        frames=make_animation_frame_data(foot_positions, coupling_data, times)
+        frames=make_animation_frame_data(
+            foot_positions,
+            times,
+            coupling_data,
+            tangent_data
+        )
     )
 
     url = report.write()
@@ -71,7 +79,8 @@ def create(
         foot_positions=foot_positions,
         times=times,
         coupling_data=coupling_data,
-        advancement_data=advancement_data
+        advancement_data=advancement_data,
+        tangent_data=tangent_data
     )
 
     return url
@@ -84,7 +93,8 @@ def write_data(
         foot_positions: limb.Property,
         times: dict,
         coupling_data: dict,
-        advancement_data: dict
+        advancement_data: dict,
+        tangent_data: dict
 ):
     """
     Writes a JSON serialized data file containing the results of the trial for
@@ -114,7 +124,8 @@ def write_data(
         foot_positions=position_data,
         track_positions=track_data,
         couplings=coupling.serialize(coupling_data),
-        advancement=advancement.serialize(advancement_data)
+        advancement=advancement.serialize(advancement_data),
+        tangent=tangent.serialize(tangent_data)
     ))
 
 
@@ -218,8 +229,9 @@ def add_info(report: reporting.Report, settings: dict, coupling_data: dict):
 
 def make_animation_frame_data(
         foot_positions: limb.Property,
+        times: dict,
         coupling_data: dict,
-        times: dict
+        tangent_data: dict
 ) -> typing.List[dict]:
     """
     Creates a list of animation frame data from the results, which is used by
@@ -234,6 +246,7 @@ def make_animation_frame_data(
             - f: The enumerated annotation for the position
 
     :param coupling_data:
+    :param tangent_data:
     :param foot_positions:
         The simulation results
     :param times:
@@ -244,17 +257,26 @@ def make_animation_frame_data(
 
     for i in range(times['count']):
         positions = []
+        tangents = []
         for key in limb.KEYS:
             pos = foot_positions.get(key)[i]
+            tan = tangent_data['tangents'].get(key)[i]
             positions.append({
                 'x': [pos.x.value, pos.x.uncertainty, pos.x.raw],
                 'y': [pos.y.value, pos.y.uncertainty, pos.y.raw],
-                'f': pos.annotation
+                'f': pos.annotation,
+                'tx0': [tan.start.x.raw, tan.start.x.uncertainty],
+                'ty0': [tan.start.y.raw, tan.start.y.uncertainty],
+                'tx1': [tan.end.x.raw, tan.end.x.uncertainty],
+                'ty1': [tan.end.y.raw, tan.end.y.uncertainty],
             })
 
         rear = coupling_data['rear'][i]
         forward = coupling_data['forward'][i]
         midpoint = coupling_data['midpoints'][i]
+
+        rear_box = tangent_data['rear_boxes'][i]
+        forward_box = tangent_data['forward_boxes'][i]
 
         frames.append(dict(
             time=times['cycles'][i],
@@ -271,7 +293,19 @@ def make_animation_frame_data(
             midpoint={
                 'x': [midpoint.x.value, midpoint.x.uncertainty, midpoint.x.raw],
                 'y': [midpoint.y.value, midpoint.y.uncertainty, midpoint.y.raw]
-            }
+            },
+            rear_support_box=[
+                { 'x': rear_box[0].x.raw, 'y': rear_box[0].y.raw },
+                { 'x': rear_box[1].x.raw, 'y': rear_box[1].y.raw },
+                { 'x': rear_box[2].x.raw, 'y': rear_box[2].y.raw },
+                { 'x': rear_box[3].x.raw, 'y': rear_box[3].y.raw }
+            ],
+            forward_support_box=[
+                { 'x': forward_box[0].x.raw, 'y': forward_box[0].y.raw },
+                { 'x': forward_box[1].x.raw, 'y': forward_box[1].y.raw },
+                { 'x': forward_box[2].x.raw, 'y': forward_box[2].y.raw },
+                { 'x': forward_box[3].x.raw, 'y': forward_box[3].y.raw }
+            ]
         ))
 
     return frames

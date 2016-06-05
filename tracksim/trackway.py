@@ -133,7 +133,7 @@ class TrackPosition(object):
     def __str__(self):
         return self.echo()
 
-    def compare(self, comparison: 'TrackPosition') -> bool:
+    def compare(self, comparison: 'TrackPosition', raw=False) -> bool:
         """
         Compares the positions of this track position and the one specified by
         the comparison argument and returns True if their positions and
@@ -142,6 +142,21 @@ class TrackPosition(object):
         :param comparison:
             Another TrackPosition instance to compare with this instance
         """
+
+        comp = comparison
+
+        if raw:
+            equal = mstats.value.equivalent
+            if not equal(self.x.raw, comp.x.raw):
+                return False
+            elif not equal(self.y.raw, comp.y.raw):
+                return False
+            elif not equal(self.x.raw_uncertainty, comp.x.raw_uncertainty):
+                return False
+            elif not equal(self.y.raw_uncertainty, comp.y.raw_uncertainty):
+                return False
+
+            return True
 
         equal = mstats.value.equivalent
         if not equal(self.x.value, comparison.x.value):

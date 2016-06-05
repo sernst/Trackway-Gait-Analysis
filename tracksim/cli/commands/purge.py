@@ -6,7 +6,7 @@ from tracksim import paths
 from tracksim.cli import query
 
 DESCRIPTION = """
-    Removes all existing group and trial results from cached results folders
+    Lists all available reports in the results directories
     """
 
 
@@ -50,4 +50,5 @@ def execute_command():
     system.log("""
         [SUCCESS]: All results have been removed
         """, whitespace_top=1)
+
 

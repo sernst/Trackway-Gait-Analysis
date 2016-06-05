@@ -36,15 +36,15 @@ class LineSegment2D(object):
         v.x -= self.start.x
         v.y -= self.start.y
 
-        vxUnc = math.sqrt(
+        vxUnc = (
             self.start.x.raw_uncertainty ** 2 +
             self.end.x.raw_uncertainty ** 2
-        )
+        ) ** 0.5
 
-        vyUnc = math.sqrt(
+        vyUnc = (
             self.start.y.raw_uncertainty ** 2 +
             self.end.y.raw_uncertainty ** 2
-        )
+        ) ** 0.5
 
         value = math.atan2(v.y, v.x)
         lengthSqr = v.x.raw ** 2 + v.y.raw ** 2
@@ -80,6 +80,30 @@ class LineSegment2D(object):
         y = 0.5 * (self.start.y + self.end.y)
 
         return TrackPosition(x=x, y=y)
+
+    def serialize(self):
+        """
+
+        :return:
+        """
+
+        return dict(
+            start=self.start.serialize(),
+            end=self.end.serialize()
+        )
+
+    def from_dict(self, source):
+        """
+
+        :param source:
+        :return:
+        """
+
+        self.start = mstats.ValueUncertainty()
+        self.start.from_dict(source['start'])
+
+        self.end = mstats.ValueUncertainty()
+        self.end.from_dict(source['end'])
 
     def add_offset(self, point):
         """add_offset doc..."""
@@ -211,8 +235,8 @@ class LineSegment2D(object):
 
         B = deltaY * px - deltaX * py - sx * ey + ex * sy
         AbsB = abs(B)
-        D = math.sqrt(deltaX * deltaX + deltaY * deltaY)
-        DPrime = 1.0 / math.pow(deltaX * deltaX + deltaY * deltaY, 3.0 / 2.0)
+        D = (deltaX * deltaX + deltaY * deltaY) ** 0.5
+        DPrime = 1.0 / (deltaX * deltaX + deltaY * deltaY) ** (3.0 / 2.0)
         bBD = B / (AbsB * D)
 
         pointXErr = px_unc * abs(deltaY * B / (AbsB * D))
@@ -290,8 +314,8 @@ class LineSegment2D(object):
         denominator = slope * slope + 1.0
         numerator = point.x + slope * (point.y - intercept)
 
-        x = numerator / denominator
-        y = (slope * numerator) / denominator + intercept
+        x = (numerator / denominator).raw
+        y = ((slope * numerator) / denominator + intercept).raw
 
         if contained:
             # Check to see if point is between start and end values
@@ -318,13 +342,13 @@ class LineSegment2D(object):
             startDist / length * sx_unc +
             endDist / length * ex_unc
         )
-        x_unc = math.sqrt(x_unc ** 2 + px_unc ** 2)
+        x_unc = (x_unc ** 2 + px_unc ** 2) ** 0.5
 
         y_unc = (
-            startDist / length.raw * sy_unc +
+            startDist / length * sy_unc +
             endDist / length * ey_unc
         )
-        y_unc = math.sqrt(y_unc ** 2 + py_unc ** 2)
+        y_unc = (y_unc ** 2 + py_unc ** 2) ** 0.5
 
         return TrackPosition(
             x=mstats.ValueUncertainty(x, x_unc),
@@ -386,61 +410,45 @@ class LineSegment2D(object):
         _extrapolate_by_length doc...
         """
 
-        length = self.length
-        targetLengthSqr = (length.raw + lengthAdjust) ** 2
+        sx = self.start.x
+        sy = self.start.y
 
-        sx = self.start.x.raw
-        sx_unc = self.start.x.raw_uncertainty
-        sy = self.start.y.raw
-        sy_unc = self.start.y.raw_uncertainty
-
-        ex = self.end.x.raw
-        ex_unc = self.end.x.raw_uncertainty
-        ey = self.end.y.raw
-        ey_unc = self.end.y.raw_uncertainty
-
-        deltaX = ex - sx
-        deltaY = ey - sy
-
-        delta = lengthAdjust
-        if mstats.value.equivalent(deltaX, 0.0):
-            # Vertical lines should invert delta if start is above the end
-            delta *= -1.0 if deltaY < 0.0 else 1.0
-        elif deltaX < 0.0:
-            # Other lines should invert delta if start is right of the end
-            delta *= -1.0
+        ex = self.end.x
+        ey = self.end.y
 
         if pre:
-            delta *= -1.0
             startY = sy
-            prevX = sx
+            startX = sx
             point = self.end
         else:
             startY = ey
-            prevX = ex
+            startX = ex
             point = self.start
 
-        if mstats.value.equivalent(deltaX, 0.0):
-            return sx, startY + delta
+        deltaX = startX - point.x
+        deltaY = startY - point.y
 
-        i = 0
-        while i < 100000:
-            x = prevX + delta
-            y = sy + deltaY * (x - sx) / deltaX
-            testLengthSqr = (
-                math.pow(x - point.x, 2) +
-                math.pow(y - point.y, 2)
-            )
+        try:
+            if mstats.value.equivalent(deltaX.value, 0.0):
+                direction = deltaY.raw / abs(deltaY.raw)
+                return startX, startY + direction * lengthAdjust
 
-            equivalent = testLengthSqr / targetLengthSqr
-            if mstats.value.equivalent(equivalent, 1.0, 0.000001):
-                return x, y
-            elif testLengthSqr > targetLengthSqr:
-                delta *= 0.5
-            else:
-                prevX = x
-            i += 1
+            if mstats.value.equivalent(deltaY.value, 0.0):
+                direction = deltaX.raw / abs(deltaX.raw)
+                return startX + direction * lengthAdjust, startY
+        except ZeroDivisionError as err:
+            print('Zero Division Error:')
+            print('Delta X: {} Delta Y: {}'.format(deltaX, deltaY))
+            print('Line Start: ({}, {})'.format(self.start.x, self.start.y))
+            print('Line End: ({}, {})'.format(self.end.x, self.end.y))
+            raise
 
-        raise ValueError(
-            'Unable to extrapolate line segment to specified length'
+        deltaX = startX - point.x
+        deltaY = startY - point.y
+
+        angle = math.atan2(deltaY.raw, deltaX.raw)
+
+        return (
+            startX + lengthAdjust * math.cos(angle),
+            startY + lengthAdjust * math.sin(angle)
         )

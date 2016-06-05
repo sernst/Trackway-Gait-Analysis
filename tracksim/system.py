@@ -60,10 +60,10 @@ def log(
     post_whitespace = int(max(whitespace, whitespace_bottom))
 
     if pre_whitespace:
-        print(pre_whitespace * '\n')
+        print((pre_whitespace - 1) * '\n')
     print(message)
     if post_whitespace:
-        print(post_whitespace * '\n')
+        print((post_whitespace - 1) * '\n')
 
     return message
 
