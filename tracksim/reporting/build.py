@@ -53,6 +53,9 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
 
     directory = os.path.join(target_path, 'reports', report_type)
 
+    if not os.path.exists(directory):
+        return out
+
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
         if not os.path.isdir(item_path):
