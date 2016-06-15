@@ -1,4 +1,5 @@
 import json
+import gzip
 import os
 from json import encoder
 
@@ -36,8 +37,8 @@ def write_json_results(path: str, data: dict) -> str:
     out = json.dumps(data)
     encoder.FLOAT_REPR = storage
 
-    with open(path, 'w+') as f:
-        f.write(out)
+    with gzip.open(path, 'w+') as f:
+        f.write(out.encode())
 
     return path
 

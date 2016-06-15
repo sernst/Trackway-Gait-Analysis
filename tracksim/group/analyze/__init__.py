@@ -1,9 +1,9 @@
-import json
 import os
 import typing
 from datetime import datetime
 
 from tracksim import paths
+from tracksim import reader
 from tracksim import reporting
 from tracksim.reporting import plotting
 
@@ -87,12 +87,7 @@ def add_coupling_plots(
     index = 0
 
     for trial in trials:
-
-        path = paths.results(
-            'reports', 'trial', trial['id'], '{}.json'.format(trial['id'])
-        )
-        with open(path, 'r+') as f:
-            trial_data = json.load(f)
+        trial_data = reader.trial(trial['id'], paths.results())
 
         index += 1
         coupling_data = trial_data['couplings']

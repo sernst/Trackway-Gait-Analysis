@@ -61,7 +61,32 @@ def run(
                     """)
                 system.end(1)
 
-    shutil.copytree(source_directory, target_path)
+    omit_html = kwargs.get('omit_html', False)
+    omit_data = kwargs.get('omit_data', False)
+
+    def list_ignores(src, names):
+        """
+        Creates a list of file names that should not be copied to the
+        destination during the copytree operation.
+
+        :param src:
+            Source directory where the files originate
+        :param names:
+            A list of file names in the source directory to filter
+        :return:
+            A list of file names in the source directory that should NOT
+            be copied to the destination path
+        """
+
+        ignored_names = []
+        for name in names:
+            if omit_html and not name.endswith('.json'):
+                ignored_names.append(name)
+            if omit_data and name.endswith('.json'):
+                ignored_names.append(name)
+        return ignored_names
+
+    shutil.copytree(source_directory, target_path, ignore=list_ignores)
 
     result = create_index_file(source_directory, target_path)
 
@@ -130,6 +155,31 @@ def execute_command():
             When included, the export process will overwrite any existing data
             at the specified path and directory. It should only be used to
             replace an existing exported reports directory with newer data
+            """)
+    )
+
+    parser.add_argument(
+        '-od', '--omit-data',
+        dest='omit_data',
+        action='store_true',
+        default=False,
+        help=cli.reformat("""
+            When included, the export process will skip all of the raw data
+            files for each group and trial. These files are not necessary for
+            viewing the reports. They exist for post-simulation analyses.
+            """)
+    )
+
+    parser.add_argument(
+        '-oh', '--omit-html',
+        dest='omit_html',
+        action='store_true',
+        default=False,
+        help=cli.reformat("""
+            When included, the export process will skip all of the html viewing
+            related files and only export the data files for each group and
+            trial. This is useful if you want to share or store data for
+            analysis.
             """)
     )
 

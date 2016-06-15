@@ -9,7 +9,6 @@ from tracksim.cli.commands import deploy
 from tracksim.cli.commands import purge
 from tracksim.cli.commands import export
 from tracksim.cli.commands import configure
-from tracksim.cli.commands import analyze
 from tracksim.cli.commands import list_
 
 ME = sys.modules[__name__]

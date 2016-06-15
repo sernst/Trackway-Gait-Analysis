@@ -2,6 +2,7 @@ import os
 import json
 import typing
 import glob
+import gzip
 
 from tracksim import paths
 
@@ -50,6 +51,23 @@ def listings(
 
     return out
 
+def read_path(path: str) -> dict:
+    """
+
+    :param path:
+    :return:
+    """
+
+    try:
+        with gzip.open(path, 'r+') as f:
+            text = f.read()  # type: bytes
+        return json.loads(text.decode())
+    except Exception as err:
+        pass
+
+    with open(path, 'r+') as f:
+        return json.load(f)
+
 
 def read(report_type: str, report_id: str, results_path: str = None) -> dict:
     """
@@ -79,9 +97,7 @@ def read(report_type: str, report_id: str, results_path: str = None) -> dict:
     if not os.path.exists(path):
         return None
 
-    with open(path, 'r+') as f:
-        out = json.load(f)
-
+    out = read_path(path)
     out['id'] = report_id
     return out
 

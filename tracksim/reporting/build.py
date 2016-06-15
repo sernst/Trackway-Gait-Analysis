@@ -2,6 +2,8 @@ import json
 import os
 import typing
 
+from tracksim import reader
+
 
 def create_index_file(source_directory: str, target_directory: str) -> dict:
     """
@@ -17,8 +19,7 @@ def create_index_file(source_directory: str, target_directory: str) -> dict:
 
     data = json.dumps({
         'groups': get_report_info('group', target_directory),
-        'trials': get_report_info('trial', target_directory),
-        'analysis': get_report_info('analysis', target_directory)
+        'trials': get_report_info('trial', target_directory)
     })
 
     contents = contents.replace('\'###DATA###\'', data)
@@ -46,10 +47,8 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
     rt = report_type.lower()
     if rt.startswith('t'):
         report_type = 'trial'
-    elif rt.startswith('g'):
-        report_type = 'group'
     else:
-        report_type = 'analysis'
+        report_type = 'group'
 
     directory = os.path.join(target_path, 'reports', report_type)
 
@@ -65,8 +64,8 @@ def get_report_info(report_type: str, target_path: str) -> typing.List[dict]:
         if not os.path.exists(json_path):
             continue
 
-        with open(json_path, 'r+') as f:
-            data = json.load(f)
+        data = reader.read_path(json_path)
+        data['id'] = item
 
         out.append({
             'id': item,

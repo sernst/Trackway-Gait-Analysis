@@ -107,6 +107,7 @@ def write_data(
     :param times:
     :param coupling_data:
     :param advancement_data:
+    :param tangent_data:
     :return:
     """
 
