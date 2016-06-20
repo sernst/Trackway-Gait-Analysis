@@ -12,8 +12,7 @@ def calculate(foot_positions: limb.Property, times: dict) -> dict:
     :return:
     """
 
-    limb_distances = advancement_calculate.strides(foot_positions)
-
+    limb_distances = advancement_calculate.strides(foot_positions, times)
 
     return dict(
         **limb_distances,
@@ -29,7 +28,7 @@ def add_to_report(report: Report, advancement_data: dict, times: dict):
     :return:
     """
 
-    advancement_report.plot_strides(report, advancement_data, times)
+    advancement_report.plot_strides(report, advancement_data)
 
 
 def serialize(advancement_data: dict) -> dict:

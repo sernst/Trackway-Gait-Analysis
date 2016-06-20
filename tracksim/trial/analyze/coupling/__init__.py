@@ -12,14 +12,14 @@ def calculate(foot_positions: limb.Property, times: dict) -> dict:
     :return:
     """
 
-    positions = coupling_calculate.positions(foot_positions)
+    positions = coupling_calculate.positions(foot_positions, times)
     stats = coupling_calculate.statistics(positions)
-    speeds = coupling_calculate.advance(positions, times)
+    advances = coupling_calculate.advance(foot_positions, positions, times)
 
     return dict(
         **positions,
         **stats,
-        **speeds
+        **advances
     )
 
 
@@ -33,9 +33,9 @@ def add_to_report(report: Report, coupling_data: dict, times: dict):
     """
 
     coupling_report.plot_distribution(report, coupling_data)
-    coupling_report.plot_lengths(report, coupling_data, times)
-    coupling_report.plot_deviations(report, coupling_data, times)
-    coupling_report.plot_advance(report, coupling_data, times)
+    coupling_report.plot_lengths(report, coupling_data)
+    coupling_report.plot_deviations(report, coupling_data)
+    coupling_report.plot_advance(report, coupling_data)
 
 
 def serialize(coupling_data: dict) -> dict:

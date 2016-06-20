@@ -7,21 +7,23 @@ import measurement_stats as mstats
 
 def plot_lengths(
         report: Report,
-        coupling_data: dict,
-        times: dict
+        coupling_data: dict
 ):
     """
 
     :param report:
     :param coupling_data:
     :param times:
+    :param sampled:
     :return:
     """
 
-    values, uncertainties = mstats.values.unzip(coupling_data['lengths'])
+    times = [e.time for e in coupling_data['lengths']]
+    lengths = [e.value for e in coupling_data['lengths']]
+    values, uncertainties = mstats.values.unzip(lengths)
 
     plot = plotting.make_line_data(
-        times['cycles'],
+        times,
         values,
         uncertainties,
         name='Length'
@@ -40,17 +42,16 @@ def plot_lengths(
 
 def plot_deviations(
         report: Report,
-        coupling_data: dict,
-        times: dict
+        coupling_data: dict
 ):
     """
 
     :param report:
     :param coupling_data:
-    :param times:
     :return:
     """
 
+    times = [e.time for e in coupling_data['lengths']]
     deviations = []
     for dev in coupling_data['deviations']:
         deviations.append(100.0 * dev)
@@ -58,7 +59,7 @@ def plot_deviations(
     values, uncertainties = mstats.values.unzip(deviations)
 
     plot = plotting.make_line_data(
-        times['cycles'],
+        times,
         values,
         uncertainties,
         name='Deviation',
@@ -76,7 +77,10 @@ def plot_deviations(
     )
 
 
-def plot_distribution(report: Report, coupling_data: dict):
+def plot_distribution(
+        report: Report,
+        coupling_data: dict
+):
     """
 
     :param report:
@@ -98,7 +102,7 @@ def plot_distribution(report: Report, coupling_data: dict):
     )
 
 
-def plot_advance(report: Report, coupling_data: dict, times: dict):
+def plot_advance(report: Report, coupling_data: dict):
     """
 
     :param report:
@@ -121,11 +125,13 @@ def plot_advance(report: Report, coupling_data: dict, times: dict):
     )
 
     for key, data in sources.items():
+        events = coupling_data[key]
 
-        values, uncertainties = mstats.values.unzip(coupling_data[key])
+        times = [e.time for e in events]
+        values, uncertainties = mstats.values.unzip([e.value for e in events])
 
         plot = plotting.make_line_data(
-            x=times['cycles'],
+            x=times,
             y=values,
             y_unc=uncertainties,
             name=data['name'],

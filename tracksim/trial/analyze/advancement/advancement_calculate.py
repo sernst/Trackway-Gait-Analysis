@@ -1,41 +1,38 @@
 import typing
 
-import measurement_stats as mstats
-
+from tracksim import events
 from tracksim import limb
 
 
 def strides(
-        foot_positions: limb.Property
+        foot_positions: limb.Property,
+        times: dict
 ) -> typing.Dict[str, list]:
 
     out = dict()
 
     for key, positions in foot_positions.items():
-
         distances = []
         out[key + '_strides'] = distances
-
         last_fixed = None
-        for p in positions:
+
+        for index, time in enumerate(times['cycles']):
+            p = positions[index]
+
             if last_fixed is None:
                 # Skip entries in motion until the first fixed position is
                 # found
-
-                distances.append(mstats.ValueUncertainty(0, 0.0001))
                 if p.annotation == 'F':
                     last_fixed = p
 
                 continue
 
-            if p.annotation == 'F':
-
-                if last_fixed.compare(p):
-                    distances.append(distances[-1].clone())
-                else:
-                    distances.append(last_fixed.distance_between(p))
-                    last_fixed = p
-            else:
-                distances.append(last_fixed.distance_between(p))
+            if p.annotation == 'F' and not last_fixed.compare(p):
+                distances.append(events.Event(
+                    time=time,
+                    index=index,
+                    value=last_fixed.distance_between(p)
+                ))
+                last_fixed = p
 
     return out

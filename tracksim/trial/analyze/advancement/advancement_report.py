@@ -6,14 +6,12 @@ from tracksim.reporting import plotting
 
 def plot_strides(
         report: Report,
-        advancement_data: dict,
-        times: dict
+        advancement_data: dict
 ):
     """
 
     :param report:
     :param advancement_data:
-    :param times:
     :return:
     """
 
@@ -31,11 +29,14 @@ def plot_strides(
         color_index = entry[0]
         key = entry[1]
 
-        values, uncertainties = mstats.values.unzip(advancement_data[key])
+
+        times = [e.time for e in advancement_data[key]]
+        values = [e.value for e in advancement_data[key]]
+        values, uncertainties = mstats.values.unzip(values)
 
         name = ' '.join(key.split('_')[:2]).capitalize()
         plot = plotting.make_line_data(
-            times['cycles'],
+            times,
             values,
             uncertainties,
             name=name,
