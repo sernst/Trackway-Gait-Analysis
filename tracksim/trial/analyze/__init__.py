@@ -184,7 +184,7 @@ def add_svg(
 
     dom_template = """
         <div class="svg-box">
-          {{ svg }}
+          <div class="svg-box-inner">{{ svg }}</div>
           <div class="svg-controls-box" style="display:none">
             <div>
                 <div>Activity: <span class="activity-status"></span></div>

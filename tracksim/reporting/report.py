@@ -225,7 +225,13 @@ class Report(object):
         """
 
         if dom_template is None:
-            dom_template = '<div class="svg-box">{{ svg }}</div>'
+            dom_template = """
+                <div class="svg-box">
+                    <div class="svg-box-inner">
+                    {{ svg }}
+                    </div>
+                </div>
+                """
 
         template = Template(dom_template)
         self.body.append(template.render(svg=svg))
