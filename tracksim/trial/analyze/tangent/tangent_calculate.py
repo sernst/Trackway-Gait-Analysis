@@ -18,8 +18,8 @@ def create_tangents(foot_positions: limb.Property) -> limb.Property:
         reference_pos = _positions[_i]
         for pos in _positions[(i + 1):]:
             identical = (
-                mstats.value.equivalent(pos.x.raw, reference_pos.x.raw, 0.001),
-                mstats.value.equivalent(pos.y.raw, reference_pos.y.raw, 0.001)
+                mstats.value.equivalent(pos.x.raw, reference_pos.x.raw, 0.1),
+                mstats.value.equivalent(pos.y.raw, reference_pos.y.raw, 0.1)
             )
             if not identical[0] or not identical[1]:
                 return pos

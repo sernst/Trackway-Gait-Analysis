@@ -430,6 +430,9 @@ class LineSegment2D(object):
 
         try:
             if mstats.value.equivalent(deltaX.value, 0.0):
+                if mstats.value.equivalent(deltaY.value, 0.0):
+                    return startX, startY
+
                 direction = deltaY.raw / abs(deltaY.raw)
                 return startX, startY + direction * lengthAdjust
 
