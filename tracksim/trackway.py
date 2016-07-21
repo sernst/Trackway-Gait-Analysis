@@ -422,9 +422,6 @@ def load_positions_file(path: str) -> limb.Property:
         for pos in trackway_positions.right_pes:
             trackway_positions.right_manus.append(pos.clone())
 
-    import sys
-    sys.exit(0)
-
     return trackway_positions
 
 
