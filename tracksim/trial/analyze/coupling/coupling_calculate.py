@@ -1,3 +1,4 @@
+import math
 import typing
 
 import measurement_stats as mstats
@@ -94,8 +95,15 @@ def statistics(coupling_positions: typing.Dict[str, list]) -> dict:
 
     x_values = mstats.ops.linear_space(min_value, max_value, 250)
 
+    rmsd = calculate_rmsd(median, lengths)
+    swing = calculate_swing(median, lengths)
+    fitness = math.sqrt(rmsd ** 2 + swing ** 2)
+
     return dict(
         value=mstats.value.ValueUncertainty(median, mad),
+        rmsd=rmsd,
+        swing=swing,
+        fitness=fitness,
         bounds=bounds,
         distribution_profile={
             'x': x_values,
@@ -169,3 +177,49 @@ def advance(
         rear_advance=rear_advance,
         forward_advance=fore_advance
     )
+
+
+def calculate_rmsd(median, coupling_lengths):
+    """
+
+    :param median:
+    :param coupling_lengths:
+    :return:
+    """
+
+    scaled = sum([abs(cl / median - 1) ** 2 for cl in coupling_lengths])
+
+    return 100 * math.sqrt(
+        max(0, scaled.value - scaled.uncertainty) / len(coupling_lengths)
+    )
+
+
+def calculate_swing(median, coupling_lengths):
+    """
+
+    :param median:
+    :param coupling_lengths:
+    :return:
+    """
+
+    max_cl = coupling_lengths[0]
+    min_cl = coupling_lengths[0]
+    for cl in coupling_lengths[1:]:
+        max_threshold = max_cl.value - 2 * max_cl.uncertainty
+        threshold = cl.value - 2 * cl.uncertainty
+
+        if threshold > max_threshold:
+            max_cl = cl
+        elif threshold == max_threshold and cl.value > max_cl.value:
+            max_cl = cl
+
+        min_threshold = min_cl.value + 2 * min_cl.uncertainty
+        threshold = cl.value + 2 * cl.uncertainty
+
+        if threshold < min_threshold:
+            min_cl = cl
+        elif threshold == min_threshold and cl.value < min_cl.value:
+            min_cl = cl
+
+    s = 100 * abs(max_cl - min_cl) / median  # type: mstats.ValueUncertainty
+    return s.value / s.uncertainty

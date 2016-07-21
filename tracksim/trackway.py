@@ -403,7 +403,11 @@ def load_positions_file(path: str) -> limb.Property:
                 assumed_key = '{}_assumed'.format(prefix)
                 if assumed_key in df.columns:
                     value = row[assumed_key]
-                    value = not np.isnan(value) and bool(value)
+                    if isinstance(value, str):
+                        value = value.strip()
+                        value = len(value)
+                    else:
+                        value = not np.isnan(value) and bool(value)
                     track_position.assumed = bool(value)
 
             except KeyError:
@@ -418,4 +422,45 @@ def load_positions_file(path: str) -> limb.Property:
         for pos in trackway_positions.right_pes:
             trackway_positions.right_manus.append(pos.clone())
 
+    import sys
+    sys.exit(0)
+
     return trackway_positions
+
+
+def save_positions_file(trackway_positions: limb.Property, path):
+    """
+    Saves a limb positions property object to the specified path as a CSV
+    file with columns:
+
+        lp_x, lp_dx, lp_y, lp_dy, [lp_assumed], [lp_name], [lp_uid]
+        rp_x, rp_dx, rp_y, rp_dy, [rp_assumed], [rp_name], [rp_uid]
+        lm_x, lm_dx, lm_y, lm_dy, [lm_assumed], [lm_name], [lm_uid]
+        rm_x, rm_dx, rm_y, rm_dy, [rm_assumed], [rm_name], [rm_uid]
+
+    :param trackway_positions:
+        The trackway positions to be saved
+    :param path:
+        The path to the positions file to be saved
+    """
+
+    df = []
+
+    for prefix, limb_key in limb.LIMB_KEY_LOOKUP.items():
+        for index, position in enumerate(trackway_positions.get(limb_key)):
+            while index >= len(df):
+                df.append(dict())
+
+            row = df[index]
+            row['{}_x'.format(prefix)] = position.x.value
+            row['{}_dx'.format(prefix)] = position.x.uncertainty
+            row['{}_y'.format(prefix)] = position.y.value
+            row['{}_dy'.format(prefix)] = position.y.uncertainty
+            row['{}_name'.format(prefix)] = position.name
+            row['{}_uid'.format(prefix)] = position.uid
+            row['{}_assumed'.format(prefix)] = 'x' if position.assumed else None
+
+    df = pd.DataFrame(df)
+    df.to_csv(path)
+
+    return df

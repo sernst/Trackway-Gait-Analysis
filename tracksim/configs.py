@@ -8,7 +8,7 @@ from tracksim import limb
 
 
 def load(
-        configs_type: str,
+        configs_type: typing.Union[str, None],
         source: typing.Union[str, dict],
         inherits: dict = None,
         **kwargs
@@ -33,11 +33,13 @@ def load(
         keyword arguments
     """
 
-    c = configs_type[0].lower()
+    c = configs_type[0].lower() if configs_type else None
     if c == 't':
         configs_type = 'trial'
     elif c == 'g':
         configs_type = 'group'
+    else:
+        configs_type = None
 
     if isinstance(source, str):
         path = source
@@ -67,8 +69,17 @@ def load(
 
         source['filename'] = os.path.abspath(path)
         source['path'] = os.path.dirname(source['filename'])
+        source['directory'] = os.path.dirname(source['filename'])
     else:
         source = json.loads(json.dumps(source))
+        source['path'] = source.get('path', os.path.abspath(os.path.curdir))
+        source['directory'] = source.get(
+            'directory',
+            os.path.abspath(os.path.curdir)
+        )
+
+    if configs_type is None:
+        configs_type = 'g' if 'trials' in source else 't'
 
     source['type'] = configs_type
 

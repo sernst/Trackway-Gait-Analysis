@@ -5,6 +5,25 @@ MY_PATH = os.path.abspath(os.path.dirname(__file__))
 
 from tracksim import system
 
+_path_overrides = dict()
+
+
+def override(key: str, path: str):
+    """
+
+    :param key:
+    :param path:
+    :return:
+    """
+
+    if path is None:
+        if key in _path_overrides:
+            del _path_overrides[key]
+        return
+
+    _path_overrides[key] = clean(path)
+
+
 def clean(path: str) -> str:
     """
     Cleans the specified path by expanding shorthand elements, redirecting to
@@ -110,6 +129,9 @@ def results(
         Specifies whether or not to use tracksim configuration settings that
         override the default path location
     """
+
+    if 'results' in _path_overrides:
+        return os.path.join(_path_overrides['results'], *args)
 
     return project(
         'results', *args,

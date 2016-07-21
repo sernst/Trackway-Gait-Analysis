@@ -26,16 +26,16 @@ def write_json_results(path: str, data: dict) -> str:
     # Forces float rounding to behave so we don't end up with 1.20000000001
     # instead of 1.2
 
-    def float_cleaner(n: float) -> str:
-        n = '{:.12g}'.format(n).split('.')
-        if len(n) < 2:
-            return n[0]
-        return '.'.join([n[0], n[-1].split('00', 1)[0]])
-
-    storage = encoder.FLOAT_REPR
-    encoder.FLOAT_REPR = float_cleaner
+    # def float_cleaner(n: float) -> str:
+    #     n = '{:.12g}'.format(n).split('.')
+    #     if len(n) < 2:
+    #         return n[0]
+    #     return '.'.join([n[0], n[-1].split('00', 1)[0]])
+    #
+    # storage = encoder.FLOAT_REPR
+    # encoder.FLOAT_REPR = float_cleaner
     out = json.dumps(data)
-    encoder.FLOAT_REPR = storage
+    # encoder.FLOAT_REPR = storage
 
     with gzip.open(path, 'w+') as f:
         f.write(out.encode())

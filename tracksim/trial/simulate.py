@@ -1,8 +1,6 @@
 import os
 import typing
 
-import six
-
 from tracksim import configs
 from tracksim import generate
 from tracksim import limb
@@ -158,7 +156,8 @@ def load_activity_phases(settings: dict) -> limb.Property:
 
 def load_trackway_positions(
         settings: dict,
-        existing: limb.Property = None
+        existing: limb.Property = None,
+        save_as: str = None
 ) -> limb.Property:
     """
     Loads the trackway positions for the trial from the information provided in
@@ -170,6 +169,8 @@ def load_trackway_positions(
     :param existing:
         Optionally the already loaded trackway positions, which will be cloned
         and returned if present
+    :param save_as:
+        An optional path where the loaded trackway positions shold be saved
     """
 
     if existing:
@@ -178,7 +179,7 @@ def load_trackway_positions(
 
     data = settings.get('data')
 
-    if isinstance(data, six.string_types):
+    if isinstance(data, str):
         # Load from a specified file
         if not data.startswith('/'):
             data = os.path.join(settings['path'], data)
@@ -196,11 +197,22 @@ def load_trackway_positions(
 
     # Generate from configuration settings
     track_offsets = limb.Property().assign(*data['offsets'])
-    return generate.trackway_positions(
+    out = generate.trackway_positions(
         cycle_count=data['count'],
         step_size=data['step_size'],
         track_offsets=track_offsets,
         lateral_displacement=data['lateral_displacement'],
         positional_uncertainty=data.get('uncertainty')
     )
+
+    if not save_as and data.get('save'):
+        save_as = data.get('save')
+
+    if save_as:
+        trackway.save_positions_file(
+            trackway_positions=out,
+            path=os.path.join(settings['directory'], save_as)
+        )
+
+    return out
 
