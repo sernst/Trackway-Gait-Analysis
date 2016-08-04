@@ -1,0 +1,8 @@
+{
+    "name" : "G7-amblingPace2",
+    "summary" : "Midway between amble and pace, longer coupling distance",
+    "data" : "tbd.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "support_phases" : [0.0, 0.5, -2.125, -1.625]
+}

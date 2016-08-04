@@ -1,0 +1,8 @@
+{
+    "name" : "G3-walkingTrot2",
+    "summary" : "Midway between walk and trot, with longer coupling distance",
+    "data" : "tbd.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "support_phases" : [0.0, 0.5, -2.625, -2.125]
+}

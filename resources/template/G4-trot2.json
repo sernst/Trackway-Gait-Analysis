@@ -1,0 +1,8 @@
+{
+    "name" : "G4-trot2",
+    "summary" : "Trot, with longer coupling distance",
+    "data" : "tbd.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "support_phases" : [0.0, 0.5, -2.5, -2.0]
+}

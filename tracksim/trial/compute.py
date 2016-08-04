@@ -1,6 +1,7 @@
 import typing
 
 from tracksim import trackway
+import measurement_stats as mstats
 
 MOVING_ANNOTATION = 'M'
 FIXED_ANNOTATION = 'F'
@@ -132,6 +133,14 @@ def position_at_cycle_time(
     bp = before_position
     ap = after_position
     progress = max(0.0, min(1.0, cycle_time / move_time))
+
+    if progress < 0.01:
+        # This handles cases where the progress is so small that
+        # the foot is effectively
+
+        pos = before_position.clone()
+        pos.annotation = FIXED_ANNOTATION
+        return pos
 
     return trackway.TrackPosition.from_raw_values(
         x=bp.x.raw + progress * (ap.x.raw - bp.x.raw),

@@ -35,7 +35,7 @@ def run(
         settings['steps_per_cycle'] = 20
     if 'moving_ambiguity' not in settings:
         # The coefficient of uncertainty while the foot is moving
-        settings['moving_ambiguity'] = 0.125
+        settings['moving_ambiguity'] = 0.1
     if 'duty_cycle' not in settings:
         settings['duty_cycle'] = 0.6
 

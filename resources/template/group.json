@@ -1,0 +1,8 @@
+{
+    "name" : "",
+    "summary" : "",
+    "data" : "scenario.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "trials" : ""
+}

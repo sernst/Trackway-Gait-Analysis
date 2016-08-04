@@ -1,0 +1,8 @@
+{
+    "name" : "G5-trottingAmble",
+    "summary" : "Midway between trot and amble",
+    "data" : "tbd.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "support_phases" : [0.0, 0.5, -1.375, -0.875]
+}

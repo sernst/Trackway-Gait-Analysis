@@ -1,0 +1,8 @@
+{
+    "name" : "G6-amble",
+    "summary" : "Nominal amble",
+    "data" : "tbd.csv",
+    "steps_per_cycle" : 20,
+    "duty_cycle" : 0.6,
+    "support_phases" : [0.0, 0.5, -1.25, -0.75]
+}
