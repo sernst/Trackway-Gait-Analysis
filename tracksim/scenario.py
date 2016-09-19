@@ -92,6 +92,16 @@ def setup_trials(target_path, **kwargs):
         d["steps_per_cycle"] = kwargs['steps_per_cycle']
         d["duty_cycle"] = kwargs['duty_cycle']
 
+        if kwargs.get('start_time') is not None:
+            d['start_time'] = kwargs['start_time']
+        elif kwargs.get('begin_cycle') is not None:
+            d['start_time'] = kwargs['begin_cycle']
+
+        if kwargs.get('end_time') is not None:
+            d['end_time'] = kwargs['end_time']
+        elif kwargs.get('end_cycle') is not None:
+            d['end_time'] = kwargs['end_cycle']
+
         # build unique trial name key starting with the full
         # gaitname (e.g., G5-trottingAmble2).  Verbose, but clear.
         ga = item.split('.')[0]

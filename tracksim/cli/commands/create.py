@@ -3,7 +3,8 @@ from argparse import ArgumentParser
 from tracksim import cli
 from tracksim import scenario
 
-DESCRIPTION = """
+DESCRIPTION = \
+    """
     Creates a new simulation scenario
     """
 
@@ -82,6 +83,22 @@ def execute_command():
             The path to the root directory where this simulation will be
             created
             """)
+    )
+
+    parser.add_argument(
+        '-b', '--begin-cycle',
+        dest='begin_cycle',
+        type=float,
+        default=None,
+        help='The cycle at which to start the simulation'
+    )
+
+    parser.add_argument(
+        '-e', '--end-cycle',
+        dest='end_cycle',
+        type=float,
+        default=None,
+        help='The cycle at which to end the simulation'
     )
 
     kwargs = vars(parser.parse_args())
