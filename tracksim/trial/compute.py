@@ -80,7 +80,8 @@ def positions_over_time(
                 before_position=limb_positions[limb_cycle],
                 after_position=limb_positions[limb_cycle + 1],
                 duty_cycle=duty_cycle,
-                settings=settings))
+                settings=settings
+            ))
         except Exception as err:
             raise
 
@@ -134,13 +135,19 @@ def position_at_cycle_time(
     ap = after_position
     progress = max(0.0, min(1.0, cycle_time / move_time))
 
-    if progress < 0.01:
-        # This handles cases where the progress is so small that
-        # the foot is effectively
-
-        pos = before_position.clone()
-        pos.annotation = FIXED_ANNOTATION
-        return pos
+    # This has been disabled because it could be argued that it distorts
+    # the results against trots and walks. Careful analysis shows that it does
+    # not. But careful analysis also shows that removing it does not affect
+    # the results either. So to be conservative in estimates it has been
+    # disabled
+    #
+    # if progress < 0.01:
+    #     # This handles cases where the progress is so small that
+    #     # the foot is effectively
+    #
+    #     pos = before_position.clone()
+    #     pos.annotation = FIXED_ANNOTATION
+    #     return pos
 
     return trackway.TrackPosition.from_raw_values(
         x=bp.x.raw + progress * (ap.x.raw - bp.x.raw),

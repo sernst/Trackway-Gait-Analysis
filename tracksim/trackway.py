@@ -1,3 +1,4 @@
+import typing
 import math
 
 import numpy as np
@@ -105,6 +106,17 @@ class TrackPosition(object):
                 self.y.raw_uncertainty * self.y.raw_uncertainty +
                 pivot.y.raw_uncertainty * pivot.y.raw_uncertainty
         )
+
+    def replace(self, **kwargs) -> 'TrackPosition':
+        """
+        Returns a copy of this TrackPosition with the specified kwargs
+        properties replaced by those values
+        """
+
+        out = self.clone()
+        for key, value in kwargs.items():
+            setattr(out, key, value)
+        return out
 
     def clone(self) -> 'TrackPosition':
         """ Returns a copy of this TrackPosition """
@@ -238,10 +250,8 @@ class TrackPosition(object):
             )
 
         try:
-            return (
-                       dx ** 2 +
-                       dy ** 2
-                   ) ** 0.5
+            result = (dx ** 2 + dy ** 2) ** 0.5  # type: mstats.ValueUncertainty
+            return result
         except Exception as err:
             print('Positions:', self, position, err)
             raise
@@ -363,7 +373,7 @@ def load_positions_file(path: str) -> limb.Property:
 
     trackway_positions = limb.Property().assign([], [], [], [])
 
-    def add_track(limb_data, x, dx, y, dy) -> TrackPosition:
+    def add_track(limb_data, x, dx, y, dy) -> typing.Union[None, TrackPosition]:
         if not dx or np.isnan(dx) or not dy or np.isnan(dy):
             # Don't add track if the uncertainty values are invalid, which is
             # an indicator that the row is not a valid position
