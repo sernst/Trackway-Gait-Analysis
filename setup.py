@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='tracksim',
-    version='0.1',
+    version='0.1.1',
     description='Trackway Gait Analysis Toolkit',
     url='https://github.com/sernst/Trackway-Gait-Analysis',
     author='Scott Ernst',
@@ -30,5 +30,10 @@ setup(
         'six',
         'jinja2',
         'markdown'
-    ]
+    ],
+    entry_points=dict(
+            console_scripts=[
+                'tracksim=tracksim.scripts.tracksim_cli:run'
+            ]
+        )
 )
